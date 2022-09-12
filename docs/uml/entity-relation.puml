@@ -1,10 +1,24 @@
 @startuml entity-relation
 
+title MVP
+
+skinparam linetype ortho
+
+entity "Stores" {
+*id
+--
+Name
+Address
+Postcode
+City
+Siren
+Siret
+}
+
 entity "Stock" {
 *id
 --
 Quantity
-Entry_date
 --
 Products_id <<FK>>
 }
@@ -13,9 +27,10 @@ entity "Suppliers" {
 *id
 --
 Name
+Address
+Postcode
 City
 Telephone
-Adress
 }
 
 entity "Products" {
@@ -31,6 +46,7 @@ Quantity
 Ingredients
 --
 Brands_id <<FK>>
+Stores_id <<FK>>
 }
 
 entity "Categories" {
@@ -45,6 +61,15 @@ entity "Products_Categories" {
 *id
 --
 Categories_id <<FK>>
+Products_id <<FK>>
+}
+
+entity "Products_Suppliers" {
+*id
+--
+Purchase_price
+--
+Suppliers_id <<FK>>
 Products_id <<FK>>
 }
 
@@ -77,25 +102,24 @@ Mail
 Password
 --
 Roles_id <<FK>>
+Stores_id <<FK>>
 }
 
-entity "Orders" {
-*id
---
-Date
---
-Users_id <<FK>>
-}
+' entity "Orders" {
+' *id
+' --
+' Users_id <<FK>>
+' }
 
-entity "Orders_details" {
-*id
---
-Quantity
---
-Orders_id <<FK>>
-Suppliers_id <<FK>>
-Products_id <<FK>>
-}
+' entity "Orders_details" {
+' *id
+' --
+' Quantity
+' --
+' Orders_id <<FK>>
+' Suppliers_id <<FK>>
+' Products_id <<FK>>
+' }
 
 entity "Brands" {
 *id
@@ -106,12 +130,13 @@ Name
 
 Stock }o..|| Products
 
-Orders_details }o..|| Suppliers
-Orders_details }o..|| Products
-Orders_details }o..|| Orders
+' Orders_details }o..|| Suppliers
+' Orders_details }o..|| Products
+' Orders_details }o..|| Orders
 
 Users }o..|| Roles
-Orders }o..|| Users
+Users }o..|| Stores
+' Orders }o..|| Users
 
 
 Aisles ||..o{ Categories
@@ -121,7 +146,10 @@ Roles_aisles }o..|| Aisles
 
 Products ||..o{ Products_Categories
 Categories ||..o{ Products_Categories
+Products ||..o{ Products_Suppliers
+Suppliers ||..o{ Products_Suppliers
 Products }o..|| Brands
+Products }o..|| Stores
 
 
 @enduml
