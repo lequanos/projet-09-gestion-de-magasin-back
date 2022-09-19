@@ -1,0 +1,170 @@
+@startuml entity-relation-mvp
+
+title MVP
+
+skinparam linetype ortho
+
+entity "Stores" {
+*id
+--
+Name
+Address
+Postcode
+City
+Picture_url
+Siren
+Siret
+IsActive
+}
+
+entity "Stock" {
+*id
+--
+Quantity
+--
+Products_id <<FK>>
+}
+
+entity "Suppliers" {
+*id
+--
+Name
+Address
+Postcode
+City
+Telephone
+Picture_url
+Siren
+Siret
+Contact
+IsActive
+}
+
+entity "Products" {
+*id
+--
+Name
+Code
+Price
+Picture_url
+Nutriscore
+Ecoscore
+Unit_packaging
+Threshold
+Ingredients
+IsActive
+--
+Brands_id <<FK>>
+Stores_id <<FK>>
+
+}
+
+entity "Categories" {
+*id
+--
+Name
+--
+Aisles_id <<FK>>
+}
+
+entity "Products_Categories" {
+*id
+--
+Categories_id <<FK>>
+Products_id <<FK>>
+}
+
+entity "Products_Suppliers" {
+*id
+--
+Purchase_price
+--
+Suppliers_id <<FK>>
+Products_id <<FK>>
+}
+
+entity "Aisles" {
+*id
+--
+Name
+--
+Stores_id <<FK>>
+}
+
+entity "Roles" {
+*id
+--
+Name
+}
+
+
+entity "Users_aisles" {
+*id
+--
+Aisles_id <<FK>>
+Users_id <<FK>>
+}
+
+entity "Users" {
+*id
+--
+FirstName
+LastName
+Mail
+Picture_url
+Password
+IsActive
+--
+Roles_id <<FK>>
+Stores_id <<FK>>
+}
+
+' entity "Orders" {
+' *id
+' --
+' Users_id <<FK>>
+' }
+
+' entity "Orders_details" {
+' *id
+' --
+' Quantity
+' --
+' Orders_id <<FK>>
+' Suppliers_id <<FK>>
+' Products_id <<FK>>
+' }
+
+entity "Brands" {
+*id
+--
+Name
+}
+
+
+Stock }o..|| Products
+
+' Orders_details }o..|| Suppliers
+' Orders_details }o..|| Products
+' Orders_details }o..|| Orders
+
+Users }o..|| Roles
+Users }o..|| Stores
+' Orders }o..|| Users
+
+
+Aisles ||..o{ Categories
+Aisles }o..|| Stores
+Users_aisles }o..|| Users
+Users_aisles }o..|| Aisles
+
+
+Products ||..o{ Products_Categories
+Categories ||..o{ Products_Categories
+Products ||..o{ Products_Suppliers
+Suppliers ||..o{ Products_Suppliers
+Products }o..|| Brands
+Products }o..|| Stores
+
+
+@enduml

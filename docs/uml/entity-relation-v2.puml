@@ -1,6 +1,6 @@
-@startuml entity-relation
+@startuml entity-relation-v2
 
-title MVP
+title V2
 
 skinparam linetype ortho
 
@@ -11,8 +11,10 @@ Name
 Address
 Postcode
 City
+Picture_url
 Siren
 Siret
+IsActive
 }
 
 entity "Stock" {
@@ -31,6 +33,11 @@ Address
 Postcode
 City
 Telephone
+Picture_url
+Siren
+Siret
+Contact
+IsActive
 }
 
 entity "Products" {
@@ -39,14 +46,17 @@ entity "Products" {
 Name
 Code
 Price
-Picture
+Picture_url
 Nutriscore
 Ecoscore
-Quantity
+Unit_packaging
+Threshold
 Ingredients
+IsActive
 --
 Brands_id <<FK>>
 Stores_id <<FK>>
+
 }
 
 entity "Categories" {
@@ -77,6 +87,8 @@ entity "Aisles" {
 *id
 --
 Name
+--
+Stores_id <<FK>>
 }
 
 entity "Roles" {
@@ -86,11 +98,11 @@ Name
 }
 
 
-entity "Roles_aisles" {
+entity "Users_aisles" {
 *id
 --
 Aisles_id <<FK>>
-Roles_id <<FK>>
+Users_id <<FK>>
 }
 
 entity "Users" {
@@ -99,27 +111,29 @@ entity "Users" {
 FirstName
 LastName
 Mail
+Picture_url
 Password
+IsActive
 --
 Roles_id <<FK>>
 Stores_id <<FK>>
 }
 
-' entity "Orders" {
-' *id
-' --
-' Users_id <<FK>>
-' }
+entity "Orders" {
+*id
+--
+Users_id <<FK>>
+}
 
-' entity "Orders_details" {
-' *id
-' --
-' Quantity
-' --
-' Orders_id <<FK>>
-' Suppliers_id <<FK>>
-' Products_id <<FK>>
-' }
+entity "Orders_details" {
+*id
+--
+Quantity
+--
+Orders_id <<FK>>
+Suppliers_id <<FK>>
+Products_id <<FK>>
+}
 
 entity "Brands" {
 *id
@@ -130,18 +144,19 @@ Name
 
 Stock }o..|| Products
 
-' Orders_details }o..|| Suppliers
-' Orders_details }o..|| Products
-' Orders_details }o..|| Orders
+Orders_details }o..|| Suppliers
+Orders_details }o..|| Products
+Orders_details }o..|| Orders
 
 Users }o..|| Roles
 Users }o..|| Stores
-' Orders }o..|| Users
+Orders }o..|| Users
 
 
 Aisles ||..o{ Categories
-Roles_aisles }o..|| Roles
-Roles_aisles }o..|| Aisles
+Aisles }o..|| Stores
+Users_aisles }o..|| Users
+Users_aisles }o..|| Aisles
 
 
 Products ||..o{ Products_Categories
