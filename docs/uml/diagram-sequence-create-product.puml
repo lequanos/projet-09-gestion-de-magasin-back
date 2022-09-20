@@ -1,0 +1,73 @@
+@startuml diagram-sequence-create-product
+
+actor       User      as user
+participant AppFront as app
+control     ApiOpenFoodFact    as apifood
+participant AppBack as appBack
+participant AuthMiddleware as auth
+control     ProductController    as ctr
+database DB as db
+
+
+title Diagramme de séquence: Création d'un produit
+
+autonumber
+
+user -> app : EAN search
+activate app
+
+app -> apifood : GET request https://world.openfoodfacts.org/api/v0/product/{:EAN}.json
+activate apifood
+apifood -> app : Response
+deactivate apifood
+
+user -> app : Fill form
+
+app -> appBack : POST request
+appBack -> auth : Checking token
+
+alt #E25A5A NOT AUTHENTICATED
+
+  auth -> app : Response with error code (401)
+  app -> user : Display toast error
+
+else NOT AUTHORIZED
+  
+  auth -> app : Response with error code (403)
+  app -> user : Display toast error
+
+end
+
+auth -> ctr : Transfer POST request
+activate ctr
+ctr -> ctr : Request validation
+
+alt #E25A5A REQUEST NOT VALID
+
+  ctr -> app : Response with error code (400)
+  app -> user : Display toast error
+
+end
+
+ctr -> db : Insert product
+activate db
+
+alt #759E88 SUCCEED
+
+  db -> ctr : Product created
+  ctr -> app : Response product created (201)
+  app -> user : Redirect to products list
+
+else #E25A5A FAILED
+
+  db -> ctr : Product not created
+  deactivate db
+  ctr -> app : Response with error code (400)
+  deactivate ctr
+  app -> user : Display toast error
+deactivate app
+
+end
+
+@enduml
+
