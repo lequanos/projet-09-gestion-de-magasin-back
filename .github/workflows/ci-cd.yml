@@ -1,14 +1,13 @@
-# This is a basic workflow to help you get started with Actions
 
-name: CI
+name: Build and deploy Retail Store API on Digital Ocean Droplet
 
 # Controls when the workflow will run
 on:
   # Triggers the workflow on push or pull request events but only for the "master" branch
   push:
-    branches: [ "develop" ]
+    branches: [ "develop", "master" ]
   pull_request:
-    branches: [ "develop" ]
+    branches: [ "develop", "master" ]
 
   # Allows you to run this workflow manually from the Actions tab
   workflow_dispatch:
@@ -25,19 +24,62 @@ jobs:
       # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
       - uses: actions/checkout@v3
 
-      - name: Login to Digital Ocean registry
-        uses: actions-hub/docker@v1.0.3
+      - name: Setup NodeJS
+        uses: actions/setup-node@v3
         with:
-          DOCKER_USERNAME: dop_v1_e7f9a389df9fb49daede64ee6170f793354074dd171a19def8c37223f9aa6999
-          DOCKER_PASSWORD: dop_v1_e7f9a389df9fb49daede64ee6170f793354074dd171a19def8c37223f9aa6999
-          DOCKER_REGISTRY_URL: registry.digitalocean.com
+          node-version: 16
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Run unit tests with coverage
+        run: npm run test:cov
+      
+      - name: Install doctl
+        if: success()
+        uses: digitalocean/action-doctl@v2
+        with:
+          token: 'dop_v1_e7f9a389df9fb49daede64ee6170f793354074dd171a19def8c37223f9aa6999'
+
+      - name: Login to Digital Ocean registry
+        run: doctl registry login --expiry-seconds 600
           
       - name: Build app
-        run: docker build -t retail-store-api:latest .
+        run: docker build -t registry.digitalocean.com/apo-registry/retail-store-api:latest . --target build
         
       - name: Push to registry
-        uses: actions-hub/docker@v1.0.3
+        if: success()
+        run: docker push registry.digitalocean.com/apo-registry/retail-store-api:latest
+      
+      - name: Delete untagged images
+        if: success()
+        run: doctl registry garbage-collection start  --force --include-untagged-manifests apo-registry
+  
+  deploy:
+    needs: build
+
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Extract branch name
+        shell: bash
+        run: echo "##[set-output name=branch;]$(echo ${GITHUB_REF#refs/heads/})"
+        id: extract_branch
+
+      - name: Connect to Digital Ocean Droplet and deploy
+        uses: appleboy/ssh-action@master
         with:
-          args: push retail-store-api:latest
-      
-      
+          host: '161.35.214.135'
+          username: root
+          password: retail9Store
+          script_stop: true
+          script: |
+            cd projet-09-gestion-de-magasin-back
+            git fetch --all
+            git checkout origin/${{ steps.extract_branch.outputs.branch }} -- Dockerfile
+            git checkout origin/${{ steps.extract_branch.outputs.branch }} -- docker-compose.yaml
+            git checkout origin/${{ steps.extract_branch.outputs.branch }} -- docker-compose.prod.yaml
+            docker-compose down
+            docker system prune -a -f
+            docker pull registry.digitalocean.com/apo-registry/retail-store-api:latest
+            docker-compose --env-file .env -f docker-compose.yaml -f docker-compose.prod.yaml up -d

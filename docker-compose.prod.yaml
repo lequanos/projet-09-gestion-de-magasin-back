@@ -1,0 +1,11 @@
+version: '3.8'
+services:
+  retail-store-app:
+    image: registry.digitalocean.com/apo-registry/retail-store-api:latest
+    command: node dist/main.js
+    ports:
+     - '3000:3000'
+    environment:
+      PRODUCTION: 'true'
+    depends_on:
+     - db

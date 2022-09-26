@@ -1,0 +1,15 @@
+version: '3.8'
+services:
+  retail-store-app:
+    build:
+      context: .
+      target: ${TARGET}
+    command: ${COMMAND}
+    ports:
+     - '3000:3000'
+    volumes: 
+      - .:/usr/src/app
+    environment:
+      DEBUG: 'true'
+    depends_on:
+     - db
