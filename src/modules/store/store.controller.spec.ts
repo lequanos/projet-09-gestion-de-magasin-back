@@ -2,24 +2,29 @@ import { Test, TestingModule } from '@nestjs/testing';
 import { StoreController } from './store.controller';
 import { StoreService } from './store.service';
 import { Store } from '../../entities';
+import { Logger } from '@nestjs/common';
 
 describe('StoreController', () => {
   let controller: StoreController;
+  const store = new Store();
+  store.id = 1;
+  store.name = 'NameTest';
+  store.address = 'AddressTest';
+  store.siren = '111111111';
 
   const mockStoreService = {
     getAll: jest.fn(() => {
-      const store = new Store();
-      store.id = 1;
-      store.name = 'NameTest';
-      store.address = 'AddressTest';
       return [store];
+    }),
+    getOneBySiren: jest.fn(() => {
+      return store;
     }),
   };
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
       controllers: [StoreController],
-      providers: [StoreService],
+      providers: [StoreService, Logger],
     })
       .overrideProvider(StoreService)
       .useValue(mockStoreService)
@@ -40,5 +45,14 @@ describe('StoreController', () => {
     expect(result[0].name).toBe('NameTest');
     expect(result[0].address).toBe('AddressTest');
     expect(mockStoreService.getAll).toBeCalledTimes(1);
+  });
+
+  it('should return one store', async () => {
+    const result = await controller.getOneStoreBySiren('111111111');
+    expect(result).toBeDefined();
+    expect(result.id).toBe(1);
+    expect(result.name).toBe('NameTest');
+    expect(result.address).toBe('AddressTest');
+    expect(mockStoreService.getOneBySiren).toBeCalledTimes(1);
   });
 });

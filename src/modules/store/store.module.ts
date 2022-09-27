@@ -1,12 +1,12 @@
 import { MikroOrmModule } from '@mikro-orm/nestjs';
-import { Module } from '@nestjs/common';
+import { Module, Logger } from '@nestjs/common';
 import { Store } from 'src/entities';
 import { StoreController } from './store.controller';
 import { StoreService } from './store.service';
 
 @Module({
   imports: [MikroOrmModule.forFeature([Store])],
-  providers: [StoreService],
+  providers: [StoreService, Logger],
   controllers: [StoreController],
   exports: [StoreService],
 })
