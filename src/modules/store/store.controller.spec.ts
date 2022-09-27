@@ -48,7 +48,7 @@ describe('StoreController', () => {
   });
 
   it('should return one store', async () => {
-    const result = await controller.getOneStoreBySiren('111111111');
+    const result = await controller.getOneStoreBySiren({ siren: '111111111' });
     expect(result).toBeDefined();
     expect(result.id).toBe(1);
     expect(result.name).toBe('NameTest');

@@ -20,7 +20,7 @@ describe('StoreService', () => {
     }),
     findOneOrFail: jest.fn().mockImplementation((param) => {
       if (store.siren === param.siren) {
-        return store;
+        return Promise.resolve(store);
       }
       throw new Error('Store not found');
     }),
@@ -72,5 +72,11 @@ describe('StoreService', () => {
     expect(result.siren).toBe('111111111');
     expect(mockStoreRepository.findOneOrFail).toBeCalledTimes(1);
     expect(logger.log).toBeCalledTimes(0);
+  });
+
+  it('should throw a not found error', async () => {
+    await expect(service.getOneBySiren('azea')).rejects.toThrow('Not found');
+    expect(mockStoreRepository.findOneOrFail).toBeCalledTimes(2);
+    expect(logger.error).toBeCalledTimes(1);
   });
 });

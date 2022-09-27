@@ -1,6 +1,7 @@
 import { Controller, Get, Param } from '@nestjs/common';
 import { Store } from 'src/entities';
 import { StoreService } from './store.service';
+import { ParamDto } from './store.dto';
 
 /**
  * Controller for the stores
@@ -21,7 +22,8 @@ export class StoreController {
    * Get one store by siren
    */
   @Get(':siren')
-  async getOneStoreBySiren(@Param('siren') siren: string): Promise<Store> {
-    return await this.storeService.getOneBySiren(siren);
+  async getOneStoreBySiren(@Param() param: ParamDto): Promise<Store> {
+    console.log(param);
+    return await this.storeService.getOneBySiren(param.siren);
   }
 }
