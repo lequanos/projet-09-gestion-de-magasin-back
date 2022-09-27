@@ -1,25 +1,16 @@
 
 name: Build and deploy Retail Store API on Digital Ocean Droplet
 
-# Controls when the workflow will run
 on:
-  # Triggers the workflow on push or pull request events but only for the "master" branch
   push:
     branches: [ "develop", "master" ]
-  pull_request:
-    branches: [ "develop", "master" ]
 
-  # Allows you to run this workflow manually from the Actions tab
   workflow_dispatch:
 
-# A workflow run is made up of one or more jobs that can run sequentially or in parallel
 jobs:
-  # This workflow contains a single job called "build"
   build:
-    # The type of runner that the job will run on
     runs-on: ubuntu-latest
 
-    # Steps represent a sequence of tasks that will be executed as part of the job
     steps:
       # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
       - uses: actions/checkout@v3
@@ -39,13 +30,13 @@ jobs:
         if: success()
         uses: digitalocean/action-doctl@v2
         with:
-          token: 'dop_v1_e7f9a389df9fb49daede64ee6170f793354074dd171a19def8c37223f9aa6999'
+          token: ${{ secrets.DIGITAL_OCEAN_API_ACCESS_TOKEN }}
 
       - name: Login to Digital Ocean registry
         run: doctl registry login --expiry-seconds 600
           
       - name: Build app
-        run: docker build -t registry.digitalocean.com/apo-registry/retail-store-api:latest . --target build
+        run: docker build -t registry.digitalocean.com/apo-registry/retail-store-api:latest . --target build --build-arg MIKRO_ORM_USER=${{ secrets.MIKRO_ORM_USER }} --build-arg MIKRO_ORM_PASSWORD=${{ secrets.MIKRO_ORM_PASSWORD }} --build-arg MIKRO_ORM_DB_NAME=${{ secrets.MIKRO_ORM_DB_NAME }}
         
       - name: Push to registry
         if: success()
@@ -69,9 +60,9 @@ jobs:
       - name: Connect to Digital Ocean Droplet and deploy
         uses: appleboy/ssh-action@master
         with:
-          host: '161.35.214.135'
-          username: root
-          password: retail9Store
+          host: ${{ secrets.DIGITAL_OCEAN_HOST }}
+          username: ${{ secrets.SSH_DIGITAL_OCEAN_DROPLET_USER }}
+          password: ${{ secrets.SSH_DIGITAL_OCEAN_DROPLET_PASSWORD }}
           script_stop: true
           script: |
             cd projet-09-gestion-de-magasin-back
