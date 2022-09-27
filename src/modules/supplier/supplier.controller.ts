@@ -1,6 +1,8 @@
+/* eslint-disable @typescript-eslint/no-empty-function */
 /* eslint-disable prettier/prettier */
-import { Controller, Get, Param } from '@nestjs/common';
+import { Body, Controller, Get, Param, Post } from '@nestjs/common';
 import { Supplier } from '../../entities';
+import { CreateSupplierDTO } from './create-supplier-dto';
 import { SupplierService } from './supplier.service';
 
 /**
@@ -8,6 +10,7 @@ import { SupplierService } from './supplier.service';
  */
 @Controller('supplier')
 export class SupplierController {
+    supplierRepository: any;
   constructor(private readonly supplierService: SupplierService) {}
 
    /**
@@ -24,5 +27,14 @@ export class SupplierController {
      @Get(':id')
      async getOneSupplier(@Param('id') id: number): Promise<Supplier> {
          return await this.supplierService.getOneSupplier(id);
+     }
+
+    /**
+   * Create Supplier
+   */
+     @Post()
+     async createSupplier(@Body() supp: CreateSupplierDTO): Promise<Supplier> {
+         console.log(supp)
+         return this.supplierService.createSupplier(supp);
      }
 }

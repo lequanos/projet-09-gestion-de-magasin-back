@@ -1,7 +1,9 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 import { EntityRepository } from '@mikro-orm/core';
 import { InjectRepository } from '@mikro-orm/nestjs/mikro-orm.common';
-import { Injectable, Param } from '@nestjs/common';
+import { HttpException, HttpStatus, Injectable, Param } from '@nestjs/common';
 import { Supplier } from '../../entities';
+import { CreateSupplierDTO } from './create-supplier-dto';
 
 @Injectable()
 export class SupplierService {
@@ -28,5 +30,36 @@ export class SupplierService {
       this.logger.error(`${e.message} `, e);
       return e;
     }
+  }
+
+  /**
+   * Create Supplier
+   */
+  async createSupplier(dto: CreateSupplierDTO): Promise<Supplier> {
+    const {
+      name,
+      phoneNumber,
+      address,
+      postcode,
+      city,
+      siren,
+      siret,
+      contact,
+      pictureUrl,
+    } = dto;
+    const supplier = new Supplier(
+      name,
+      phoneNumber,
+      address,
+      postcode,
+      city,
+      siren,
+      siret,
+      contact,
+      pictureUrl,
+    );
+
+    await this.supplierRepository.persistAndFlush(supplier);
+    return supplier;
   }
 }
