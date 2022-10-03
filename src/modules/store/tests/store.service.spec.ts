@@ -2,7 +2,9 @@ import { getRepositoryToken } from '@mikro-orm/nestjs';
 import { Logger } from '@nestjs/common';
 import { Test, TestingModule } from '@nestjs/testing';
 import { Store } from '../../../entities';
+
 import { StoreDto } from '../store.dto';
+
 import { StoreService } from '../store.service';
 
 describe('StoreService', () => {
@@ -17,6 +19,7 @@ describe('StoreService', () => {
   store.siret = '11111111111111';
   store.isActive = true;
 
+
   const storeDto = new StoreDto();
   storeDto.name = 'NameTest2';
   storeDto.address = 'AddressTest2';
@@ -26,6 +29,7 @@ describe('StoreService', () => {
 
   const mockStoreRepository = {
     find: jest.fn().mockImplementation(() => {
+
       return Promise.resolve([store]);
     }),
     findOneOrFail: jest.fn().mockImplementation((param) => {
@@ -34,6 +38,7 @@ describe('StoreService', () => {
       }
       throw new Error('Store not found');
     }),
+
     findOne: jest.fn().mockImplementation((param) => {
       if (store.siret === param.siret) {
         return Promise.resolve(store);
@@ -56,6 +61,7 @@ describe('StoreService', () => {
       }
       throw new Error();
     }),
+
   };
 
   beforeEach(async () => {

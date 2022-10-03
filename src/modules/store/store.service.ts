@@ -3,13 +3,15 @@ import {
   Injectable,
   Logger,
   NotFoundException,
+  OnModuleInit,
+  UnauthorizedException,
 } from '@nestjs/common';
 
 import { EntityRepository } from '@mikro-orm/core';
 import { InjectRepository } from '@mikro-orm/nestjs';
-
 import { Store } from '../../entities';
 import { isNotFoundError } from '../../typeguards/ExceptionTypeGuards';
+
 import { StoreDto } from './store.dto';
 
 /**
@@ -79,12 +81,12 @@ export class StoreService {
             foundStore.isActive ? '' : ' but is deactivated'
           }`,
         );
-
       const store = this.storeRepository.create(storeDto);
       await this.storeRepository.persistAndFlush(store);
       return store;
     } catch (e) {
       this.logger.error(`${e.message} `, e);
+
       throw e;
     }
   }

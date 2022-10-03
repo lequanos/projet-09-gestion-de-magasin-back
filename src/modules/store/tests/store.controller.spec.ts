@@ -5,6 +5,7 @@ import { Store } from '../../../entities';
 import { Logger } from '@nestjs/common';
 import { StoreDto } from '../store.dto';
 
+
 describe('StoreController', () => {
   let controller: StoreController;
   const store = new Store();
@@ -37,9 +38,11 @@ describe('StoreController', () => {
     getOneBySiret: jest.fn(() => {
       return store;
     }),
+    
     createStore: jest.fn(() => {
       return storeCreated;
     }),
+
   };
 
   beforeEach(async () => {
@@ -87,4 +90,5 @@ describe('StoreController', () => {
     expect(result.address).toBe('AddressTest2');
     expect(mockStoreService.createStore).toBeCalledTimes(1);
   });
+
 });
