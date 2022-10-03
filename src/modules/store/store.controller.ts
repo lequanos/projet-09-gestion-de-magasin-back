@@ -11,7 +11,12 @@ import {
 } from '@nestjs/common';
 import { Store } from '../../entities';
 import { StoreService } from './store.service';
-import { SiretParamDto, StoreIdParamDto, StoreDto } from './store.dto';
+import {
+  SiretParamDto,
+  StoreIdParamDto,
+  StoreDto,
+  UpdateStoreDto,
+} from './store.dto';
 
 /**
  * Controller for the stores
@@ -53,7 +58,7 @@ export class StoreController {
    */
   @Put()
   @Patch()
-  async updateStore(@Body() storeDto: StoreDto): Promise<Store> {
+  async updateStore(@Body() storeDto: UpdateStoreDto): Promise<Store> {
     return await this.storeService.updateStore(storeDto);
   }
 

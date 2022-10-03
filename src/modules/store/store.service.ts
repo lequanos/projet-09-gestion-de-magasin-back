@@ -12,7 +12,7 @@ import { InjectRepository } from '@mikro-orm/nestjs';
 import { Store } from '../../entities';
 import { isNotFoundError } from '../../typeguards/ExceptionTypeGuards';
 
-import { StoreDto } from './store.dto';
+import { StoreDto, UpdateStoreDto } from './store.dto';
 
 /**
  * Service for the stores
@@ -96,21 +96,21 @@ export class StoreService {
    * @param storeDto the user's input
    * @returns the updated store
    */
-  async updateStore(storeDto: StoreDto): Promise<Store> {
+  async updateStore(storeDto: UpdateStoreDto): Promise<Store> {
     try {
       const foundStore = await this.storeRepository.findOneOrFail(storeDto.id);
 
       if (!foundStore?.isActive)
         throw new ConflictException('Store is deactivated');
 
-      foundStore.name = storeDto.name;
-      foundStore.address = storeDto.address;
-      foundStore.postcode = storeDto.postcode;
-      foundStore.city = storeDto.city;
-      foundStore.siren = storeDto.siren;
-      foundStore.siret = storeDto.siret;
-      foundStore.isActive = storeDto.isActive;
-      foundStore.pictureUrl = storeDto.pictureUrl;
+      foundStore.name = storeDto.name || foundStore.name;
+      foundStore.address = storeDto.address || foundStore.address;
+      foundStore.postcode = storeDto.postcode || foundStore.postcode;
+      foundStore.city = storeDto.city || foundStore.city;
+      foundStore.siren = storeDto.siren || foundStore.siren;
+      foundStore.siret = storeDto.siret || foundStore.siret;
+      foundStore.isActive = storeDto.isActive || foundStore.isActive;
+      foundStore.pictureUrl = storeDto.pictureUrl || foundStore.pictureUrl;
 
       await this.storeRepository.persistAndFlush(foundStore);
       return foundStore;

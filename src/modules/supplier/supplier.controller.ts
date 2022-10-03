@@ -2,7 +2,7 @@
 /* eslint-disable prettier/prettier */
 import { Body, Controller, Delete, Get, HttpCode, Param, Patch, Post, Put} from '@nestjs/common';
 import { Supplier } from '../../entities';
-import { SupplierDto, SupplierIdParamDto} from './supplier.dto';
+import { SupplierDto, SupplierIdParamDto, UpdateSupplierDto} from './supplier.dto';
 import { SupplierService } from './supplier.service';
 
 /**
@@ -42,9 +42,9 @@ export class SupplierController {
    * @param storeDto the user's input
    * @returns the updated store
    */
-    @Put(':id')
-    @Patch(':id')
-    async updateSupplier(@Param() param: SupplierDto): Promise<Supplier> {
+    
+    @Patch()
+    async updateSupplier(@Body() param: UpdateSupplierDto): Promise<Supplier> {
         return await this.supplierService.updateSupplier(param);
     }
 
