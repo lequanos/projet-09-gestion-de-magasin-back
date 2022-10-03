@@ -19,7 +19,7 @@ export class Store extends CustomBaseEntity {
   @Property({ type: 'string', nullable: false, length: 9 })
   siren: string;
 
-  @Property({ type: 'string', nullable: true, length: 14 })
+  @Property({ type: 'string', nullable: false, length: 14, unique: true })
   siret: string;
 
   @Property({ type: 'boolean', nullable: false })
