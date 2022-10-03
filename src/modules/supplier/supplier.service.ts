@@ -47,9 +47,7 @@ export class SupplierService {
       contact,
       pictureUrl,
     } = dto;
-    const supplier = new Supplier(
-      
-    );
+    const supplier = new Supplier();
 
     await this.supplierRepository.persistAndFlush(supplier);
     return supplier;
