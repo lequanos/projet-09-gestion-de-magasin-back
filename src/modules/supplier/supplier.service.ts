@@ -48,15 +48,7 @@ export class SupplierService {
       pictureUrl,
     } = dto;
     const supplier = new Supplier(
-      name,
-      phoneNumber,
-      address,
-      postcode,
-      city,
-      siren,
-      siret,
-      contact,
-      pictureUrl,
+      
     );
 
     await this.supplierRepository.persistAndFlush(supplier);
