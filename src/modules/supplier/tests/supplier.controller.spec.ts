@@ -1,7 +1,7 @@
 import { Test, TestingModule } from '@nestjs/testing';
-import { Supplier } from '../../entities';
-import { SupplierController } from './supplier.controller';
-import { SupplierService } from './supplier.service';
+import { Supplier } from '../../../entities';
+import { SupplierController } from '../supplier.controller';
+import { SupplierService } from '../supplier.service';
 
 describe('SupplierController', () => {
   let controller: SupplierController;
