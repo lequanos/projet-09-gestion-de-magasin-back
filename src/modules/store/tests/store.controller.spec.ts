@@ -3,6 +3,8 @@ import { StoreController } from '../store.controller';
 import { StoreService } from '../store.service';
 import { Store } from '../../../entities';
 import { Logger } from '@nestjs/common';
+import { StoreDto } from '../store.dto';
+
 
 describe('StoreController', () => {
   let controller: StoreController;
@@ -14,6 +16,21 @@ describe('StoreController', () => {
   store.siret = '11111111111111';
   store.isActive = true;
 
+  const storeCreated = new Store();
+  storeCreated.id = 2;
+  storeCreated.name = 'NameTest2';
+  storeCreated.address = 'AddressTest2';
+  storeCreated.siren = '222222222';
+  storeCreated.siret = '22222222222222';
+  storeCreated.isActive = true;
+
+  const storeDto = new StoreDto();
+  storeDto.name = 'NameTest2';
+  storeDto.address = 'AddressTest2';
+  storeDto.siren = '222222222';
+  storeDto.siret = '22222222222222';
+  storeDto.isActive = true;
+
   const mockStoreService = {
     getAll: jest.fn(() => {
       return [store];
@@ -21,6 +38,11 @@ describe('StoreController', () => {
     getOneBySiret: jest.fn(() => {
       return store;
     }),
+    
+    createStore: jest.fn(() => {
+      return storeCreated;
+    }),
+
   };
 
   beforeEach(async () => {
@@ -59,4 +81,14 @@ describe('StoreController', () => {
     expect(result.address).toBe('AddressTest');
     expect(mockStoreService.getOneBySiret).toBeCalledTimes(1);
   });
+
+  it('should return the created store', async () => {
+    const result = await controller.createStore(storeDto);
+    expect(result).toBeDefined();
+    expect(result.id).toBe(2);
+    expect(result.name).toBe('NameTest2');
+    expect(result.address).toBe('AddressTest2');
+    expect(mockStoreService.createStore).toBeCalledTimes(1);
+  });
+
 });

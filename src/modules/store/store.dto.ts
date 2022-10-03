@@ -5,9 +5,10 @@ import {
   IsNumber,
   IsOptional,
   IsNotEmpty,
+  IsDefined,
 } from 'class-validator';
 
-export class ParamDto {
+export class SiretParamDto {
   @MinLength(14)
   @MaxLength(14)
   @IsNumberString()
@@ -15,8 +16,14 @@ export class ParamDto {
   public siret: string;
 }
 
+export class StoreIdParamDto {
+  @IsNumberString()
+  @IsDefined()
+  public id: number;
+}
+
 export class StoreDto {
-  @IsNumber()
+  @IsNumberString()
   @IsOptional()
   public id: number;
 
