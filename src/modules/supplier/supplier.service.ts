@@ -13,7 +13,7 @@ import {
 } from '@nestjs/common';
 import { isNotFoundError } from 'src/typeguards/ExceptionTypeGuards';
 import { Supplier } from '../../entities';
-import { SupplierDto } from './supplier.dto';
+import { SupplierDto, UpdateSupplierDto } from './supplier.dto';
 
 @Injectable()
 export class SupplierService {
@@ -61,28 +61,6 @@ export class SupplierService {
     }
   }
 
-  // /**
-  //  * Get one Supplier by Siret
-  //  * @param siren the searched siret number
-  //  * @returns the supplier
-  //  */
-  // async getOneBySiren(siren: string): Promise<Supplier> {
-  //   try {
-  //     return await this.supplierRepository.findOneOrFail({
-  //       siren,
-  //       isActive: true,
-  //     });
-  //   } catch (e) {
-  //     this.logger.error(`${e.message} `, e);
-
-  //     if (isNotFoundError(e)) {
-  //       throw new NotFoundException();
-  //     }
-
-  //     throw e;
-  //   }
-  // }
-
   /**
    * Create Supplier
    * @params supplierDto
@@ -118,7 +96,7 @@ export class SupplierService {
    * @param supplierDto
    * @returns the updated supplier
    */
-  async updateSupplier(supplierDto: SupplierDto): Promise<Supplier> {
+  async updateSupplier(supplierDto: UpdateSupplierDto): Promise<Supplier> {
     try {
       const foundSupplier = await this.supplierRepository.findOneOrFail(
         supplierDto.id,
@@ -127,16 +105,16 @@ export class SupplierService {
       if (!foundSupplier?.isActive)
         throw new ConflictException('Supplier is deactivated');
 
-      foundSupplier.name = supplierDto.name;
-      foundSupplier.phoneNumber = supplierDto.phoneNumber;
-      foundSupplier.address = supplierDto.address;
-      foundSupplier.postcode = supplierDto.postcode;
-      foundSupplier.city = supplierDto.city;
-      foundSupplier.siren = supplierDto.siren;
-      foundSupplier.siret = supplierDto.siret;
-      foundSupplier.contact = supplierDto.contact;
-      foundSupplier.isActive = supplierDto.isActive;
-      foundSupplier.pictureUrl = supplierDto.pictureUrl;
+      foundSupplier.name = supplierDto.name || foundSupplier.name;
+      foundSupplier.phoneNumber = supplierDto.phoneNumber || foundSupplier.phoneNumber;
+      foundSupplier.address = supplierDto.address || foundSupplier.address;
+      foundSupplier.postcode = supplierDto.postcode || foundSupplier.postcode;
+      foundSupplier.city = supplierDto.city || foundSupplier.city;
+      foundSupplier.siren = supplierDto.siren || foundSupplier.siren;
+      foundSupplier.siret = supplierDto.siret || foundSupplier.siret;
+      foundSupplier.contact = supplierDto.contact || foundSupplier.contact;
+      foundSupplier.isActive = supplierDto.isActive || foundSupplier.isActive;
+      foundSupplier.pictureUrl = supplierDto.pictureUrl || foundSupplier.pictureUrl;
 
       await this.supplierRepository.persistAndFlush(foundSupplier);
       return foundSupplier;
