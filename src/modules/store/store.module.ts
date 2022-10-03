@@ -1,6 +1,6 @@
 import { MikroOrmModule } from '@mikro-orm/nestjs';
 import { Module, Logger } from '@nestjs/common';
-import { Store } from 'src/entities';
+import { Store } from '../../entities';
 import { StoreController } from './store.controller';
 import { StoreService } from './store.service';
 

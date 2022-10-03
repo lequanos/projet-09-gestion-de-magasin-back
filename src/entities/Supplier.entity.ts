@@ -20,7 +20,7 @@ export class Supplier extends CustomBaseEntity {
   @Property({ type: 'string', nullable: false, length: 64 })
   city: string;
 
-  @Property({ type: 'string', nullable: false, length: 9 })
+  @Property({ type: 'string', nullable: false, length: 9, unique: true })
   siren: string;
 
   @Property({ type: 'string', nullable: true, length: 14 })

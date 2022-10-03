@@ -1,4 +1,5 @@
 import { Entity, Property, OneToMany, Collection } from '@mikro-orm/core';
+import { DEFAULT_FACTORY_CLASS_METHOD_KEY } from '@nestjs/common/module-utils/constants';
 import { Aisle } from './Aisle.entity';
 import { CustomBaseEntity } from './CustomBaseEntity';
 import { User } from './User.entity';
@@ -19,7 +20,7 @@ export class Store extends CustomBaseEntity {
   @Property({ type: 'string', nullable: false, length: 9 })
   siren: string;
 
-  @Property({ type: 'string', nullable: true, length: 14 })
+  @Property({ type: 'string', nullable: false, length: 14, unique: true })
   siret: string;
 
   @Property({ type: 'boolean', nullable: false })

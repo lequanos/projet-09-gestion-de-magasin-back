@@ -18,7 +18,7 @@ export class User extends CustomBaseEntity {
   @Property({ type: 'string', nullable: false, length: 64 })
   lastname: string;
 
-  @Property({ type: 'string', nullable: false, length: 150 })
+  @Property({ type: 'string', nullable: false, length: 150, unique: true })
   email: string;
 
   @Property({ type: 'string', nullable: false, length: 64 })

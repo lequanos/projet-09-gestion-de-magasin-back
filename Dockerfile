@@ -10,6 +10,8 @@ COPY package*.json ./
 
 RUN npm ci
 
+RUN npm install typescript ts-node -g
+
 COPY . .
 
 ###################
