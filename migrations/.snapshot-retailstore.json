@@ -479,7 +479,7 @@
           "unsigned": false,
           "autoincrement": false,
           "primary": false,
-          "nullable": true,
+          "nullable": false,
           "length": 14,
           "mappedType": "string"
         },
@@ -506,6 +506,15 @@
       "name": "store",
       "schema": "public",
       "indexes": [
+        {
+          "columnNames": [
+            "siret"
+          ],
+          "composite": false,
+          "keyName": "store_siret_unique",
+          "primary": false,
+          "unique": true
+        },
         {
           "keyName": "store_pkey",
           "columnNames": [
@@ -886,6 +895,15 @@
       "schema": "public",
       "indexes": [
         {
+          "columnNames": [
+            "siren"
+          ],
+          "composite": false,
+          "keyName": "supplier_siren_unique",
+          "primary": false,
+          "unique": true
+        },
+        {
           "keyName": "supplier_pkey",
           "columnNames": [
             "id"
@@ -1116,6 +1134,15 @@
       "name": "user",
       "schema": "public",
       "indexes": [
+        {
+          "columnNames": [
+            "email"
+          ],
+          "composite": false,
+          "keyName": "user_email_unique",
+          "primary": false,
+          "unique": true
+        },
         {
           "keyName": "user_pkey",
           "columnNames": [

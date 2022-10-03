@@ -1,8 +1,8 @@
 import { getRepositoryToken } from '@mikro-orm/nestjs';
 import { Logger } from '@nestjs/common';
 import { Test, TestingModule } from '@nestjs/testing';
-import { Store } from '../../entities';
-import { StoreService } from './store.service';
+import { Store } from '../../../entities';
+import { StoreService } from '../store.service';
 
 describe('StoreService', () => {
   let service: StoreService;
@@ -13,13 +13,15 @@ describe('StoreService', () => {
   store.name = 'NameTest';
   store.address = 'AddressTest';
   store.siren = '111111111';
+  store.siret = '11111111111111';
+  store.isActive = true;
 
   const mockStoreRepository = {
     findAll: jest.fn().mockImplementation(() => {
       return Promise.resolve([store]);
     }),
     findOneOrFail: jest.fn().mockImplementation((param) => {
-      if (store.siren === param.siren) {
+      if (store.siret === param.siret) {
         return Promise.resolve(store);
       }
       throw new Error('Store not found');
@@ -64,18 +66,18 @@ describe('StoreService', () => {
   });
 
   it('should return one store', async () => {
-    const result = await service.getOneBySiren('111111111');
+    const result = await service.getOneBySiret('11111111111111');
     expect(result).toBeDefined();
     expect(result.id).toBe(1);
     expect(result.name).toBe('NameTest');
     expect(result.address).toBe('AddressTest');
-    expect(result.siren).toBe('111111111');
+    expect(result.siret).toBe('11111111111111');
     expect(mockStoreRepository.findOneOrFail).toBeCalledTimes(1);
     expect(logger.log).toBeCalledTimes(0);
   });
 
   it('should throw a not found error', async () => {
-    await expect(service.getOneBySiren('azea')).rejects.toThrow('Not found');
+    await expect(service.getOneBySiret('azea')).rejects.toThrow('Not Found');
     expect(mockStoreRepository.findOneOrFail).toBeCalledTimes(2);
     expect(logger.error).toBeCalledTimes(1);
   });

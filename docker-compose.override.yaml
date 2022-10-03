@@ -4,7 +4,7 @@ services:
     build:
       context: .
       target: ${TARGET}
-    command: sh -c "npm install typescript ts-node -g && npx mikro-orm migration:up && npm run start:dev"
+    command: sh -c "npx mikro-orm migration:up && npm run start:dev"
     ports:
      - '3000:3000'
     volumes: 

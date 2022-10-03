@@ -1,7 +1,7 @@
 import { Test, TestingModule } from '@nestjs/testing';
-import { StoreController } from './store.controller';
-import { StoreService } from './store.service';
-import { Store } from '../../entities';
+import { StoreController } from '../store.controller';
+import { StoreService } from '../store.service';
+import { Store } from '../../../entities';
 import { Logger } from '@nestjs/common';
 
 describe('StoreController', () => {
@@ -11,12 +11,14 @@ describe('StoreController', () => {
   store.name = 'NameTest';
   store.address = 'AddressTest';
   store.siren = '111111111';
+  store.siret = '11111111111111';
+  store.isActive = true;
 
   const mockStoreService = {
     getAll: jest.fn(() => {
       return [store];
     }),
-    getOneBySiren: jest.fn(() => {
+    getOneBySiret: jest.fn(() => {
       return store;
     }),
   };
@@ -48,11 +50,13 @@ describe('StoreController', () => {
   });
 
   it('should return one store', async () => {
-    const result = await controller.getOneStoreBySiren({ siren: '111111111' });
+    const result = await controller.getOneStoreBySiret({
+      siret: '11111111111111',
+    });
     expect(result).toBeDefined();
     expect(result.id).toBe(1);
     expect(result.name).toBe('NameTest');
     expect(result.address).toBe('AddressTest');
-    expect(mockStoreService.getOneBySiren).toBeCalledTimes(1);
+    expect(mockStoreService.getOneBySiret).toBeCalledTimes(1);
   });
 });
