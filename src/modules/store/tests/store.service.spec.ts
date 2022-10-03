@@ -25,7 +25,7 @@ describe('StoreService', () => {
   storeDto.isActive = true;
 
   const mockStoreRepository = {
-    findAll: jest.fn().mockImplementation(() => {
+    find: jest.fn().mockImplementation(() => {
       return Promise.resolve([store]);
     }),
     findOneOrFail: jest.fn().mockImplementation((param) => {
@@ -33,6 +33,12 @@ describe('StoreService', () => {
         return Promise.resolve(store);
       }
       throw new Error('Store not found');
+    }),
+    findOne: jest.fn().mockImplementation((param) => {
+      if (store.siret === param.siret) {
+        return Promise.resolve(store);
+      }
+      return null;
     }),
     create: jest.fn().mockImplementation((dto) => {
       const storeToCreate = new Store();
@@ -85,7 +91,7 @@ describe('StoreService', () => {
     expect(result[0].id).toBe(1);
     expect(result[0].name).toBe('NameTest');
     expect(result[0].address).toBe('AddressTest');
-    expect(mockStoreRepository.findAll).toBeCalledTimes(1);
+    expect(mockStoreRepository.find).toBeCalledTimes(1);
     expect(logger.log).toBeCalledTimes(0);
   });
 
@@ -113,6 +119,7 @@ describe('StoreService', () => {
     expect(result.name).toBe('NameTest2');
     expect(result.address).toBe('AddressTest2');
     expect(result.siret).toBe('22222222222222');
+    expect(mockStoreRepository.findOne).toBeCalledTimes(1);
     expect(mockStoreRepository.create).toBeCalledTimes(1);
     expect(mockStoreRepository.persistAndFlush).toBeCalledTimes(1);
     expect(logger.log).toBeCalledTimes(0);
