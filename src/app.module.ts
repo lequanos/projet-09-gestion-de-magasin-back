@@ -9,7 +9,8 @@ import { StoreController } from './modules/store/store.controller';
 import { StoreModule } from './modules/store/store.module';
 import { AuthenticationModule } from './modules/auth/authentication.module';
 import { AuthenticationController } from './modules/auth/authentication.controller';
-
+import { UserController } from './modules/user/user.controller';
+import { UserModule } from './modules/user/user.module';
 
 @Module({
   imports: [
@@ -20,8 +21,9 @@ import { AuthenticationController } from './modules/auth/authentication.controll
     ConfigModule.forRoot({
       isGlobal: true,
     }),
+    UserModule,
   ],
-  controllers: [StoreController, SupplierController, AuthenticationController],
+  controllers: [StoreController, SupplierController, AuthenticationController, UserController],
   providers: [],
 })
 export class AppModule {}

@@ -1,15 +1,20 @@
-import { getRepositoryToken } from '@mikro-orm/nestjs';
 import { Logger } from '@nestjs/common';
 import { Test, TestingModule } from '@nestjs/testing';
+
+import { getRepositoryToken } from '@mikro-orm/nestjs';
+
 import { Store } from '../../../entities';
 
-import { StoreDto } from '../store.dto';
+import { StoreDto, UpdateStoreDto } from '../store.dto';
 
 import { StoreService } from '../store.service';
+import { EntityManager } from '@mikro-orm/core';
 
 describe('StoreService', () => {
   let service: StoreService;
   let logger: Logger;
+
+  const stores: Store[] = [];
 
   const store = new Store();
   store.id = 1;
@@ -19,6 +24,7 @@ describe('StoreService', () => {
   store.siret = '11111111111111';
   store.isActive = true;
 
+  stores.push(store);
 
   const storeDto = new StoreDto();
   storeDto.name = 'NameTest2';
@@ -27,21 +33,29 @@ describe('StoreService', () => {
   storeDto.siret = '22222222222222';
   storeDto.isActive = true;
 
+  const updateStoreDto = new UpdateStoreDto();
+  updateStoreDto.id = 1;
+  updateStoreDto.name = 'NameUpdated';
+
   const mockStoreRepository = {
     find: jest.fn().mockImplementation(() => {
-
       return Promise.resolve([store]);
     }),
     findOneOrFail: jest.fn().mockImplementation((param) => {
-      if (store.siret === param.siret) {
-        return Promise.resolve(store);
+      const foundStore = stores.find(
+        (x) => x.id === param.id || x.siret === param.siret,
+      );
+      if (foundStore) {
+        return Promise.resolve(foundStore);
       }
       throw new Error('Store not found');
     }),
-
     findOne: jest.fn().mockImplementation((param) => {
-      if (store.siret === param.siret) {
-        return Promise.resolve(store);
+      const foundStore = stores.find(
+        (x) => x.id === param || x.siret === param.siret,
+      );
+      if (foundStore) {
+        return Promise.resolve(foundStore);
       }
       return null;
     }),
@@ -57,11 +71,15 @@ describe('StoreService', () => {
     persistAndFlush: jest.fn().mockImplementation((store) => {
       if (store.name === storeDto.name) {
         store.id = 2;
+        stores.push(store);
         return;
       }
       throw new Error();
     }),
+  };
 
+  const mockEntityManager = {
+    clear: jest.fn(),
   };
 
   beforeEach(async () => {
@@ -78,6 +96,10 @@ describe('StoreService', () => {
         {
           provide: getRepositoryToken(Store),
           useValue: mockStoreRepository,
+        },
+        {
+          provide: EntityManager,
+          useValue: mockEntityManager,
         },
       ],
     }).compile();
@@ -128,6 +150,7 @@ describe('StoreService', () => {
     expect(mockStoreRepository.findOne).toBeCalledTimes(1);
     expect(mockStoreRepository.create).toBeCalledTimes(1);
     expect(mockStoreRepository.persistAndFlush).toBeCalledTimes(1);
+    expect(mockEntityManager.clear).toBeCalledTimes(1);
     expect(logger.log).toBeCalledTimes(0);
   });
 
@@ -139,8 +162,21 @@ describe('StoreService', () => {
     storeDto.siret = '22222222222222';
     storeDto.isActive = true;
     await expect(service.createStore(storeDto)).rejects.toThrow();
-    expect(mockStoreRepository.create).toBeCalledTimes(2);
-    expect(mockStoreRepository.persistAndFlush).toBeCalledTimes(2);
+    expect(mockStoreRepository.create).toBeCalledTimes(1);
+    expect(mockStoreRepository.persistAndFlush).toBeCalledTimes(1);
+    expect(logger.error).toBeCalledTimes(1);
+  });
+
+  it('should throw error if store already exists', async () => {
+    const storeDto = new StoreDto();
+    storeDto.name = 'NameTest3';
+    storeDto.address = 'AddressTest2';
+    storeDto.siren = '222222222';
+    storeDto.siret = '11111111111111';
+    storeDto.isActive = true;
+    await expect(service.createStore(storeDto)).rejects.toThrow();
+    expect(mockStoreRepository.create).toBeCalledTimes(1);
+    expect(mockStoreRepository.persistAndFlush).toBeCalledTimes(1);
     expect(logger.error).toBeCalledTimes(1);
   });
 });

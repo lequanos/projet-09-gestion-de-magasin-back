@@ -9,6 +9,7 @@ import {
   Put,
   HttpCode,
 } from '@nestjs/common';
+
 import { Store } from '../../entities';
 import { StoreService } from './store.service';
 import {
@@ -52,12 +53,21 @@ export class StoreController {
   }
 
   /**
+   * Update partially one store
+   * @param storeDto the user's input
+   * @returns the updated store
+   */
+  @Patch()
+  async updatePartialStore(@Body() storeDto: UpdateStoreDto): Promise<Store> {
+    return await this.storeService.updateStore(storeDto);
+  }
+
+  /**
    * Update one store
    * @param storeDto the user's input
    * @returns the updated store
    */
   @Put()
-  @Patch()
   async updateStore(@Body() storeDto: UpdateStoreDto): Promise<Store> {
     return await this.storeService.updateStore(storeDto);
   }

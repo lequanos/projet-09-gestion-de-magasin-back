@@ -1,5 +1,4 @@
 import { Entity, Property, OneToMany, Collection } from '@mikro-orm/core';
-import { DEFAULT_FACTORY_CLASS_METHOD_KEY } from '@nestjs/common/module-utils/constants';
 import { Aisle } from './Aisle.entity';
 import { CustomBaseEntity } from './CustomBaseEntity';
 import { User } from './User.entity';

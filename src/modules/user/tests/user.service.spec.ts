@@ -2,18 +2,21 @@ import { EntityManager } from '@mikro-orm/core';
 import { getRepositoryToken } from '@mikro-orm/nestjs';
 import { Logger } from '@nestjs/common';
 import { Test, TestingModule } from '@nestjs/testing';
-import { Supplier } from '../../../entities';
-import { SupplierService } from '../supplier.service';
+import { User, Role, Store } from '../../../entities';
+import { UserService } from '../user.service';
 
-describe('SupplierService', () => {
-  let service: SupplierService;
+describe('UserService', () => {
+  let service: UserService;
 
-  const mockSupplierRepository = {};
+  const mockUserRepository = {};
+  const mockRoleRepository = {};
+  const mockStoreRepository = {};
   const mockEntityManager = {};
+
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
       providers: [
-        SupplierService,
+        UserService,
         {
           provide: Logger,
           useValue: {
@@ -22,8 +25,16 @@ describe('SupplierService', () => {
           },
         },
         {
-          provide: getRepositoryToken(Supplier),
-          useValue: mockSupplierRepository,
+          provide: getRepositoryToken(User),
+          useValue: mockUserRepository,
+        },
+        {
+          provide: getRepositoryToken(Role),
+          useValue: mockRoleRepository,
+        },
+        {
+          provide: getRepositoryToken(Store),
+          useValue: mockStoreRepository,
         },
         {
           provide: EntityManager,
@@ -32,7 +43,7 @@ describe('SupplierService', () => {
       ],
     }).compile();
 
-    service = module.get<SupplierService>(SupplierService);
+    service = module.get<UserService>(UserService);
   });
 
   it('should be defined', () => {
