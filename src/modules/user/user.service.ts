@@ -100,6 +100,42 @@ export class UserService {
   }
 
   /**
+   * Get one user by mail
+   * @param mail the searched user's identifier
+   * @returns the found user
+   */
+   async getOneByMail(email: string): Promise<User> {
+    try {
+      return await this.userRepository.findOneOrFail(
+        { email, isActive: true },
+        {
+          fields: [
+            'firstname',
+            'lastname',
+            'email',
+            'pictureUrl',
+            'role',
+            {
+              role: ['name'],
+            },
+            {
+              aisles: ['name'],
+            },
+          ],
+        },
+      );
+    } catch (e) {
+      this.logger.error(`${e.message} `, e);
+
+      if (isNotFoundError(e)) {
+        throw new NotFoundException();
+      }
+
+      throw e;
+    }
+  }
+
+  /**
    * Create a user from a user input
    * @param userDto the user's input
    * @returns the created user
