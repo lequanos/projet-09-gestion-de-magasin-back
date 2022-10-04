@@ -7,7 +7,8 @@ import { SupplierController } from './modules/supplier/supplier.controller';
 import { SupplierModule } from './modules/supplier/supplier.module';
 import { StoreController } from './modules/store/store.controller';
 import { StoreModule } from './modules/store/store.module';
-
+import { UserController } from './modules/user/user.controller';
+import { UserModule } from './modules/user/user.module';
 
 @Module({
   imports: [
@@ -17,8 +18,9 @@ import { StoreModule } from './modules/store/store.module';
     ConfigModule.forRoot({
       isGlobal: true,
     }),
+    UserModule,
   ],
-  controllers: [StoreController, SupplierController],
+  controllers: [StoreController, SupplierController, UserController],
   providers: [],
 })
 export class AppModule {}

@@ -1,17 +1,12 @@
-/* eslint-disable @typescript-eslint/adjacent-overload-signatures */
-/* eslint-disable @typescript-eslint/no-unused-vars */
-import { EntityRepository } from '@mikro-orm/core';
+import { EntityManager, EntityRepository, wrap } from '@mikro-orm/core';
 import { InjectRepository } from '@mikro-orm/nestjs/mikro-orm.common';
 import {
   ConflictException,
-  HttpException,
-  HttpStatus,
   Injectable,
   Logger,
   NotFoundException,
-  Param,
 } from '@nestjs/common';
-import { isNotFoundError } from 'src/typeguards/ExceptionTypeGuards';
+import { isNotFoundError } from '../../typeguards/ExceptionTypeGuards';
 import { Supplier } from '../../entities';
 import { SupplierDto, UpdateSupplierDto } from './supplier.dto';
 
@@ -21,6 +16,7 @@ export class SupplierService {
     @InjectRepository(Supplier)
     private readonly supplierRepository: EntityRepository<Supplier>,
     private readonly logger: Logger = new Logger('SupplierService'),
+    private readonly em: EntityManager,
   ) {}
 
   /**
@@ -28,9 +24,22 @@ export class SupplierService {
    */
   async getAll(): Promise<Supplier[]> {
     try {
-      return await this.supplierRepository.findAll({
-        filters: { where: { isActive: true } },
-      });
+      return await this.supplierRepository.find(
+        { isActive: true },
+        {
+          filters: [
+            'name',
+            'phoneNumber',
+            'address',
+            'postcode',
+            'city',
+            'siren',
+            'siret',
+            'contact',
+            'pictureUrl',
+          ],
+        },
+      );
     } catch (e) {
       this.logger.error(`${e.message} `, e);
 
@@ -49,7 +58,25 @@ export class SupplierService {
    */
   async getOneSupplier(id: number): Promise<Supplier> {
     try {
-      return await this.supplierRepository.findOneOrFail({ id });
+      return await this.supplierRepository.findOneOrFail(
+        {
+          id,
+          isActive: true,
+        },
+        {
+          filters: [
+            'name',
+            'phoneNumber',
+            'address',
+            'postcode',
+            'city',
+            'siren',
+            'siret',
+            'contact',
+            'pictureUrl',
+          ],
+        },
+      );
     } catch (e) {
       this.logger.error(`${e.message} `, e);
 
@@ -81,7 +108,8 @@ export class SupplierService {
 
       const supplier = this.supplierRepository.create(supplierDto);
       await this.supplierRepository.persistAndFlush(supplier);
-      return supplier;
+      this.em.clear();
+      return await this.getOneSupplier(supplier.id);
     } catch (e) {
       this.logger.error(`${e.message} `, e);
       if (isNotFoundError(e)) {
@@ -105,19 +133,13 @@ export class SupplierService {
       if (!foundSupplier?.isActive)
         throw new ConflictException('Supplier is deactivated');
 
-      foundSupplier.name = supplierDto.name || foundSupplier.name;
-      foundSupplier.phoneNumber = supplierDto.phoneNumber || foundSupplier.phoneNumber;
-      foundSupplier.address = supplierDto.address || foundSupplier.address;
-      foundSupplier.postcode = supplierDto.postcode || foundSupplier.postcode;
-      foundSupplier.city = supplierDto.city || foundSupplier.city;
-      foundSupplier.siren = supplierDto.siren || foundSupplier.siren;
-      foundSupplier.siret = supplierDto.siret || foundSupplier.siret;
-      foundSupplier.contact = supplierDto.contact || foundSupplier.contact;
-      foundSupplier.isActive = supplierDto.isActive || foundSupplier.isActive;
-      foundSupplier.pictureUrl = supplierDto.pictureUrl || foundSupplier.pictureUrl;
+      wrap(foundSupplier).assign({
+        ...supplierDto,
+      });
 
       await this.supplierRepository.persistAndFlush(foundSupplier);
-      return foundSupplier;
+      this.em.clear();
+      return await this.getOneSupplier(foundSupplier.id);
     } catch (e) {
       this.logger.error(`${e.message} `, e);
 
@@ -143,7 +165,8 @@ export class SupplierService {
 
       supplier.isActive = false;
       await this.supplierRepository.persistAndFlush(supplier);
-      return supplier;
+      this.em.clear();
+      return await this.getOneSupplier(supplier.id);
     } catch (e) {
       this.logger.error(`${e.message} `, e);
 
@@ -168,7 +191,8 @@ export class SupplierService {
 
       supplier.isActive = true;
       await this.supplierRepository.persistAndFlush(supplier);
-      return supplier;
+      this.em.clear();
+      return await this.getOneSupplier(supplier.id);
     } catch (e) {
       this.logger.error(`${e.message} `, e);
 

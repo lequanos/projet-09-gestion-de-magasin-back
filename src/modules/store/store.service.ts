@@ -3,11 +3,9 @@ import {
   Injectable,
   Logger,
   NotFoundException,
-  OnModuleInit,
-  UnauthorizedException,
 } from '@nestjs/common';
 
-import { EntityRepository } from '@mikro-orm/core';
+import { EntityManager, EntityRepository, wrap } from '@mikro-orm/core';
 import { InjectRepository } from '@mikro-orm/nestjs';
 import { Store } from '../../entities';
 import { isNotFoundError } from '../../typeguards/ExceptionTypeGuards';
@@ -23,6 +21,7 @@ export class StoreService {
     @InjectRepository(Store)
     private readonly storeRepository: EntityRepository<Store>,
     private readonly logger: Logger = new Logger('StoreService'),
+    private readonly em: EntityManager,
   ) {}
 
   /**
@@ -30,7 +29,52 @@ export class StoreService {
    */
   async getAll(): Promise<Store[]> {
     try {
-      return await this.storeRepository.find({ isActive: true });
+      return await this.storeRepository.find(
+        { isActive: true },
+        {
+          fields: [
+            'name',
+            'address',
+            'postcode',
+            'city',
+            'siren',
+            'siret',
+            'pictureUrl',
+          ],
+        },
+      );
+    } catch (e) {
+      this.logger.error(`${e.message} `, e);
+
+      if (isNotFoundError(e)) {
+        throw new NotFoundException();
+      }
+
+      throw e;
+    }
+  }
+
+  /**
+   * Get one store by id
+   * @param id the searched store's identifier
+   * @returns the found store
+   */
+  async getOneById(id: number): Promise<Store> {
+    try {
+      return await this.storeRepository.findOneOrFail(
+        { id, isActive: true },
+        {
+          fields: [
+            'name',
+            'address',
+            'postcode',
+            'city',
+            'siren',
+            'siret',
+            'pictureUrl',
+          ],
+        },
+      );
     } catch (e) {
       this.logger.error(`${e.message} `, e);
 
@@ -49,10 +93,23 @@ export class StoreService {
    */
   async getOneBySiret(siret: string): Promise<Store> {
     try {
-      return await this.storeRepository.findOneOrFail({
-        siret,
-        isActive: true,
-      });
+      return await this.storeRepository.findOneOrFail(
+        {
+          siret,
+          isActive: true,
+        },
+        {
+          fields: [
+            'name',
+            'address',
+            'postcode',
+            'city',
+            'siren',
+            'siret',
+            'pictureUrl',
+          ],
+        },
+      );
     } catch (e) {
       this.logger.error(`${e.message} `, e);
 
@@ -83,7 +140,8 @@ export class StoreService {
         );
       const store = this.storeRepository.create(storeDto);
       await this.storeRepository.persistAndFlush(store);
-      return store;
+      this.em.clear();
+      return await this.getOneById(store.id);
     } catch (e) {
       this.logger.error(`${e.message} `, e);
 
@@ -103,17 +161,13 @@ export class StoreService {
       if (!foundStore?.isActive)
         throw new ConflictException('Store is deactivated');
 
-      foundStore.name = storeDto.name || foundStore.name;
-      foundStore.address = storeDto.address || foundStore.address;
-      foundStore.postcode = storeDto.postcode || foundStore.postcode;
-      foundStore.city = storeDto.city || foundStore.city;
-      foundStore.siren = storeDto.siren || foundStore.siren;
-      foundStore.siret = storeDto.siret || foundStore.siret;
-      foundStore.isActive = storeDto.isActive || foundStore.isActive;
-      foundStore.pictureUrl = storeDto.pictureUrl || foundStore.pictureUrl;
+      wrap(foundStore).assign({
+        ...storeDto,
+      });
 
       await this.storeRepository.persistAndFlush(foundStore);
-      return foundStore;
+      this.em.clear();
+      return await this.getOneById(foundStore.id);
     } catch (e) {
       this.logger.error(`${e.message} `, e);
 
@@ -140,7 +194,8 @@ export class StoreService {
       foundStore.isActive = false;
 
       await this.storeRepository.persistAndFlush(foundStore);
-      return foundStore;
+      this.em.clear();
+      return await this.getOneById(foundStore.id);
     } catch (e) {
       this.logger.error(`${e.message} `, e);
 
@@ -167,7 +222,8 @@ export class StoreService {
       foundStore.isActive = true;
 
       await this.storeRepository.persistAndFlush(foundStore);
-      return foundStore;
+      this.em.clear();
+      return await this.getOneById(foundStore.id);
     } catch (e) {
       this.logger.error(`${e.message} `, e);
 

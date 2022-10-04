@@ -76,6 +76,6 @@ export class FakeDataSeeder extends Seeder {
       user.store = faker.helpers.arrayElement(stores);
     });
 
-    em.flush();
+    await em.flush();
   }
 }
