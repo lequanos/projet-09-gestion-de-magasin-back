@@ -7,23 +7,29 @@ import { SupplierController } from './modules/supplier/supplier.controller';
 import { SupplierModule } from './modules/supplier/supplier.module';
 import { StoreController } from './modules/store/store.controller';
 import { StoreModule } from './modules/store/store.module';
-import { AuthenticationModule } from './modules/auth/authentication.module';
-import { AuthenticationController } from './modules/auth/authentication.controller';
 import { UserController } from './modules/user/user.controller';
 import { UserModule } from './modules/user/user.module';
+import { AuthModule } from './auth/auth.module';
+import { appendFile } from 'fs';
+import { AppController } from './auth/auth.controller';
 
 @Module({
   imports: [
     MikroOrmModule.forRoot(config),
     SupplierModule,
     StoreModule,
-    AuthenticationModule,
+    AuthModule,
     ConfigModule.forRoot({
       isGlobal: true,
     }),
     UserModule,
   ],
-  controllers: [StoreController, SupplierController, AuthenticationController, UserController],
+  controllers: [
+    StoreController,
+    SupplierController,
+    UserController,
+    AppController,
+  ],
   providers: [],
 })
 export class AppModule {}
