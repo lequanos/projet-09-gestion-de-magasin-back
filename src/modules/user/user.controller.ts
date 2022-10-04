@@ -61,7 +61,7 @@ export class UserController {
    * @param updateUserDto the user's input
    * @returns the updated user
    */
-  @Patch()
+  @Put()
   async updateUser(@Body() updateUserDto: UpdateUserDto): Promise<User> {
     return await this.userService.updateUser(updateUserDto);
   }
