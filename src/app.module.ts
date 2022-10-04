@@ -62,12 +62,6 @@ import { AppController } from './auth/auth.controller';
     UserController,
     MailController,
   ],
-  controllers: [
-    StoreController,
-    SupplierController,
-    UserController,
-    AppController,
-  ],
   providers: [],
 })
 export class AppModule {}
