@@ -6,10 +6,21 @@ import { LocalStrategy } from './local.strategy';
 import { MikroOrmModule } from '@mikro-orm/nestjs';
 import { User } from '../entities/User.entity';
 import { AppController } from './auth.controller';
+import { JwtModule } from '@nestjs/jwt';
+import { jwtConstants } from './constants';
 
 @Module({
-  imports: [MikroOrmModule.forFeature([User]), UserModule, PassportModule],
+  imports: [
+    MikroOrmModule.forFeature([User]),
+    UserModule,
+    PassportModule,
+    JwtModule.register({
+      secret: jwtConstants.secret,
+      signOptions: { expiresIn: '60s' },
+    }),
+  ],
   providers: [AuthService, LocalStrategy, Logger],
   controllers: [AppController],
+  exports: [AuthService],
 })
 export class AuthModule {}

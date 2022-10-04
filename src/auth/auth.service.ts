@@ -9,8 +9,8 @@ import {
 import { User } from '../entities/User.entity';
 import * as bcrypt from 'bcrypt';
 import { throwError } from 'rxjs';
-// import { JwtService } from '@nestjs/jwt';
 import { isNotFoundError } from 'src/typeguards/ExceptionTypeGuards';
+import { JwtService } from '@nestjs/jwt';
 
 @Injectable()
 export class AuthService {
@@ -18,8 +18,8 @@ export class AuthService {
     @InjectRepository(User)
     private readonly userRepository: EntityRepository<User>,
     private readonly logger: Logger = new Logger('UserService'),
-  ) // private jwtService: JwtService,
-  {}
+    private jwtService: JwtService,
+  ) {}
 
   async validateUser(email: string, pass: string): Promise<any> {
     try {
@@ -43,10 +43,6 @@ export class AuthService {
         },
       );
 
-      // if (!user) {
-      //   throw new ForbiddenException('Invalid credentials test');
-      // }
-
       const result = await bcrypt.compare(pass, user.password);
       if (!result) {
         throw new ForbiddenException('Invalid credentials');
@@ -63,5 +59,12 @@ export class AuthService {
 
       throw e;
     }
+  }
+
+  async login(user: any) {
+    const payload = { username: user.username, sub: user.userId };
+    return {
+      access_token: this.jwtService.sign(payload),
+    };
   }
 }
