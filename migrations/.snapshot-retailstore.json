@@ -1112,6 +1112,15 @@
           "default": "'pictureStore'",
           "mappedType": "string"
         },
+        "refresh_token": {
+          "name": "refresh_token",
+          "type": "varchar(255)",
+          "unsigned": false,
+          "autoincrement": false,
+          "primary": false,
+          "nullable": true,
+          "mappedType": "string"
+        },
         "role_id": {
           "name": "role_id",
           "type": "int",

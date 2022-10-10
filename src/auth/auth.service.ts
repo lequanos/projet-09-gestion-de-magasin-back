@@ -1,3 +1,4 @@
+/* eslint-disable prettier/prettier */
 import { EntityRepository } from '@mikro-orm/core';
 import { InjectRepository } from '@mikro-orm/nestjs';
 import {
@@ -11,6 +12,8 @@ import * as bcrypt from 'bcrypt';
 import { throwError } from 'rxjs';
 import { isNotFoundError } from 'src/typeguards/ExceptionTypeGuards';
 import { JwtService } from '@nestjs/jwt';
+import { userService } from '../modules/user/user.service';
+import { ConfigService } from '@nestjs/config';
 
 @Injectable()
 export class AuthService {
@@ -48,8 +51,8 @@ export class AuthService {
         throw new ForbiddenException('Invalid credentials');
       }
       user.password = '';
-
       return user;
+      
     } catch (e) {
       this.logger.error(`${e.message} `, e);
 
@@ -65,6 +68,47 @@ export class AuthService {
     const payload = { mail: user.email, id: user.id };
     return {
       access_token: this.jwtService.sign(payload),
+    };
+  }
+
+  async logout(userId: string) {
+    return this.usersService.update(userId, { refreshToken: null });
+  }
+
+  async updateRefreshToken(userId: string, refreshToken: string) {
+    const hashedRefreshToken = await this.bcrypt.hash(refreshToken, 10);
+    await this.userService.update(userId, {
+      refreshToken: hashedRefreshToken,
+    });
+  }
+
+  async getTokens(userId: string, username: string) {
+    const [accessToken, refreshToken] = await Promise.all([
+      this.jwtService.signAsync(
+        {
+          sub: userId,
+          username,
+        },
+        {
+          secret: this.configService.get<string>('JWT_ACCESS_SECRET'),
+          expiresIn: '60s',
+        },
+      ),
+      this.jwtService.signAsync(
+        {
+          sub: userId,
+          username,
+        },
+        {
+          secret: this.configService.get<string>('JWT_REFRESH_SECRET'),
+          expiresIn: '120s',
+        },
+      ),
+    ]);
+
+    return {
+      accessToken,
+      refreshToken,
     };
   }
 }

@@ -40,6 +40,9 @@ export class CreateUserDto {
   @MaxLength(64)
   public password: string;
 
+  @IsNotEmpty()
+  public refreshToken: string;
+
   @IsOptional()
   public pictureUrl: string;
 

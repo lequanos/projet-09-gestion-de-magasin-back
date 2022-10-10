@@ -30,6 +30,9 @@ export class User extends CustomBaseEntity {
   @Property({ type: 'string', nullable: true, default: 'pictureStore' })
   pictureUrl: string;
 
+  @Property({ type: 'string', nullable: true })
+  refreshToken: string;
+
   @ManyToOne(() => Role)
   role: Role;
 
