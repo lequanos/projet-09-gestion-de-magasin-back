@@ -7,8 +7,8 @@ import { JwtStrategy } from './jwt.strategy';
 import { MikroOrmModule } from '@mikro-orm/nestjs';
 import { User } from '../entities/User.entity';
 import { Role } from 'src/entities/Role.entity';
-import { Store } from 'src/entities/Store.entity';
 import { AppController } from './auth.controller';
+import { Store } from 'src/entities/Store.entity';
 import { JwtModule } from '@nestjs/jwt';
 import { jwtConstants } from './constants';
 import { RefreshTokenStrategy } from './jwt.refreshStrategy';
@@ -21,7 +21,7 @@ import { ConfigService } from '@nestjs/config';
     UserModule,
     PassportModule,
     JwtModule.register({
-      secret: jwtConstants.secret,
+      // secret: jwtConstants.secret,
       signOptions: { expiresIn: '60s' },
     }),
   ],

@@ -52,7 +52,7 @@ export class AuthService {
       if (!result) {
         throw new ForbiddenException('Invalid credentials');
       }
-      user.refreshToken = this.jwtService.sign({}),
+      user.refreshToken = this.jwtService.sign({}, {secret : process.env.JWT_REFRESH_SECRET}),
       await this.userRepository.persistAndFlush(user);
       user.password = '';
       return user;
@@ -71,7 +71,7 @@ export class AuthService {
   async login(user: any) {
     const payload = { mail: user.email, id: user.id };
     return {
-      access_token: this.jwtService.sign(payload),
+      access_token: this.jwtService.sign(payload, {secret : process.env.JWT_ACCESS_SECRET}),
       refreshToken: user.refreshToken,
     };
   }
@@ -80,67 +80,24 @@ export class AuthService {
     return this.userService.updateUserRefreshToken(userId, null);
   }
 
-  async updateRefreshToken(userId: number, refreshToken: string) {
-    const hashedRefreshToken: string = await bcrypt.hash(refreshToken, 10);
-    await this.userService.updateUserRefreshToken(
-      userId,
-      hashedRefreshToken,
-    );
-  }
+  // async updateRefreshToken(userId: number, refreshToken: string) {
+  //   const hashedRefreshToken: string = await bcrypt.hash(refreshToken, 10);
+  //   await this.userService.updateUserRefreshToken(
+  //     userId,
+  //     hashedRefreshToken,
+  //   );
+  // }
 
-    /**
-   *
-   * @param refreshToken
-   * @param userId
-   * @returns
-   */
-    //  async getUserIfRefreshTokenMatches(refreshToken: string, userId: number) {
-    //   const user = await this.userRepository.findOneOrFail(
-    //     { id: userId, isActive: true },
-    //     {
-    //       fields: [
-    //         'firstname',
-    //         'lastname',
-    //         'email',
-    //         'pictureUrl',
-    //         'role',
-    //         'refreshToken',
-    //         {
-    //           role: ['name'],
-    //         },
-    //         {
-    //           aisles: ['name'],
-    //         },
-    //       ],
-    //     },
-    //   );
-  
-    //   if (!user || !user.refreshToken)
-    //   throw new ForbiddenException('Access Denied, nonono');
-
-    //   const isRefreshTokenMatching = await bcrypt.compare(
-    //     refreshToken,
-    //     user.refreshToken,
-    //   );
-
-    //   if (isRefreshTokenMatching) {
-    //     return user;
-    //   }
-    // }
     async refreshTokens(userId: number, refreshToken: string) {
+      console.log('userId', userId);
       const user = await this.userRepository.findOneOrFail(userId);
       console.log('user', user);
       if (!user || !user.refreshToken)
         throw new ForbiddenException('Access Denied, nonono');
 
-      const refreshTokenMatches = await bcrypt.compare(
-            refreshToken,
-            user.refreshToken,
-      );
-      if (!refreshTokenMatches) throw new ForbiddenException('Access Denied, encore nonono');
       const tokens = await this.getTokens(user.id, user.email);
       console.log('tokens', tokens);
-      await this.updateRefreshToken(user.id, tokens.refreshToken);
+      await this.userService.updateUserRefreshToken(user.id, tokens.refreshToken);
       return tokens;
     }
 

@@ -24,7 +24,7 @@ export class AppController {
   @Get('refresh')
   refresh(@Request() req: any) {
     console.log('tu passes dedans');
-    const userId = req.user['sub'];
+    const userId = req.user['id'];
     const refreshToken = req.user['refreshToken'];
     return this.authService.refreshTokens(userId, refreshToken);
   }

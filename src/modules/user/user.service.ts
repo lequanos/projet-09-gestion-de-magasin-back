@@ -1,5 +1,6 @@
 import {
   ConflictException,
+  ForbiddenException,
   Injectable,
   Logger,
   NotFoundException,
@@ -133,6 +134,39 @@ export class UserService {
 
       throw e;
     }
+  }
+
+  /**
+   *
+   * @param refreshToken
+   * @param userId
+   * @returns
+   */
+   async getOneByRefreshToken(refreshToken: string) {
+    const user = await this.userRepository.findOneOrFail(
+      { refreshToken, isActive: true },
+      {
+        fields: [
+          'firstname',
+          'lastname',
+          'email',
+          'pictureUrl',
+          'role',
+          'refreshToken',
+          {
+            role: ['name'],
+          },
+          {
+            aisles: ['name'],
+          },
+        ],
+      },
+    );
+
+    if (!user || !user.refreshToken)
+    throw new ForbiddenException('Access Denied, nonono');
+
+    return user;
   }
 
   /**
