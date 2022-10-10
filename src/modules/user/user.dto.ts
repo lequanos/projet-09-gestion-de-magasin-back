@@ -41,6 +41,9 @@ export class CreateUserDto {
   public password: string;
 
   @IsOptional()
+  public refreshToken: string;
+
+  @IsOptional()
   public pictureUrl: string;
 
   @IsOptional()
@@ -82,6 +85,9 @@ export class UpdateUserDto {
   @IsOptional()
   @MaxLength(64)
   public password: string;
+
+  @IsOptional()
+  public refreshToken: string;
 
   @IsOptional()
   public pictureUrl: string;

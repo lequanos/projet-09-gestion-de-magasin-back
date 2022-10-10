@@ -1,5 +1,6 @@
 import {
   ConflictException,
+  ForbiddenException,
   Injectable,
   Logger,
   NotFoundException,
@@ -104,7 +105,7 @@ export class UserService {
    * @param mail the searched user's identifier
    * @returns the found user
    */
-   async getOneByMail(email: string): Promise<User> {
+  async getOneByMail(email: string): Promise<User> {
     try {
       return await this.userRepository.findOneOrFail(
         { email, isActive: true },
@@ -133,6 +134,39 @@ export class UserService {
 
       throw e;
     }
+  }
+
+  /**
+   *
+   * @param refreshToken
+   * @param userId
+   * @returns
+   */
+   async getOneByRefreshToken(refreshToken: string) {
+    const user = await this.userRepository.findOneOrFail(
+      { refreshToken, isActive: true },
+      {
+        fields: [
+          'firstname',
+          'lastname',
+          'email',
+          'pictureUrl',
+          'role',
+          'refreshToken',
+          {
+            role: ['name'],
+          },
+          {
+            aisles: ['name'],
+          },
+        ],
+      },
+    );
+
+    if (!user || !user.refreshToken)
+    throw new ForbiddenException('Access Denied, nonono');
+
+    return user;
   }
 
   /**
@@ -187,6 +221,35 @@ export class UserService {
       await this.userRepository.persistAndFlush(foundUser);
       this.em.clear();
       return await this.getOneById(foundUser.id);
+    } catch (e) {
+      this.logger.error(`${e.message} `, e);
+
+      if (isNotFoundError(e)) {
+        throw new NotFoundException();
+      }
+
+      throw e;
+    }
+  }
+
+  /**
+   * Update refreshtoken from a user input
+   * @param userDto the user's input
+   * @returns the updated user
+   */
+  async updateUserRefreshToken(
+    userId: number,
+    refreshToken: string | null,
+  ): Promise<void> {
+    try {
+      const foundUser = await this.userRepository.findOneOrFail(userId);
+
+      if (!foundUser?.isActive)
+        throw new ConflictException('User is deactivated');
+
+      foundUser.refreshToken = refreshToken || '';
+
+      await this.userRepository.persistAndFlush(foundUser);
     } catch (e) {
       this.logger.error(`${e.message} `, e);
 

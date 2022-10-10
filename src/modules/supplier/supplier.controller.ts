@@ -10,7 +10,7 @@ import {
   Put,
   UseGuards,
 } from '@nestjs/common';
-import { JwtAuthGuard } from 'src/auth/jwt-auth.guard';
+import { AccessTokenGuard } from 'src/auth/accessToken.guard';
 import { Supplier } from '../../entities';
 import {
   SupplierDto,
@@ -38,7 +38,7 @@ export class SupplierController {
   /**
    * Get one Supplier
    */
-  @UseGuards(JwtAuthGuard)
+  @UseGuards(AccessTokenGuard)
   @Get(':id')
   async getOneSupplier(@Param('id') id: number): Promise<Supplier> {
     return await this.supplierService.getOneSupplier(id);
