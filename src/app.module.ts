@@ -14,11 +14,14 @@ import { UserController } from './modules/user/user.controller';
 import { UserModule } from './modules/user/user.module';
 import { MailController } from './modules/mail/mail.controller';
 import { MailModule } from './modules/mail/mail.module';
-import { AuthModule } from './auth/auth.module';
+import { AuthModule } from './modules/auth/auth.module';
 import { appendFile } from 'fs';
-import { AppController } from './auth/auth.controller';
 import { BrandModule } from './modules/brand/brand.module';
 import { BrandController } from './modules/brand/brand.controller';
+import { AuthController } from './modules/auth/auth.controller';
+import { APP_GUARD } from '@nestjs/core';
+import { AccessTokenGuard } from './utils/guards/access-token.guard';
+import { RolesGuard } from './utils/guards/roles.guard';
 
 @Module({
   imports: [
@@ -65,7 +68,17 @@ import { BrandController } from './modules/brand/brand.controller';
     UserController,
     BrandController,
     MailController,
+    AuthController,
   ],
-  providers: [],
+  providers: [
+    {
+      provide: APP_GUARD,
+      useClass: AccessTokenGuard,
+    },
+    {
+      provide: APP_GUARD,
+      useClass: RolesGuard,
+    },
+  ],
 })
 export class AppModule {}

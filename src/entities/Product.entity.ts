@@ -6,16 +6,28 @@ import {
   Collection,
   ManyToMany,
   ManyToOne,
+  Filter,
   types,
 } from '@mikro-orm/core';
-import { Category } from './Category.entity';
-import { CustomBaseEntity } from './CustomBaseEntity';
-import { Stock } from './Stock.entity';
-import { ProductSupplier } from './ProductSupplier.entity';
-import { Brand } from './Brand.entity';
-import { Supplier } from './Supplier.entity';
+import {
+  CustomBaseEntity,
+  Category,
+  Stock,
+  ProductSupplier,
+  Brand,
+  Supplier,
+  Store,
+  User,
+} from './';
 
 @Entity()
+@Filter({
+  name: 'fromStore',
+  cond: ({ user }: { user: Partial<User> }) => {
+    if (user?.role?.name === 'super admin') return;
+    return { store: user.store };
+  },
+})
 export class Product extends CustomBaseEntity {
   @Property({ type: 'string', nullable: false, length: 64 })
   name: string;
@@ -58,6 +70,9 @@ export class Product extends CustomBaseEntity {
 
   @ManyToMany({ entity: () => Supplier, pivotEntity: () => ProductSupplier })
   suppliers = new Collection<Supplier>(this);
+
+  @ManyToOne(() => Store)
+  store: Store;
 }
 
 export enum ProductNutriscore {

@@ -1,9 +1,20 @@
-import { Collection, Entity, ManyToMany, Property } from '@mikro-orm/core';
-import { CustomBaseEntity } from './CustomBaseEntity';
-import { Product } from './Product.entity';
-import { ProductSupplier } from './ProductSupplier.entity';
-
+import {
+  Collection,
+  Entity,
+  Filter,
+  ManyToMany,
+  ManyToOne,
+  Property,
+} from '@mikro-orm/core';
+import { CustomBaseEntity, Product, ProductSupplier, Store, User } from './';
 @Entity()
+@Filter({
+  name: 'fromStore',
+  cond: ({ user }: { user: Partial<User> }) => {
+    if (user?.role?.name === 'super admin') return;
+    return { store: user.store };
+  },
+})
 export class Supplier extends CustomBaseEntity {
   @Property({ type: 'string', nullable: false, length: 64 })
   name: string;
@@ -20,7 +31,7 @@ export class Supplier extends CustomBaseEntity {
   @Property({ type: 'string', nullable: false, length: 64 })
   city: string;
 
-  @Property({ type: 'string', nullable: false, length: 9, unique: true })
+  @Property({ type: 'string', nullable: false, length: 9 })
   siren: string;
 
   @Property({ type: 'string', nullable: true, length: 14 })
@@ -37,4 +48,7 @@ export class Supplier extends CustomBaseEntity {
 
   @ManyToMany({ entity: () => Product, pivotEntity: () => ProductSupplier })
   products = new Collection<Product>(this);
+
+  @ManyToOne(() => Store)
+  store: Store;
 }

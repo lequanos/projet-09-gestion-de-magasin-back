@@ -8,7 +8,7 @@ import {
 import { EntityManager, EntityRepository, wrap } from '@mikro-orm/core';
 import { InjectRepository } from '@mikro-orm/nestjs';
 import { Store } from '../../entities';
-import { isNotFoundError } from '../../typeguards/ExceptionTypeGuards';
+import { isNotFoundError } from '../../utils/typeguards/ExceptionTypeGuards';
 
 import { StoreDto, UpdateStoreDto } from './store.dto';
 

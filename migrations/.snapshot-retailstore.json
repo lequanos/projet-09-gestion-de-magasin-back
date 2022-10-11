@@ -106,190 +106,6 @@
           "nullable": false,
           "length": 64,
           "mappedType": "string"
-        },
-        "code": {
-          "name": "code",
-          "type": "varchar(13)",
-          "unsigned": false,
-          "autoincrement": false,
-          "primary": false,
-          "nullable": false,
-          "length": 13,
-          "mappedType": "string"
-        },
-        "price": {
-          "name": "price",
-          "type": "real",
-          "unsigned": false,
-          "autoincrement": false,
-          "primary": false,
-          "nullable": false,
-          "length": 150,
-          "default": "0",
-          "mappedType": "float"
-        },
-        "picture_url": {
-          "name": "picture_url",
-          "type": "varchar(255)",
-          "unsigned": false,
-          "autoincrement": false,
-          "primary": false,
-          "nullable": true,
-          "default": "'pictureStore'",
-          "mappedType": "string"
-        },
-        "nutri_score": {
-          "name": "nutri_score",
-          "type": "text",
-          "unsigned": false,
-          "autoincrement": false,
-          "primary": false,
-          "nullable": false,
-          "enumItems": [
-            "A",
-            "B",
-            "C",
-            "D",
-            "E"
-          ],
-          "mappedType": "enum"
-        },
-        "eco_score": {
-          "name": "eco_score",
-          "type": "text",
-          "unsigned": false,
-          "autoincrement": false,
-          "primary": false,
-          "nullable": false,
-          "enumItems": [
-            "A",
-            "B",
-            "C",
-            "D",
-            "E"
-          ],
-          "mappedType": "enum"
-        },
-        "unit_packaging": {
-          "name": "unit_packaging",
-          "type": "varchar(10)",
-          "unsigned": false,
-          "autoincrement": false,
-          "primary": false,
-          "nullable": false,
-          "length": 10,
-          "mappedType": "string"
-        },
-        "threshold": {
-          "name": "threshold",
-          "type": "int",
-          "unsigned": false,
-          "autoincrement": false,
-          "primary": false,
-          "nullable": false,
-          "default": "0",
-          "mappedType": "integer"
-        },
-        "ingredients": {
-          "name": "ingredients",
-          "type": "varchar(255)",
-          "unsigned": false,
-          "autoincrement": false,
-          "primary": false,
-          "nullable": false,
-          "mappedType": "string"
-        },
-        "is_active": {
-          "name": "is_active",
-          "type": "boolean",
-          "unsigned": false,
-          "autoincrement": false,
-          "primary": false,
-          "nullable": false,
-          "mappedType": "boolean"
-        },
-        "brand_id": {
-          "name": "brand_id",
-          "type": "int",
-          "unsigned": false,
-          "autoincrement": false,
-          "primary": false,
-          "nullable": true,
-          "mappedType": "integer"
-        }
-      },
-      "name": "product",
-      "schema": "public",
-      "indexes": [
-        {
-          "keyName": "product_pkey",
-          "columnNames": [
-            "id"
-          ],
-          "composite": false,
-          "primary": true,
-          "unique": true
-        }
-      ],
-      "checks": [],
-      "foreignKeys": {
-        "product_brand_id_foreign": {
-          "constraintName": "product_brand_id_foreign",
-          "columnNames": [
-            "brand_id"
-          ],
-          "localTableName": "public.product",
-          "referencedColumnNames": [
-            "id"
-          ],
-          "referencedTableName": "public.brand",
-          "deleteRule": "set null",
-          "updateRule": "cascade"
-        }
-      }
-    },
-    {
-      "columns": {
-        "id": {
-          "name": "id",
-          "type": "serial",
-          "unsigned": true,
-          "autoincrement": true,
-          "primary": true,
-          "nullable": false,
-          "mappedType": "integer"
-        },
-        "created_at": {
-          "name": "created_at",
-          "type": "timestamptz(0)",
-          "unsigned": false,
-          "autoincrement": false,
-          "primary": false,
-          "nullable": false,
-          "length": 6,
-          "default": "now()",
-          "mappedType": "datetime"
-        },
-        "updated_at": {
-          "name": "updated_at",
-          "type": "timestamptz(0)",
-          "unsigned": false,
-          "autoincrement": false,
-          "primary": false,
-          "nullable": false,
-          "length": 6,
-          "default": "now()",
-          "mappedType": "datetime"
-        },
-        "name": {
-          "name": "name",
-          "type": "varchar(64)",
-          "unsigned": false,
-          "autoincrement": false,
-          "primary": false,
-          "nullable": false,
-          "length": 64,
-          "mappedType": "string"
         }
       },
       "name": "role",
@@ -307,88 +123,6 @@
       ],
       "checks": [],
       "foreignKeys": {}
-    },
-    {
-      "columns": {
-        "id": {
-          "name": "id",
-          "type": "serial",
-          "unsigned": true,
-          "autoincrement": true,
-          "primary": true,
-          "nullable": false,
-          "mappedType": "integer"
-        },
-        "created_at": {
-          "name": "created_at",
-          "type": "timestamptz(0)",
-          "unsigned": false,
-          "autoincrement": false,
-          "primary": false,
-          "nullable": false,
-          "length": 6,
-          "default": "now()",
-          "mappedType": "datetime"
-        },
-        "updated_at": {
-          "name": "updated_at",
-          "type": "timestamptz(0)",
-          "unsigned": false,
-          "autoincrement": false,
-          "primary": false,
-          "nullable": false,
-          "length": 6,
-          "default": "now()",
-          "mappedType": "datetime"
-        },
-        "quantity": {
-          "name": "quantity",
-          "type": "int",
-          "unsigned": false,
-          "autoincrement": false,
-          "primary": false,
-          "nullable": false,
-          "mappedType": "integer"
-        },
-        "product_id": {
-          "name": "product_id",
-          "type": "int",
-          "unsigned": false,
-          "autoincrement": false,
-          "primary": false,
-          "nullable": true,
-          "mappedType": "integer"
-        }
-      },
-      "name": "stock",
-      "schema": "public",
-      "indexes": [
-        {
-          "keyName": "stock_pkey",
-          "columnNames": [
-            "id"
-          ],
-          "composite": false,
-          "primary": true,
-          "unique": true
-        }
-      ],
-      "checks": [],
-      "foreignKeys": {
-        "stock_product_id_foreign": {
-          "constraintName": "stock_product_id_foreign",
-          "columnNames": [
-            "product_id"
-          ],
-          "localTableName": "public.stock",
-          "referencedColumnNames": [
-            "id"
-          ],
-          "referencedTableName": "public.product",
-          "deleteRule": "set null",
-          "updateRule": "cascade"
-        }
-      }
     },
     {
       "columns": {
@@ -527,6 +261,293 @@
       ],
       "checks": [],
       "foreignKeys": {}
+    },
+    {
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "serial",
+          "unsigned": true,
+          "autoincrement": true,
+          "primary": true,
+          "nullable": false,
+          "mappedType": "integer"
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "timestamptz(0)",
+          "unsigned": false,
+          "autoincrement": false,
+          "primary": false,
+          "nullable": false,
+          "length": 6,
+          "default": "now()",
+          "mappedType": "datetime"
+        },
+        "updated_at": {
+          "name": "updated_at",
+          "type": "timestamptz(0)",
+          "unsigned": false,
+          "autoincrement": false,
+          "primary": false,
+          "nullable": false,
+          "length": 6,
+          "default": "now()",
+          "mappedType": "datetime"
+        },
+        "name": {
+          "name": "name",
+          "type": "varchar(64)",
+          "unsigned": false,
+          "autoincrement": false,
+          "primary": false,
+          "nullable": false,
+          "length": 64,
+          "mappedType": "string"
+        },
+        "code": {
+          "name": "code",
+          "type": "varchar(13)",
+          "unsigned": false,
+          "autoincrement": false,
+          "primary": false,
+          "nullable": false,
+          "length": 13,
+          "mappedType": "string"
+        },
+        "price": {
+          "name": "price",
+          "type": "real",
+          "unsigned": false,
+          "autoincrement": false,
+          "primary": false,
+          "nullable": false,
+          "length": 150,
+          "default": "0",
+          "mappedType": "float"
+        },
+        "picture_url": {
+          "name": "picture_url",
+          "type": "varchar(255)",
+          "unsigned": false,
+          "autoincrement": false,
+          "primary": false,
+          "nullable": true,
+          "default": "'pictureStore'",
+          "mappedType": "string"
+        },
+        "nutri_score": {
+          "name": "nutri_score",
+          "type": "text",
+          "unsigned": false,
+          "autoincrement": false,
+          "primary": false,
+          "nullable": false,
+          "enumItems": [
+            "A",
+            "B",
+            "C",
+            "D",
+            "E"
+          ],
+          "mappedType": "enum"
+        },
+        "eco_score": {
+          "name": "eco_score",
+          "type": "text",
+          "unsigned": false,
+          "autoincrement": false,
+          "primary": false,
+          "nullable": false,
+          "enumItems": [
+            "A",
+            "B",
+            "C",
+            "D",
+            "E"
+          ],
+          "mappedType": "enum"
+        },
+        "unit_packaging": {
+          "name": "unit_packaging",
+          "type": "varchar(10)",
+          "unsigned": false,
+          "autoincrement": false,
+          "primary": false,
+          "nullable": false,
+          "length": 10,
+          "mappedType": "string"
+        },
+        "threshold": {
+          "name": "threshold",
+          "type": "int",
+          "unsigned": false,
+          "autoincrement": false,
+          "primary": false,
+          "nullable": false,
+          "default": "0",
+          "mappedType": "integer"
+        },
+        "ingredients": {
+          "name": "ingredients",
+          "type": "varchar(255)",
+          "unsigned": false,
+          "autoincrement": false,
+          "primary": false,
+          "nullable": false,
+          "mappedType": "string"
+        },
+        "is_active": {
+          "name": "is_active",
+          "type": "boolean",
+          "unsigned": false,
+          "autoincrement": false,
+          "primary": false,
+          "nullable": false,
+          "mappedType": "boolean"
+        },
+        "brand_id": {
+          "name": "brand_id",
+          "type": "int",
+          "unsigned": false,
+          "autoincrement": false,
+          "primary": false,
+          "nullable": true,
+          "mappedType": "integer"
+        },
+        "store_id": {
+          "name": "store_id",
+          "type": "int",
+          "unsigned": false,
+          "autoincrement": false,
+          "primary": false,
+          "nullable": false,
+          "mappedType": "integer"
+        }
+      },
+      "name": "product",
+      "schema": "public",
+      "indexes": [
+        {
+          "keyName": "product_pkey",
+          "columnNames": [
+            "id"
+          ],
+          "composite": false,
+          "primary": true,
+          "unique": true
+        }
+      ],
+      "checks": [],
+      "foreignKeys": {
+        "product_brand_id_foreign": {
+          "constraintName": "product_brand_id_foreign",
+          "columnNames": [
+            "brand_id"
+          ],
+          "localTableName": "public.product",
+          "referencedColumnNames": [
+            "id"
+          ],
+          "referencedTableName": "public.brand",
+          "deleteRule": "set null",
+          "updateRule": "cascade"
+        },
+        "product_store_id_foreign": {
+          "constraintName": "product_store_id_foreign",
+          "columnNames": [
+            "store_id"
+          ],
+          "localTableName": "public.product",
+          "referencedColumnNames": [
+            "id"
+          ],
+          "referencedTableName": "public.store",
+          "updateRule": "cascade"
+        }
+      }
+    },
+    {
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "serial",
+          "unsigned": true,
+          "autoincrement": true,
+          "primary": true,
+          "nullable": false,
+          "mappedType": "integer"
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "timestamptz(0)",
+          "unsigned": false,
+          "autoincrement": false,
+          "primary": false,
+          "nullable": false,
+          "length": 6,
+          "default": "now()",
+          "mappedType": "datetime"
+        },
+        "updated_at": {
+          "name": "updated_at",
+          "type": "timestamptz(0)",
+          "unsigned": false,
+          "autoincrement": false,
+          "primary": false,
+          "nullable": false,
+          "length": 6,
+          "default": "now()",
+          "mappedType": "datetime"
+        },
+        "quantity": {
+          "name": "quantity",
+          "type": "int",
+          "unsigned": false,
+          "autoincrement": false,
+          "primary": false,
+          "nullable": false,
+          "mappedType": "integer"
+        },
+        "product_id": {
+          "name": "product_id",
+          "type": "int",
+          "unsigned": false,
+          "autoincrement": false,
+          "primary": false,
+          "nullable": true,
+          "mappedType": "integer"
+        }
+      },
+      "name": "stock",
+      "schema": "public",
+      "indexes": [
+        {
+          "keyName": "stock_pkey",
+          "columnNames": [
+            "id"
+          ],
+          "composite": false,
+          "primary": true,
+          "unique": true
+        }
+      ],
+      "checks": [],
+      "foreignKeys": {
+        "stock_product_id_foreign": {
+          "constraintName": "stock_product_id_foreign",
+          "columnNames": [
+            "product_id"
+          ],
+          "localTableName": "public.stock",
+          "referencedColumnNames": [
+            "id"
+          ],
+          "referencedTableName": "public.product",
+          "deleteRule": "set null",
+          "updateRule": "cascade"
+        }
+      }
     },
     {
       "columns": {
@@ -889,20 +910,20 @@
           "nullable": true,
           "default": "'pictureStore'",
           "mappedType": "string"
+        },
+        "store_id": {
+          "name": "store_id",
+          "type": "int",
+          "unsigned": false,
+          "autoincrement": false,
+          "primary": false,
+          "nullable": false,
+          "mappedType": "integer"
         }
       },
       "name": "supplier",
       "schema": "public",
       "indexes": [
-        {
-          "columnNames": [
-            "siren"
-          ],
-          "composite": false,
-          "keyName": "supplier_siren_unique",
-          "primary": false,
-          "unique": true
-        },
         {
           "keyName": "supplier_pkey",
           "columnNames": [
@@ -914,7 +935,20 @@
         }
       ],
       "checks": [],
-      "foreignKeys": {}
+      "foreignKeys": {
+        "supplier_store_id_foreign": {
+          "constraintName": "supplier_store_id_foreign",
+          "columnNames": [
+            "store_id"
+          ],
+          "localTableName": "public.supplier",
+          "referencedColumnNames": [
+            "id"
+          ],
+          "referencedTableName": "public.store",
+          "updateRule": "cascade"
+        }
+      }
     },
     {
       "columns": {
@@ -1136,7 +1170,7 @@
           "unsigned": false,
           "autoincrement": false,
           "primary": false,
-          "nullable": false,
+          "nullable": true,
           "mappedType": "integer"
         }
       },
@@ -1186,6 +1220,7 @@
             "id"
           ],
           "referencedTableName": "public.store",
+          "deleteRule": "set null",
           "updateRule": "cascade"
         }
       }

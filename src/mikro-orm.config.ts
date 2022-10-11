@@ -33,7 +33,8 @@ const config: Options<PostgreSqlDriver> = {
     Stock,
   ],
   seeder: {
-    path: './seeders',
+    path: './dist/seeders',
+    pathTs: './seeders',
     defaultSeeder: 'FakeDataSeeder',
     glob: '!(*.d).{js,ts}',
     emit: 'ts',

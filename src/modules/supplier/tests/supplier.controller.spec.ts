@@ -1,4 +1,10 @@
 import { Test, TestingModule } from '@nestjs/testing';
+
+import { Request } from 'express';
+import { ParamsDictionary } from 'express-serve-static-core';
+import { ParsedQs } from 'qs';
+import { Options, Ranges, Result } from 'range-parser';
+
 import { Supplier } from '../../../entities';
 import { SupplierController } from '../supplier.controller';
 import { SupplierService } from '../supplier.service';
@@ -23,6 +29,8 @@ describe('SupplierController', () => {
       return [supplier];
     }),
   };
+
+  const mockReq: Partial<Request> = {};
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
       controllers: [SupplierController],
@@ -40,12 +48,9 @@ describe('SupplierController', () => {
   });
 
   it('should return array of Store', async () => {
-    const result = await controller.getAllSuppliers();
+    const result = await controller.getAllSuppliers(mockReq as Request);
     expect(result).toBeDefined();
     expect(result.length).toBe(1);
-    // expect(result[0].id).toBe(1);
-    // expect(result[0].name).toBe('NameTest');
-    // expect(result[0].city).toBe('Address test');
     expect(mockSupplierService.getAll).toBeCalledTimes(1);
   });
 });

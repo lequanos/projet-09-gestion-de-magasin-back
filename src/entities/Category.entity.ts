@@ -5,9 +5,7 @@ import {
   ManyToOne,
   Property,
 } from '@mikro-orm/core';
-import { Aisle } from './Aisle.entity';
-import { CustomBaseEntity } from './CustomBaseEntity';
-import { Product } from './Product.entity';
+import { CustomBaseEntity, Product, Aisle } from './';
 
 @Entity()
 export class Category extends CustomBaseEntity {

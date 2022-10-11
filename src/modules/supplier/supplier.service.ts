@@ -1,14 +1,16 @@
-import { EntityManager, EntityRepository, wrap } from '@mikro-orm/core';
-import { InjectRepository } from '@mikro-orm/nestjs/mikro-orm.common';
 import {
   ConflictException,
   Injectable,
   Logger,
   NotFoundException,
 } from '@nestjs/common';
-import { isNotFoundError } from '../../typeguards/ExceptionTypeGuards';
-import { Supplier } from '../../entities';
-import { SupplierDto, UpdateSupplierDto } from './supplier.dto';
+
+import { EntityManager, EntityRepository, wrap } from '@mikro-orm/core';
+import { InjectRepository } from '@mikro-orm/nestjs/mikro-orm.common';
+
+import { isNotFoundError } from '../../utils/typeguards/ExceptionTypeGuards';
+import { Supplier, User } from '../../entities';
+import { CreateSupplierDto, UpdateSupplierDto } from './supplier.dto';
 
 @Injectable()
 export class SupplierService {
@@ -22,12 +24,12 @@ export class SupplierService {
   /**
    * Get all Suppliers who are active
    */
-  async getAll(): Promise<Supplier[]> {
+  async getAll(user: Partial<User>): Promise<Supplier[]> {
     try {
       return await this.supplierRepository.find(
         { isActive: true },
         {
-          filters: [
+          fields: [
             'name',
             'phoneNumber',
             'address',
@@ -37,7 +39,10 @@ export class SupplierService {
             'siret',
             'contact',
             'pictureUrl',
+            'store',
+            { store: ['name'] },
           ],
+          filters: { fromStore: { user } },
         },
       );
     } catch (e) {
@@ -56,7 +61,7 @@ export class SupplierService {
    * @param id the searched id number
    * @returns the supplier
    */
-  async getOneSupplier(id: number): Promise<Supplier> {
+  async getOneSupplier(id: number, user: Partial<User>): Promise<Supplier> {
     try {
       return await this.supplierRepository.findOneOrFail(
         {
@@ -64,7 +69,7 @@ export class SupplierService {
           isActive: true,
         },
         {
-          filters: [
+          fields: [
             'name',
             'phoneNumber',
             'address',
@@ -75,6 +80,7 @@ export class SupplierService {
             'contact',
             'pictureUrl',
           ],
+          filters: { fromStore: { user } },
         },
       );
     } catch (e) {
@@ -90,26 +96,32 @@ export class SupplierService {
 
   /**
    * Create Supplier
-   * @params supplierDto
+   * @params createSupplierDto
    * @returns supplier created
    */
-  async createSupplier(supplierDto: SupplierDto): Promise<Supplier> {
+  async createSupplier(
+    createSupplierDto: CreateSupplierDto,
+    user: Partial<User>,
+  ): Promise<Supplier> {
     try {
-      const foundSupplierSiren = await this.supplierRepository.findOneOrFail({
-        siren: supplierDto.siren,
-      });
+      const foundSupplier = await this.supplierRepository.findOne(
+        {
+          siren: createSupplierDto.siren,
+        },
+        { filters: { fromStore: { user } } },
+      );
 
-      if (foundSupplierSiren)
+      if (foundSupplier)
         throw new ConflictException(
           `Supplier already exists${
-            foundSupplierSiren.isActive ? '' : ' but is deactivated'
+            foundSupplier.isActive ? '' : ' but is deactivated'
           }`,
         );
 
-      const supplier = this.supplierRepository.create(supplierDto);
+      const supplier = this.supplierRepository.create(createSupplierDto);
       await this.supplierRepository.persistAndFlush(supplier);
       this.em.clear();
-      return await this.getOneSupplier(supplier.id);
+      return await this.getOneSupplier(supplier.id, user);
     } catch (e) {
       this.logger.error(`${e.message} `, e);
       if (isNotFoundError(e)) {
@@ -124,10 +136,14 @@ export class SupplierService {
    * @param supplierDto
    * @returns the updated supplier
    */
-  async updateSupplier(supplierDto: UpdateSupplierDto): Promise<Supplier> {
+  async updateSupplier(
+    supplierDto: UpdateSupplierDto,
+    user: Partial<User>,
+  ): Promise<Supplier> {
     try {
       const foundSupplier = await this.supplierRepository.findOneOrFail(
         supplierDto.id,
+        { filters: { fromStore: { user } } },
       );
 
       if (!foundSupplier?.isActive)
@@ -139,7 +155,7 @@ export class SupplierService {
 
       await this.supplierRepository.persistAndFlush(foundSupplier);
       this.em.clear();
-      return await this.getOneSupplier(foundSupplier.id);
+      return await this.getOneSupplier(foundSupplier.id, user);
     } catch (e) {
       this.logger.error(`${e.message} `, e);
 
@@ -156,9 +172,14 @@ export class SupplierService {
    * @param id
    * @returns the desactivated supplier
    */
-  async deactivateSupplier(id: number): Promise<Supplier> {
+  async deactivateSupplier(id: number, user: Partial<User>): Promise<Supplier> {
     try {
-      const supplier = await this.supplierRepository.findOneOrFail({ id });
+      const supplier = await this.supplierRepository.findOneOrFail(
+        { id },
+        {
+          filters: { fromStore: { user } },
+        },
+      );
 
       if (!supplier.isActive)
         throw new ConflictException('Supplier is already deactivated');
@@ -166,7 +187,7 @@ export class SupplierService {
       supplier.isActive = false;
       await this.supplierRepository.persistAndFlush(supplier);
       this.em.clear();
-      return await this.getOneSupplier(supplier.id);
+      return await this.getOneSupplier(supplier.id, user);
     } catch (e) {
       this.logger.error(`${e.message} `, e);
 
@@ -182,9 +203,14 @@ export class SupplierService {
    * @param id
    * @returns the reactivated supplier
    */
-  async reactivateSupplier(id: number): Promise<Supplier> {
+  async reactivateSupplier(id: number, user: Partial<User>): Promise<Supplier> {
     try {
-      const supplier = await this.supplierRepository.findOneOrFail({ id });
+      const supplier = await this.supplierRepository.findOneOrFail(
+        { id },
+        {
+          filters: { fromStore: { user } },
+        },
+      );
 
       if (supplier?.isActive)
         throw new ConflictException('Supplier is already activated');
@@ -192,7 +218,7 @@ export class SupplierService {
       supplier.isActive = true;
       await this.supplierRepository.persistAndFlush(supplier);
       this.em.clear();
-      return await this.getOneSupplier(supplier.id);
+      return await this.getOneSupplier(supplier.id, user);
     } catch (e) {
       this.logger.error(`${e.message} `, e);
 
@@ -208,11 +234,15 @@ export class SupplierService {
    * Delete one supplier
    * @param supplierId the id of the supplier to delete
    */
-  async deleteStore(supplierId: number): Promise<void> {
+  async deleteStore(supplierId: number, user: Partial<User>): Promise<void> {
     try {
       const foundSupplier = await this.supplierRepository.findOneOrFail(
-        supplierId,
+        { id: supplierId },
+        {
+          filters: { fromStore: { user } },
+        },
       );
+
       await this.supplierRepository.removeAndFlush(foundSupplier);
     } catch (e) {
       this.logger.error(`${e.message} `, e);

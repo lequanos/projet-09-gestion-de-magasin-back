@@ -8,16 +8,21 @@ import {
   Patch,
   Post,
   Put,
-  UseGuards,
+  Req,
+  UseInterceptors,
 } from '@nestjs/common';
-import { AccessTokenGuard } from 'src/auth/accessToken.guard';
-import { Supplier } from '../../entities';
+
+import { Request } from 'express';
+
+import { Roles } from '../../utils/decorators/roles.decorator';
+import { Supplier, User } from '../../entities';
 import {
-  SupplierDto,
+  CreateSupplierDto,
   SupplierIdParamDto,
   UpdateSupplierDto,
 } from './supplier.dto';
 import { SupplierService } from './supplier.service';
+import { StoreInterceptor } from '../../utils/interceptors/store.interceptor';
 
 /**
  * Controller for the suppliers
@@ -31,24 +36,37 @@ export class SupplierController {
    * Get all Suppliers
    */
   @Get()
-  async getAllSuppliers(): Promise<Supplier[]> {
-    return await this.supplierService.getAll();
+  @Roles('super admin', 'store manager', 'purchasing manager')
+  async getAllSuppliers(@Req() req: Request): Promise<Supplier[]> {
+    return await this.supplierService.getAll(req.user as User);
   }
 
   /**
    * Get one Supplier
    */
   @Get(':id')
-  async getOneSupplier(@Param('id') id: number): Promise<Supplier> {
-    return await this.supplierService.getOneSupplier(id);
+  @Roles('super admin', 'store manager', 'purchasing manager')
+  async getOneSupplier(
+    @Req() req: Request,
+    @Param('id') id: number,
+  ): Promise<Supplier> {
+    return await this.supplierService.getOneSupplier(id, req.user as User);
   }
 
   /**
    * Create Supplier
    */
   @Post()
-  async createSupplier(@Body() supplierDto: SupplierDto): Promise<Supplier> {
-    return await this.supplierService.createSupplier(supplierDto);
+  @Roles('super admin', 'store manager', 'purchasing manager')
+  @UseInterceptors(StoreInterceptor)
+  async createSupplier(
+    @Req() req: Request,
+    @Body() supplierDto: CreateSupplierDto,
+  ): Promise<Supplier> {
+    return await this.supplierService.createSupplier(
+      supplierDto,
+      req.user as User,
+    );
   }
 
   /**
@@ -58,10 +76,16 @@ export class SupplierController {
    */
 
   @Patch()
+  @Roles('super admin', 'store manager', 'purchasing manager')
+  @UseInterceptors(StoreInterceptor)
   async updatePartialSupplier(
+    @Req() req: Request,
     @Body() supplierDto: UpdateSupplierDto,
   ): Promise<Supplier> {
-    return await this.supplierService.updateSupplier(supplierDto);
+    return await this.supplierService.updateSupplier(
+      supplierDto,
+      req.user as User,
+    );
   }
 
   /**
@@ -71,10 +95,16 @@ export class SupplierController {
    */
 
   @Put()
+  @Roles('super admin', 'store manager', 'purchasing manager')
+  @UseInterceptors(StoreInterceptor)
   async updateSupplier(
+    @Req() req: Request,
     @Body() supplierDto: UpdateSupplierDto,
   ): Promise<Supplier> {
-    return await this.supplierService.updateSupplier(supplierDto);
+    return await this.supplierService.updateSupplier(
+      supplierDto,
+      req.user as User,
+    );
   }
 
   /**
@@ -83,10 +113,15 @@ export class SupplierController {
    * @returns
    */
   @Delete(':id')
+  @Roles('super admin', 'store manager', 'purchasing manager')
   async deactivateSupplier(
+    @Req() req: Request,
     @Param() param: SupplierIdParamDto,
   ): Promise<Supplier> {
-    return await this.supplierService.deactivateSupplier(param.id);
+    return await this.supplierService.deactivateSupplier(
+      param.id,
+      req.user as User,
+    );
   }
   /**
    * Reactivate a supplier
@@ -94,10 +129,15 @@ export class SupplierController {
    * @returns
    */
   @Patch(':id')
+  @Roles('super admin', 'store manager', 'purchasing manager')
   async reactivateSupplier(
+    @Req() req: Request,
     @Param() param: SupplierIdParamDto,
   ): Promise<Supplier> {
-    return await this.supplierService.reactivateSupplier(param.id);
+    return await this.supplierService.reactivateSupplier(
+      param.id,
+      req.user as User,
+    );
   }
 
   /**
@@ -105,7 +145,11 @@ export class SupplierController {
    */
   @HttpCode(204)
   @Delete('/delete/:id')
-  async deleteSupplier(@Param() param: SupplierIdParamDto): Promise<void> {
-    await this.supplierService.deleteStore(param.id);
+  @Roles('super admin', 'store manager', 'purchasing manager')
+  async deleteSupplier(
+    @Req() req: Request,
+    @Param() param: SupplierIdParamDto,
+  ): Promise<void> {
+    await this.supplierService.deleteStore(param.id, req.user as User);
   }
 }

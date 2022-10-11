@@ -8,11 +8,17 @@ import {
   Patch,
   Post,
   Put,
+  Req,
+  UseInterceptors,
 } from '@nestjs/common';
 
+import { Request } from 'express';
+
+import { Roles } from '../../utils/decorators/roles.decorator';
 import { User } from '../../entities';
 import { CreateUserDto, UpdateUserDto, UserIdParamDto } from './user.dto';
 import { UserService } from './user.service';
+import { StoreInterceptor } from '../../utils/interceptors/store.interceptor';
 
 /**
  * Controller for the users
@@ -25,16 +31,21 @@ export class UserController {
    * Get all users
    */
   @Get()
-  async getAllUsers(): Promise<User[]> {
-    return await this.userService.getAll();
+  @Roles('super admin', 'store manager', 'purchasing manager')
+  async getAllUsers(@Req() req: Request): Promise<User[]> {
+    return await this.userService.getAll(req.user as User);
   }
 
   /**
    * Get one user by id
    */
   @Get(':id')
-  async getOneUserById(@Param() param: UserIdParamDto): Promise<User> {
-    return await this.userService.getOneById(param.id);
+  @Roles('super admin', 'store manager')
+  async getOneUserById(
+    @Req() req: Request,
+    @Param() param: UserIdParamDto,
+  ): Promise<User> {
+    return await this.userService.getOneById(param.id, req.user as User);
   }
 
   /**
@@ -43,7 +54,12 @@ export class UserController {
    * @returns the created user
    */
   @Post()
-  async createUser(@Body() createUserDto: CreateUserDto): Promise<User> {
+  @Roles('super admin', 'store manager')
+  @UseInterceptors(StoreInterceptor)
+  async createUser(
+    @Req() req: Request,
+    @Body() createUserDto: CreateUserDto,
+  ): Promise<User> {
     return await this.userService.createUser(createUserDto);
   }
 
@@ -53,8 +69,13 @@ export class UserController {
    * @returns the updated user
    */
   @Patch()
-  async updatePartialUser(@Body() updateUserDto: UpdateUserDto): Promise<User> {
-    return await this.userService.updateUser(updateUserDto);
+  @Roles('super admin', 'store manager')
+  @UseInterceptors(StoreInterceptor)
+  async updatePartialUser(
+    @Req() req: Request,
+    @Body() updateUserDto: UpdateUserDto,
+  ): Promise<User> {
+    return await this.userService.updateUser(updateUserDto, req.user as User);
   }
 
   /**
@@ -63,24 +84,37 @@ export class UserController {
    * @returns the updated user
    */
   @Put()
-  async updateUser(@Body() updateUserDto: UpdateUserDto): Promise<User> {
-    return await this.userService.updateUser(updateUserDto);
+  @Roles('super admin', 'store manager')
+  @UseInterceptors(StoreInterceptor)
+  async updateUser(
+    @Req() req: Request,
+    @Body() updateUserDto: UpdateUserDto,
+  ): Promise<User> {
+    return await this.userService.updateUser(updateUserDto, req.user as User);
   }
 
   /**
    * Deactivate one user
    */
   @Delete(':id')
-  async deactivateUser(@Param() param: UserIdParamDto): Promise<User> {
-    return await this.userService.deactivateUser(param.id);
+  @Roles('super admin', 'store manager')
+  async deactivateUser(
+    @Req() req: Request,
+    @Param() param: UserIdParamDto,
+  ): Promise<User> {
+    return await this.userService.deactivateUser(param.id, req.user as User);
   }
 
   /**
    * Reactivate one user
    */
   @Patch(':id')
-  async reactivateUser(@Param() param: UserIdParamDto): Promise<User> {
-    return await this.userService.reactivateUser(param.id);
+  @Roles('super admin', 'store manager')
+  async reactivateUser(
+    @Req() req: Request,
+    @Param() param: UserIdParamDto,
+  ): Promise<User> {
+    return await this.userService.reactivateUser(param.id, req.user as User);
   }
 
   /**
@@ -88,7 +122,11 @@ export class UserController {
    */
   @HttpCode(204)
   @Delete('/delete/:id')
-  async deleteUser(@Param() param: UserIdParamDto): Promise<void> {
-    await this.userService.deleteUser(param.id);
+  @Roles('super admin', 'store manager')
+  async deleteUser(
+    @Req() req: Request,
+    @Param() param: UserIdParamDto,
+  ): Promise<void> {
+    await this.userService.deleteUser(param.id, req.user as User);
   }
 }
