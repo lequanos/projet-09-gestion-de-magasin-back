@@ -19,6 +19,8 @@ import { AuthController } from './modules/auth/auth.controller';
 import { APP_GUARD } from '@nestjs/core';
 import { AccessTokenGuard } from './utils/guards/access-token.guard';
 import { RolesGuard } from './utils/guards/roles.guard';
+import { ProductController } from './product/product.controller';
+import { ProductModule } from './product/product.module';
 
 @Module({
   imports: [
@@ -57,6 +59,7 @@ import { RolesGuard } from './utils/guards/roles.guard';
       }),
       inject: [ConfigService],
     }),
+    ProductModule,
   ],
   controllers: [
     StoreController,
@@ -64,6 +67,7 @@ import { RolesGuard } from './utils/guards/roles.guard';
     UserController,
     MailController,
     AuthController,
+    ProductController,
   ],
   providers: [
     {
