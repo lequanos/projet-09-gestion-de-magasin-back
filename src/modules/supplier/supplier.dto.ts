@@ -63,33 +63,30 @@ export class UpdateSupplierDto {
   @IsOptional()
   public siret: string;
 
-  @MaxLength(64)
-  @IsOptional()
-  public contact: string;
-
-  @IsOptional()
-  public pictureUrl: string;
-
-  @IsOptional()
-  public isActive = true;
-
-  @IsOptional()
-  public store: Store;
-
-  @IsOptional()
-  public createdAt: Date = new Date();
-
-  @IsOptional()
-  public updatedAt: Date = new Date();
-}
-export class CreateSupplierDto {
-  @IsNumber()
-  @IsOptional()
-  public id: number;
-
-  @IsNotEmpty()
-  @MaxLength(64)
-  public name: string;
+    @MaxLength(64)
+    @IsOptional()
+    public contact: string;
+  
+    @IsOptional()
+    public pictureUrl: string;
+  
+    @IsOptional()
+    public isActive: boolean;
+  
+    @IsOptional()
+    public createdAt: Date;
+  
+    @IsOptional()
+    public updatedAt: Date;
+  }
+  export class SupplierDto {
+    @IsNumber()
+    @IsOptional()
+    public id: number;
+  
+    @IsNotEmpty()
+    @MaxLength(64)
+    public name: string;
 
   @IsNotEmpty()
   @MaxLength(10)
@@ -123,22 +120,19 @@ export class CreateSupplierDto {
   @IsOptional()
   public siret: string;
 
-  @MaxLength(64)
-  @IsOptional()
-  public contact: string;
-
-  @IsOptional()
-  public pictureUrl: string;
-
-  @IsOptional()
-  public isActive = true;
-
-  @IsOptional()
-  public createdAt: Date = new Date();
-
-  @IsOptional()
-  public updatedAt: Date = new Date();
-
-  @IsOptional()
-  public store: Store;
-}
+    @MaxLength(64)
+    @IsOptional()
+    public contact: string;
+  
+    @IsOptional()
+    public pictureUrl: string;
+  
+    @IsOptional()
+    public isActive: boolean;
+  
+    @IsOptional()
+    public createdAt: Date;
+  
+    @IsOptional()
+    public updatedAt: Date;
+  }

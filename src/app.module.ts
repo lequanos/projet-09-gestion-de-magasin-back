@@ -15,6 +15,9 @@ import { UserModule } from './modules/user/user.module';
 import { MailController } from './modules/mail/mail.controller';
 import { MailModule } from './modules/mail/mail.module';
 import { AuthModule } from './modules/auth/auth.module';
+import { appendFile } from 'fs';
+import { BrandModule } from './modules/brand/brand.module';
+import { BrandController } from './modules/brand/brand.controller';
 import { AuthController } from './modules/auth/auth.controller';
 import { APP_GUARD } from '@nestjs/core';
 import { AccessTokenGuard } from './utils/guards/access-token.guard';
@@ -25,6 +28,7 @@ import { RolesGuard } from './utils/guards/roles.guard';
     MikroOrmModule.forRoot(config),
     SupplierModule,
     StoreModule,
+    BrandModule,
     AuthModule,
     ConfigModule.forRoot({
       isGlobal: true,
@@ -62,6 +66,7 @@ import { RolesGuard } from './utils/guards/roles.guard';
     StoreController,
     SupplierController,
     UserController,
+    BrandController,
     MailController,
     AuthController,
   ],
