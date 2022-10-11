@@ -1,6 +1,5 @@
 import { Entity, Property, OneToMany, Collection } from '@mikro-orm/core';
-import { CustomBaseEntity } from './CustomBaseEntity';
-import { User } from './User.entity';
+import { CustomBaseEntity, User } from './';
 
 @Entity()
 export class Role extends CustomBaseEntity {

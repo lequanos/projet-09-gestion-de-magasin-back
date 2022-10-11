@@ -1,6 +1,5 @@
 import { Collection, Entity, OneToMany, Property } from '@mikro-orm/core';
-import { CustomBaseEntity } from './CustomBaseEntity';
-import { Product } from './Product.entity';
+import { CustomBaseEntity, Product } from './';
 
 @Entity()
 export class Brand extends CustomBaseEntity {

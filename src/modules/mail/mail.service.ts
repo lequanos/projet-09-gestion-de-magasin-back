@@ -3,7 +3,7 @@ import { MailerService } from '@nestjs-modules/mailer';
 import { EntityRepository, FilterQuery } from '@mikro-orm/core';
 import { User, Role } from '../../entities';
 import { InjectRepository } from '@mikro-orm/nestjs';
-import { isNotFoundError } from '../../typeguards/ExceptionTypeGuards';
+import { isNotFoundError } from '../../utils/typeguards/ExceptionTypeGuards';
 
 @Injectable()
 export class MailService {

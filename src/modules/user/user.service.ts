@@ -10,8 +10,8 @@ import { EntityManager, EntityRepository, wrap } from '@mikro-orm/core';
 import { InjectRepository } from '@mikro-orm/nestjs';
 import * as bcrypt from 'bcrypt';
 
-import { isNotFoundError } from '../../typeguards/ExceptionTypeGuards';
-import { Role, User, Store } from '../../entities';
+import { isNotFoundError } from '../../utils/typeguards/ExceptionTypeGuards';
+import { User } from '../../entities';
 import { CreateUserDto, UpdateUserDto } from './user.dto';
 
 /**
@@ -22,10 +22,6 @@ export class UserService {
   constructor(
     @InjectRepository(User)
     private readonly userRepository: EntityRepository<User>,
-    @InjectRepository(Role)
-    private readonly roleRepository: EntityRepository<Role>,
-    @InjectRepository(Store)
-    private readonly storeRepository: EntityRepository<Store>,
     private readonly logger: Logger = new Logger('UserService'),
     private readonly em: EntityManager,
   ) {}
@@ -33,7 +29,7 @@ export class UserService {
   /**
    * Get all users that are active
    */
-  async getAll(): Promise<User[]> {
+  async getAll(user: Partial<User>): Promise<User[]> {
     try {
       return await this.userRepository.find(
         { isActive: true },
@@ -50,7 +46,9 @@ export class UserService {
             {
               aisles: ['name'],
             },
+            'store',
           ],
+          filters: { fromStore: { user } },
         },
       );
     } catch (e) {
@@ -69,7 +67,7 @@ export class UserService {
    * @param id the searched user's identifier
    * @returns the found user
    */
-  async getOneById(id: number): Promise<User> {
+  async getOneById(id: number, user: Partial<User>): Promise<User> {
     try {
       return await this.userRepository.findOneOrFail(
         { id, isActive: true },
@@ -86,7 +84,12 @@ export class UserService {
             {
               aisles: ['name'],
             },
+            'store',
+            {
+              store: ['name'],
+            },
           ],
+          filters: { fromStore: { user } },
         },
       );
     } catch (e) {
@@ -101,14 +104,14 @@ export class UserService {
   }
 
   /**
-   * Get one user by mail
-   * @param mail the searched user's identifier
-   * @returns the found user
+   * Get the user from his refresh token
+   * @param refreshToken
+   * @returns a user
    */
-  async getOneByMail(email: string): Promise<User> {
+  async getOneByRefreshToken(refreshToken: string): Promise<User> {
     try {
-      return await this.userRepository.findOneOrFail(
-        { email, isActive: true },
+      const user = await this.userRepository.findOneOrFail(
+        { refreshToken, isActive: true },
         {
           fields: [
             'firstname',
@@ -116,6 +119,7 @@ export class UserService {
             'email',
             'pictureUrl',
             'role',
+            'refreshToken',
             {
               role: ['name'],
             },
@@ -125,6 +129,11 @@ export class UserService {
           ],
         },
       );
+
+      if (!user.refreshToken)
+        throw new ForbiddenException('Access Denied, nonono');
+
+      return user;
     } catch (e) {
       this.logger.error(`${e.message} `, e);
 
@@ -134,39 +143,6 @@ export class UserService {
 
       throw e;
     }
-  }
-
-  /**
-   *
-   * @param refreshToken
-   * @param userId
-   * @returns
-   */
-   async getOneByRefreshToken(refreshToken: string) {
-    const user = await this.userRepository.findOneOrFail(
-      { refreshToken, isActive: true },
-      {
-        fields: [
-          'firstname',
-          'lastname',
-          'email',
-          'pictureUrl',
-          'role',
-          'refreshToken',
-          {
-            role: ['name'],
-          },
-          {
-            aisles: ['name'],
-          },
-        ],
-      },
-    );
-
-    if (!user || !user.refreshToken)
-    throw new ForbiddenException('Access Denied, nonono');
-
-    return user;
   }
 
   /**
@@ -188,14 +164,11 @@ export class UserService {
         );
 
       userDto.password = await bcrypt.hash(userDto.password, 10);
-      userDto.role = userDto.role || (await this.roleRepository.findAll())[0];
-      userDto.store =
-        userDto.store || (await this.storeRepository.findAll())[0];
 
-      const user = this.userRepository.create(userDto);
-      await this.userRepository.persistAndFlush(user);
+      const userCreated = this.userRepository.create(userDto);
+      await this.userRepository.persistAndFlush(userCreated);
       this.em.clear();
-      return await this.getOneById(user.id);
+      return await this.getOneById(userCreated.id, userCreated);
     } catch (e) {
       this.logger.error(`${e.message} `, e);
       throw e;
@@ -207,9 +180,11 @@ export class UserService {
    * @param userDto the user's input
    * @returns the updated user
    */
-  async updateUser(userDto: UpdateUserDto): Promise<User> {
+  async updateUser(userDto: UpdateUserDto, user: Partial<User>): Promise<User> {
     try {
-      const foundUser = await this.userRepository.findOneOrFail(userDto.id);
+      const foundUser = await this.userRepository.findOneOrFail(userDto.id, {
+        filters: { fromStore: { user } },
+      });
 
       if (!foundUser?.isActive)
         throw new ConflictException('User is deactivated');
@@ -220,7 +195,7 @@ export class UserService {
 
       await this.userRepository.persistAndFlush(foundUser);
       this.em.clear();
-      return await this.getOneById(foundUser.id);
+      return await this.getOneById(foundUser.id, foundUser);
     } catch (e) {
       this.logger.error(`${e.message} `, e);
 
@@ -233,9 +208,9 @@ export class UserService {
   }
 
   /**
-   * Update refreshtoken from a user input
-   * @param userDto the user's input
-   * @returns the updated user
+   * Update refreshtoken after an asked refresh
+   * @param userId the user's identifier
+   * @param refreshToken the new refresh token
    */
   async updateUserRefreshToken(
     userId: number,
@@ -266,18 +241,19 @@ export class UserService {
    * @param userId the identifier of the user to soft delete
    * @returns the deactivated user
    */
-  async deactivateUser(userId: number): Promise<User> {
+  async deactivateUser(userId: number, user: Partial<User>): Promise<User> {
     try {
-      const foundUser = await this.userRepository.findOneOrFail(userId);
+      const foundUser = await this.userRepository.findOneOrFail(userId, {
+        filters: { fromStore: { user } },
+      });
 
       if (!foundUser?.isActive)
         throw new ConflictException('User is already deactivated');
 
       foundUser.isActive = false;
-
       await this.userRepository.persistAndFlush(foundUser);
       this.em.clear();
-      return await this.getOneById(foundUser.id);
+      return await this.getOneById(foundUser.id, foundUser);
     } catch (e) {
       this.logger.error(`${e.message} `, e);
 
@@ -294,9 +270,11 @@ export class UserService {
    * @param userId the identifier of the user to reactivate
    * @returns the reactivated user
    */
-  async reactivateUser(userId: number): Promise<User> {
+  async reactivateUser(userId: number, user: Partial<User>): Promise<User> {
     try {
-      const foundUser = await this.userRepository.findOneOrFail(userId);
+      const foundUser = await this.userRepository.findOneOrFail(userId, {
+        filters: { fromStore: { user } },
+      });
 
       if (foundUser?.isActive)
         throw new ConflictException('User is already activated');
@@ -305,7 +283,7 @@ export class UserService {
 
       await this.userRepository.persistAndFlush(foundUser);
       this.em.clear();
-      return await this.getOneById(foundUser.id);
+      return await this.getOneById(foundUser.id, foundUser);
     } catch (e) {
       this.logger.error(`${e.message} `, e);
 
@@ -321,9 +299,11 @@ export class UserService {
    * Delete one user
    * @param userId the identifier of the user to delete
    */
-  async deleteUser(userId: number): Promise<void> {
+  async deleteUser(userId: number, user: Partial<User>): Promise<void> {
     try {
-      const foundUser = await this.userRepository.findOneOrFail(userId);
+      const foundUser = await this.userRepository.findOneOrFail(userId, {
+        filters: { fromStore: { user } },
+      });
       await this.userRepository.removeAndFlush(foundUser);
     } catch (e) {
       this.logger.error(`${e.message} `, e);

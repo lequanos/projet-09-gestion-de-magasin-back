@@ -1,7 +1,5 @@
 import { Entity, Property, OneToMany, Collection } from '@mikro-orm/core';
-import { Aisle } from './Aisle.entity';
-import { CustomBaseEntity } from './CustomBaseEntity';
-import { User } from './User.entity';
+import { CustomBaseEntity, Aisle, User } from './';
 @Entity()
 export class Store extends CustomBaseEntity {
   @Property({ type: 'string', nullable: false, length: 64 })

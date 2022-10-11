@@ -6,7 +6,6 @@ import {
   IsDefined,
   IsEmail,
 } from 'class-validator';
-import { Exclude } from 'class-transformer';
 
 import { Collection } from '@mikro-orm/core';
 

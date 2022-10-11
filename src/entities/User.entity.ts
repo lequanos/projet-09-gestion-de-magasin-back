@@ -4,6 +4,7 @@ import {
   ManyToOne,
   ManyToMany,
   Collection,
+  Filter,
 } from '@mikro-orm/core';
 import { Aisle } from './Aisle.entity';
 import { CustomBaseEntity } from './CustomBaseEntity';
@@ -11,6 +12,13 @@ import { Role } from './Role.entity';
 import { Store } from './Store.entity';
 
 @Entity()
+@Filter({
+  name: 'fromStore',
+  cond: ({ user }: { user: Partial<User> }) => {
+    if (user?.role?.name === 'super admin') return;
+    return { store: user.store };
+  },
+})
 export class User extends CustomBaseEntity {
   @Property({ type: 'string', nullable: false, length: 64 })
   firstname: string;
@@ -36,7 +44,7 @@ export class User extends CustomBaseEntity {
   @ManyToOne(() => Role)
   role: Role;
 
-  @ManyToOne(() => Store)
+  @ManyToOne(() => Store, { nullable: true })
   store: Store;
 
   @ManyToMany({ entity: () => Aisle, inversedBy: 'users' })
