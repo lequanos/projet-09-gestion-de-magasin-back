@@ -38,7 +38,6 @@ export class SupplierController {
   /**
    * Get one Supplier
    */
-  @UseGuards(AccessTokenGuard)
   @Get(':id')
   async getOneSupplier(@Param('id') id: number): Promise<Supplier> {
     return await this.supplierService.getOneSupplier(id);

@@ -71,13 +71,13 @@ import {
     public pictureUrl: string;
   
     @IsOptional()
-    public isActive = true;
+    public isActive: boolean;
   
     @IsOptional()
-    public createdAt: Date = new Date();
+    public createdAt: Date;
   
     @IsOptional()
-    public updatedAt: Date = new Date();
+    public updatedAt: Date;
   }
   export class SupplierDto {
     @IsNumber()
@@ -128,11 +128,11 @@ import {
     public pictureUrl: string;
   
     @IsOptional()
-    public isActive = true;
+    public isActive: boolean;
   
     @IsOptional()
-    public createdAt: Date = new Date();
+    public createdAt: Date;
   
     @IsOptional()
-    public updatedAt: Date = new Date();
+    public updatedAt: Date;
   }

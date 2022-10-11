@@ -17,12 +17,15 @@ import { MailModule } from './modules/mail/mail.module';
 import { AuthModule } from './auth/auth.module';
 import { appendFile } from 'fs';
 import { AppController } from './auth/auth.controller';
+import { BrandModule } from './modules/brand/brand.module';
+import { BrandController } from './modules/brand/brand.controller';
 
 @Module({
   imports: [
     MikroOrmModule.forRoot(config),
     SupplierModule,
     StoreModule,
+    BrandModule,
     AuthModule,
     ConfigModule.forRoot({
       isGlobal: true,
@@ -60,6 +63,7 @@ import { AppController } from './auth/auth.controller';
     StoreController,
     SupplierController,
     UserController,
+    BrandController,
     MailController,
   ],
   providers: [],
