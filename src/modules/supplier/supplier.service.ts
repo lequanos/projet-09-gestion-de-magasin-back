@@ -61,12 +61,16 @@ export class SupplierService {
    * @param id the searched id number
    * @returns the supplier
    */
-  async getOneSupplier(id: number, user: Partial<User>): Promise<Supplier> {
+  async getOneSupplier(
+    id: number,
+    user: Partial<User>,
+    isActive = true,
+  ): Promise<Supplier> {
     try {
       return await this.supplierRepository.findOneOrFail(
         {
           id,
-          isActive: true,
+          isActive,
         },
         {
           fields: [
@@ -174,6 +178,7 @@ export class SupplierService {
    */
   async deactivateSupplier(id: number, user: Partial<User>): Promise<Supplier> {
     try {
+      console.log(id, user);
       const supplier = await this.supplierRepository.findOneOrFail(
         { id },
         {
@@ -187,7 +192,7 @@ export class SupplierService {
       supplier.isActive = false;
       await this.supplierRepository.persistAndFlush(supplier);
       this.em.clear();
-      return await this.getOneSupplier(supplier.id, user);
+      return await this.getOneSupplier(supplier.id, user, false);
     } catch (e) {
       this.logger.error(`${e.message} `, e);
 

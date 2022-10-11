@@ -71,16 +71,16 @@ export class UpdateSupplierDto {
   public pictureUrl: string;
 
   @IsOptional()
-  public isActive = true;
+  public isActive: boolean;
 
   @IsOptional()
   public store: Store;
 
   @IsOptional()
-  public createdAt: Date = new Date();
+  public createdAt: Date;
 
   @IsOptional()
-  public updatedAt: Date = new Date();
+  public updatedAt: Date;
 }
 export class CreateSupplierDto {
   @IsNumber()
@@ -134,10 +134,10 @@ export class CreateSupplierDto {
   public isActive = true;
 
   @IsOptional()
-  public createdAt: Date = new Date();
+  public createdAt: Date;
 
   @IsOptional()
-  public updatedAt: Date = new Date();
+  public updatedAt: Date;
 
   @IsOptional()
   public store: Store;

@@ -1,3 +1,4 @@
+import { APP_GUARD } from '@nestjs/core';
 import { Module } from '@nestjs/common';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 
@@ -16,11 +17,10 @@ import { MailController } from './modules/mail/mail.controller';
 import { MailModule } from './modules/mail/mail.module';
 import { AuthModule } from './modules/auth/auth.module';
 import { AuthController } from './modules/auth/auth.controller';
-import { APP_GUARD } from '@nestjs/core';
 import { AccessTokenGuard } from './utils/guards/access-token.guard';
 import { RolesGuard } from './utils/guards/roles.guard';
-import { ProductController } from './product/product.controller';
-import { ProductModule } from './product/product.module';
+import { ProductController } from './modules/product/product.controller';
+import { ProductModule } from './modules/product/product.module';
 
 @Module({
   imports: [

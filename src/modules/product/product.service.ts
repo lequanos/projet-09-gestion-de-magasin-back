@@ -6,10 +6,12 @@ import {
 } from '@nestjs/common';
 
 import { InjectRepository } from '@mikro-orm/nestjs';
-import { EntityManager, EntityRepository, wrap } from '@mikro-orm/core';
+import { wrap } from '@mikro-orm/core';
+import { EntityManager, EntityRepository } from '@mikro-orm/postgresql';
 
-import { Product, User } from '../../entities';
+import { Product, User, Brand, Stock } from '../../entities';
 import { isNotFoundError } from '../../utils/typeguards/ExceptionTypeGuards';
+import { CreateProductDto, UpdateProductDto } from './product.dto';
 
 /**
  * Service for the products
@@ -19,35 +21,55 @@ export class ProductService {
   constructor(
     @InjectRepository(Product)
     private readonly productRepository: EntityRepository<Product>,
+    @InjectRepository(Brand)
+    private readonly brandRepository: EntityRepository<Brand>,
     private readonly logger: Logger = new Logger('ProductService'),
     private readonly em: EntityManager,
   ) {}
 
   /**
-   * Get all users that are active
+   * Get all products that are active
    */
   async getAll(user: Partial<User>): Promise<Product[]> {
     try {
-      return await this.productRepository.find(
-        { isActive: true },
-        {
-          fields: [
-            'name',
-            'code',
-            'price',
-            'pictureUrl',
-            'nutriScore',
-            'ecoScore',
-            'unitPackaging',
-            'ingredients',
-            'brand',
-            {
-              brand: ['name'],
-            },
-          ],
-          filters: { fromStore: { user } },
-        },
-      );
+      const qb = this.em.createQueryBuilder(Product).getKnex();
+
+      qb.select([
+        'product.name',
+        'product.code',
+        'product.price',
+        'product.picture_url as pictureUrl',
+        'product.nutri_score as nutriScore',
+        'product.eco_score as ecoScore',
+        'product.unit_packaging as unitPackaging',
+        'product.ingredients',
+        'brand.name as brandName',
+      ])
+        .sum({ inStock: 'stock.quantity' })
+        .join('brand', 'product.brand_id', '=', 'brand.id')
+        .join('stock', 'product.id', '=', 'stock.product_id')
+        .modify((queryBuilder) => {
+          if (user.store?.id) {
+            queryBuilder.andWhere('product.store_id', user.store?.id);
+          }
+        })
+        .andWhere('product.is_active', true)
+        .groupBy(
+          'stock.product_id',
+          'product.name',
+          'product.code',
+          'product.nutri_score',
+          'product.eco_score',
+          'product.picture_url',
+          'product.unit_packaging',
+          'product.ingredients',
+          'product.price',
+          'brand.name',
+        );
+
+      const result = await this.em.getConnection().execute(qb);
+
+      return result as Product[];
     } catch (e) {
       this.logger.error(`${e.message} `, e);
 
@@ -60,32 +82,55 @@ export class ProductService {
   }
 
   /**
-   * Get one user by id
-   * @param id the searched user's identifier
-   * @returns the found user
+   * Get one product by id
+   * @param id the searched product's identifier
+   * @returns the found product
    */
-  async getOneById(id: number, user: Partial<User>): Promise<Product> {
+  async getOneById(
+    id: number,
+    user: Partial<User>,
+    isActive = true,
+  ): Promise<Product> {
     try {
-      return await this.productRepository.findOneOrFail(
-        { id, isActive: true },
-        {
-          fields: [
-            'name',
-            'code',
-            'price',
-            'pictureUrl',
-            'nutriScore',
-            'ecoScore',
-            'unitPackaging',
-            'ingredients',
-            'brand',
-            {
-              brand: ['name'],
-            },
-          ],
-          filters: { fromStore: { user } },
-        },
-      );
+      const qb = this.em.createQueryBuilder(Product).getKnex();
+
+      qb.select([
+        'product.name',
+        'product.code',
+        'product.price',
+        'product.picture_url as pictureUrl',
+        'product.nutri_score as nutriScore',
+        'product.eco_score as ecoScore',
+        'product.unit_packaging as unitPackaging',
+        'product.ingredients',
+        'brand.name as brandName',
+      ])
+        .sum({ inStock: 'stock.quantity' })
+        .join('brand', 'product.brand_id', '=', 'brand.id')
+        .join('stock', 'product.id', '=', 'stock.product_id')
+        .where('product_id', id)
+        .modify((queryBuilder) => {
+          if (user.store?.id) {
+            queryBuilder.andWhere('product.store_id', user.store?.id);
+          }
+        })
+        .andWhere('product.is_active', isActive)
+        .groupBy(
+          'stock.product_id',
+          'product.name',
+          'product.code',
+          'product.nutri_score',
+          'product.eco_score',
+          'product.picture_url',
+          'product.unit_packaging',
+          'product.ingredients',
+          'product.price',
+          'brand.name',
+        );
+
+      const result = await this.em.getConnection().execute(qb);
+      if (!result.length) throw new Error('Product not found');
+      return result[0] as Product;
     } catch (e) {
       this.logger.error(`${e.message} `, e);
 
@@ -98,29 +143,50 @@ export class ProductService {
   }
 
   /**
-   * Create a user from a user input
-   * @param userDto the user's input
-   * @returns the created user
+   * Create a product from a user input
+   * @param productDto the user's input
+   * @returns the created product
    */
-  async createUser(userDto: CreateUserDto): Promise<Product> {
+  async createProduct(
+    productDto: CreateProductDto,
+    user: Partial<User>,
+  ): Promise<Product> {
     try {
-      const foundUser = await this.productRepository.findOne({
-        email: userDto.email,
-      });
+      const foundProduct = await this.productRepository.findOne(
+        {
+          code: productDto.code,
+        },
+        { filters: { fromStore: { user } } },
+      );
 
-      if (foundUser)
+      if (foundProduct)
         throw new ConflictException(
-          `Email already exists${
-            foundUser.isActive ? '' : ' but is deactivated'
+          `Product already exists${
+            foundProduct.isActive ? '' : ' but is deactivated'
           }`,
         );
 
-      userDto.password = await bcrypt.hash(userDto.password, 10);
+      let brand = await this.brandRepository.findOne({
+        name: productDto.brand,
+      });
 
-      const userCreated = this.productRepository.create(userDto);
-      await this.productRepository.persistAndFlush(userCreated);
+      if (!brand) {
+        brand = this.brandRepository.create({
+          name: productDto.brand,
+          createdAt: new Date(),
+          updatedAt: new Date(),
+        });
+        await this.brandRepository.persistAndFlush(brand);
+      }
+
+      const productCreated = this.productRepository.create({
+        ...productDto,
+        brand,
+      });
+
+      await this.productRepository.persistAndFlush(productCreated);
       this.em.clear();
-      return await this.getOneById(userCreated.id, userCreated);
+      return await this.getOneById(productCreated.id, user);
     } catch (e) {
       this.logger.error(`${e.message} `, e);
       throw e;
@@ -128,26 +194,46 @@ export class ProductService {
   }
 
   /**
-   * Update a user from a user input
-   * @param userDto the user's input
-   * @returns the updated user
+   * Update a product from a user input
+   * @param productDto the user's input
+   * @returns the updated product
    */
-  async updateUser(userDto: UpdateUserDto, user: Partial<User>): Promise<Product> {
+  async updateProduct(
+    productDto: UpdateProductDto,
+    user: Partial<User>,
+  ): Promise<Product> {
     try {
-      const foundUser = await this.productRepository.findOneOrFail(userDto.id, {
-        filters: { fromStore: { user } },
+      const foundProduct = await this.productRepository.findOneOrFail(
+        productDto.id,
+        {
+          filters: { fromStore: { user } },
+        },
+      );
+
+      if (!foundProduct?.isActive)
+        throw new ConflictException('Product is deactivated');
+
+      let brand = await this.brandRepository.findOne({
+        name: productDto.brand,
       });
 
-      if (!foundUser?.isActive)
-        throw new ConflictException('User is deactivated');
+      if (!brand) {
+        brand = this.brandRepository.create({
+          name: productDto.brand,
+          createdAt: new Date(),
+          updatedAt: new Date(),
+        });
+        await this.brandRepository.persistAndFlush(brand);
+      }
 
-      wrap(foundUser).assign({
-        ...userDto,
+      wrap(foundProduct).assign({
+        ...productDto,
+        brand,
       });
 
-      await this.productRepository.persistAndFlush(foundUser);
+      await this.productRepository.persistAndFlush(foundProduct);
       this.em.clear();
-      return await this.getOneById(foundUser.id, foundUser);
+      return await this.getOneById(foundProduct.id, user);
     } catch (e) {
       this.logger.error(`${e.message} `, e);
 
@@ -160,23 +246,29 @@ export class ProductService {
   }
 
   /**
-   * Deactivate one user
-   * @param userId the identifier of the user to soft delete
-   * @returns the deactivated user
+   * Deactivate one product
+   * @param productId the identifier of the product to soft delete
+   * @returns the deactivated product
    */
-  async deactivateUser(userId: number, user: Partial<User>): Promise<Product> {
+  async deactivateProduct(
+    productId: number,
+    user: Partial<User>,
+  ): Promise<Product> {
     try {
-      const foundUser = await this.productRepository.findOneOrFail(userId, {
-        filters: { fromStore: { user } },
-      });
+      const foundProduct = await this.productRepository.findOneOrFail(
+        productId,
+        {
+          filters: { fromStore: { user } },
+        },
+      );
 
-      if (!foundUser?.isActive)
-        throw new ConflictException('User is already deactivated');
+      if (!foundProduct?.isActive)
+        throw new ConflictException('Product is already deactivated');
 
-      foundUser.isActive = false;
-      await this.productRepository.persistAndFlush(foundUser);
+      foundProduct.isActive = false;
+      await this.productRepository.persistAndFlush(foundProduct);
       this.em.clear();
-      return await this.getOneById(foundUser.id, foundUser);
+      return await this.getOneById(foundProduct.id, user, false);
     } catch (e) {
       this.logger.error(`${e.message} `, e);
 
@@ -189,24 +281,30 @@ export class ProductService {
   }
 
   /**
-   * Reactivate one user
-   * @param userId the identifier of the user to reactivate
-   * @returns the reactivated user
+   * Reactivate one product
+   * @param productId the identifier of the product to reactivate
+   * @returns the reactivated product
    */
-  async reactivateUser(userId: number, user: Partial<User>): Promise<Product> {
+  async reactivateProduct(
+    productId: number,
+    user: Partial<User>,
+  ): Promise<Product> {
     try {
-      const foundUser = await this.productRepository.findOneOrFail(userId, {
-        filters: { fromStore: { user } },
-      });
+      const foundProduct = await this.productRepository.findOneOrFail(
+        productId,
+        {
+          filters: { fromStore: { user } },
+        },
+      );
 
-      if (foundUser?.isActive)
-        throw new ConflictException('User is already activated');
+      if (foundProduct?.isActive)
+        throw new ConflictException('Product is already activated');
 
-      foundUser.isActive = true;
+      foundProduct.isActive = true;
 
-      await this.productRepository.persistAndFlush(foundUser);
+      await this.productRepository.persistAndFlush(foundProduct);
       this.em.clear();
-      return await this.getOneById(foundUser.id, foundUser);
+      return await this.getOneById(foundProduct.id, user);
     } catch (e) {
       this.logger.error(`${e.message} `, e);
 
@@ -219,15 +317,18 @@ export class ProductService {
   }
 
   /**
-   * Delete one user
-   * @param userId the identifier of the user to delete
+   * Delete one product
+   * @param productId the identifier of the product to delete
    */
-  async deleteUser(userId: number, user: Partial<User>): Promise<void> {
+  async deleteProduct(productId: number, user: Partial<User>): Promise<void> {
     try {
-      const foundUser = await this.productRepository.findOneOrFail(userId, {
-        filters: { fromStore: { user } },
-      });
-      await this.productRepository.removeAndFlush(foundUser);
+      const foundProduct = await this.productRepository.findOneOrFail(
+        productId,
+        {
+          filters: { fromStore: { user } },
+        },
+      );
+      await this.productRepository.removeAndFlush(foundProduct);
     } catch (e) {
       this.logger.error(`${e.message} `, e);
 

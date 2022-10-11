@@ -60,13 +60,13 @@ export class UpdateStoreDto {
   public pictureUrl: string;
 
   @IsOptional()
-  public isActive = true;
+  public isActive: boolean;
 
   @IsOptional()
-  public createdAt: Date = new Date();
+  public createdAt: Date;
 
   @IsOptional()
-  public updatedAt: Date = new Date();
+  public updatedAt: Date;
 }
 
 export class StoreDto {
@@ -111,8 +111,8 @@ export class StoreDto {
   public isActive = true;
 
   @IsOptional()
-  public createdAt: Date = new Date();
+  public createdAt: Date;
 
   @IsOptional()
-  public updatedAt: Date = new Date();
+  public updatedAt: Date;
 }
