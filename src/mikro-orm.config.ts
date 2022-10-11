@@ -33,7 +33,8 @@ const config: Options<PostgreSqlDriver> = {
     Stock,
   ],
   seeder: {
-    path: './seeders',
+    path: './dist/seeders',
+    pathTs: './seeders',
     defaultSeeder: 'FakeDataSeeder',
     glob: '!(*.d).{js,ts}',
     emit: 'ts',
@@ -57,7 +58,7 @@ const config: Options<PostgreSqlDriver> = {
   highlighter: new SqlHighlighter(),
   port: 5432,
   debug: true,
-  host: 'db',
+  host: 'localhost',
   logger: logger.log.bind(logger),
   metadataProvider: TsMorphMetadataProvider,
 };
