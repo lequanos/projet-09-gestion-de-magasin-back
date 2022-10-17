@@ -6,13 +6,15 @@ import {
   IsDefined,
 } from 'class-validator';
 
-export class BrandIdParamDto {
+import { Store } from '../../entities';
+
+export class AisleIdParamDto {
   @IsNumberString()
   @IsDefined()
   public id: number;
 }
 
-export class UpdateBrandDto {
+export class UpdateAisleDto {
   @IsNumberString()
   @IsOptional()
   public id: number;
@@ -26,9 +28,12 @@ export class UpdateBrandDto {
 
   @IsOptional()
   public updatedAt: Date = new Date();
+
+  @IsOptional()
+  public store: Store;
 }
 
-export class BrandDto {
+export class AisleDto {
   @IsNumberString()
   @IsOptional()
   public id: number;
@@ -42,4 +47,7 @@ export class BrandDto {
 
   @IsOptional()
   public updatedAt: Date = new Date();
+
+  @IsOptional()
+  public store: Store;
 }

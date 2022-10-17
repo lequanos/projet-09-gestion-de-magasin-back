@@ -7,11 +7,20 @@ import {
   Post,
   Put,
   HttpCode,
+  Req,
+  Query,
+  ParseArrayPipe,
+  UseInterceptors,
+  Patch,
 } from '@nestjs/common';
 
-import { Aisle } from '../../entities';
+import { Request } from 'express';
+
+import { Aisle, User } from '../../entities';
 import { AisleService } from './aisle.service';
 import { AisleIdParamDto, AisleDto, UpdateAisleDto } from './aisle.dto';
+import { Roles } from 'src/utils/decorators/roles.decorator';
+import { StoreInterceptor } from 'src/utils/interceptors/store.interceptor';
 
 /**
  * Controller for the aisles
@@ -24,16 +33,74 @@ export class AisleController {
    * Get all aisles
    */
   @Get()
-  async getAllAisles(): Promise<Aisle[]> {
-    return await this.aisleService.getAll();
+  @Roles(
+    'super admin',
+    'store manager',
+    'purchasing manager',
+    'department manager',
+  )
+  async getAllAisles(
+    @Req() req: Request,
+    @Query(
+      'select',
+      new ParseArrayPipe({
+        items: String,
+        separator: ',',
+        optional: true,
+      }),
+    )
+    select: string[] = [],
+    @Query(
+      'nested',
+      new ParseArrayPipe({
+        items: String,
+        separator: ',',
+        optional: true,
+      }),
+    )
+    nested: string[] = [],
+  ): Promise<Aisle[]> {
+    return await this.aisleService.getAll(req.user as User, select, nested);
   }
 
   /**
    * Get one aisle by id
    */
   @Get(':id')
-  async getOneAisleById(@Param('id') id: number): Promise<Aisle> {
-    return await this.aisleService.getOneById(id);
+  @Roles(
+    'super admin',
+    'store manager',
+    'purchasing manager',
+    'department manager',
+  )
+  async getOneAisleById(
+    @Req() req: Request,
+    @Param() param: AisleIdParamDto,
+    @Query(
+      'select',
+      new ParseArrayPipe({
+        items: String,
+        separator: ',',
+        optional: true,
+      }),
+    )
+    select: string[] = [],
+    @Query(
+      'nested',
+      new ParseArrayPipe({
+        items: String,
+        separator: ',',
+        optional: true,
+      }),
+    )
+    nested: string[] = [],
+  ): Promise<Aisle> {
+    return await this.aisleService.getOneById(
+      param.id,
+      req.user as User,
+      select,
+      nested,
+    );
   }
 
   /**
@@ -42,8 +109,28 @@ export class AisleController {
    * @returns the created aisle
    */
   @Post()
-  async createAisle(@Body() aisleDto: AisleDto): Promise<Aisle> {
-    return await this.aisleService.createAisle(aisleDto);
+  @Roles('super admin', 'store manager', 'purchasing manager')
+  @UseInterceptors(StoreInterceptor)
+  async createAisle(
+    @Req() req: Request,
+    @Body() aisleDto: AisleDto,
+  ): Promise<Aisle> {
+    return await this.aisleService.createAisle(aisleDto, req.user as User);
+  }
+
+  /**
+   * Update one Partial aisle
+   * @param aisleDto the user's input
+   * @returns the updated aisle
+   */
+  @Patch()
+  @Roles('super admin', 'store manager', 'purchasing manager')
+  @UseInterceptors(StoreInterceptor)
+  async updatePartialAisle(
+    @Req() req: Request,
+    @Body() aisleDto: UpdateAisleDto,
+  ): Promise<Aisle> {
+    return await this.aisleService.updateAisle(aisleDto, req.user as User);
   }
 
   /**
@@ -52,8 +139,13 @@ export class AisleController {
    * @returns the updated aisle
    */
   @Put()
-  async updateAisle(@Body() aisleDto: UpdateAisleDto): Promise<Aisle> {
-    return await this.aisleService.updateAisle(aisleDto);
+  @Roles('super admin', 'store manager', 'purchasing manager')
+  @UseInterceptors(StoreInterceptor)
+  async updateAisle(
+    @Req() req: Request,
+    @Body() aisleDto: UpdateAisleDto,
+  ): Promise<Aisle> {
+    return await this.aisleService.updateAisle(aisleDto, req.user as User);
   }
 
   /**
@@ -61,7 +153,11 @@ export class AisleController {
    */
   @HttpCode(204)
   @Delete('/delete/:id')
-  async deleteAisle(@Param() param: AisleIdParamDto): Promise<void> {
-    await this.aisleService.deleteAisle(param.id);
+  @Roles('super admin', 'store manager', 'purchasing manager')
+  async deleteAisle(
+    @Req() req: Request,
+    @Param() param: AisleIdParamDto,
+  ): Promise<void> {
+    await this.aisleService.deleteAisle(param.id, req.user as User);
   }
 }

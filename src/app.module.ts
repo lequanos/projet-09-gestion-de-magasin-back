@@ -24,6 +24,8 @@ import { AccessTokenGuard } from './utils/guards/access-token.guard';
 import { RolesGuard } from './utils/guards/roles.guard';
 import { ProductController } from './modules/product/product.controller';
 import { ProductModule } from './modules/product/product.module';
+import { AisleController } from './modules/aisle/aisle.controller';
+import { AisleModule } from './modules/aisle/aisle.module';
 
 @Module({
   imports: [
@@ -31,6 +33,7 @@ import { ProductModule } from './modules/product/product.module';
     SupplierModule,
     StoreModule,
     BrandModule,
+    AisleModule,
     AuthModule,
     ConfigModule.forRoot({
       isGlobal: true,
@@ -73,6 +76,7 @@ import { ProductModule } from './modules/product/product.module';
     MailController,
     AuthController,
     ProductController,
+    AisleController,
   ],
   providers: [
     {

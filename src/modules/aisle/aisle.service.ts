@@ -5,12 +5,18 @@ import {
   NotFoundException,
 } from '@nestjs/common';
 
-import { EntityManager, EntityRepository } from '@mikro-orm/core';
+import {
+  EntityField,
+  EntityManager,
+  EntityRepository,
+  wrap,
+} from '@mikro-orm/core';
 import { InjectRepository } from '@mikro-orm/nestjs';
-import { Aisle } from '../../entities';
+import { Aisle, User } from '../../entities';
 import { isNotFoundError } from '../../utils/typeguards/ExceptionTypeGuards';
 
 import { AisleDto, UpdateAisleDto } from './aisle.dto';
+import { getFieldsFromQuery } from 'src/utils/helpers/getFieldsFromQuery';
 
 /**
  * Service for the aisles
@@ -27,12 +33,26 @@ export class AisleService {
   /**
    * Get all aisles that are active
    */
-  async getAll(): Promise<Aisle[]> {
+  async getAll(
+    user: Partial<User>,
+    selectParams: string[] = [],
+    nestedParams: string[] = [],
+  ): Promise<Aisle[]> {
     try {
+      const fields = getFieldsFromQuery(
+        selectParams,
+        nestedParams,
+        this.em,
+        'aisle',
+      );
+
       return await this.aisleRepository.find(
         {},
         {
-          fields: ['name'],
+          fields: fields.length
+            ? (fields as EntityField<Aisle, never>[])
+            : undefined,
+          filters: { fromStore: { user } },
         },
       );
     } catch (e) {
@@ -51,12 +71,26 @@ export class AisleService {
    * @param id the searched aisle's identifier
    * @returns the found aisle
    */
-  async getOneById(id: number): Promise<Aisle> {
+  async getOneById(
+    id: number,
+    user: Partial<User>,
+    selectParams: string[] = [],
+    nestedParams: string[] = [],
+  ): Promise<Aisle> {
     try {
+      const fields = getFieldsFromQuery(
+        selectParams,
+        nestedParams,
+        this.em,
+        'aisle',
+      );
       return await this.aisleRepository.findOneOrFail(
         { id },
         {
-          fields: ['name'],
+          fields: fields.length
+            ? (fields as EntityField<Aisle, never>[])
+            : undefined,
+          filters: { fromStore: { user } },
         },
       );
     } catch (e) {
@@ -75,11 +109,14 @@ export class AisleService {
    * @param aisleDto the user's input
    * @returns the created aisle
    */
-  async createAisle(aisleDto: AisleDto): Promise<Aisle> {
+  async createAisle(aisleDto: AisleDto, user: Partial<User>): Promise<Aisle> {
     try {
-      const foundAisle = await this.aisleRepository.findOne({
-        name: aisleDto.name,
-      });
+      const foundAisle = await this.aisleRepository.findOne(
+        {
+          name: aisleDto.name,
+        },
+        { filters: { fromStore: { user } } },
+      );
 
       if (foundAisle)
         throw new ConflictException(
@@ -88,7 +125,7 @@ export class AisleService {
       const aisle = this.aisleRepository.create(aisleDto);
       await this.aisleRepository.persistAndFlush(aisle);
       this.em.clear();
-      return await this.getOneById(aisle.id);
+      return await this.getOneById(aisle.id, user);
     } catch (e) {
       this.logger.error(`${e.message} `, e);
 
@@ -101,13 +138,23 @@ export class AisleService {
    * @param aisleDto the user's input
    * @returns the updated aisle
    */
-  async updateBAisle(aisleDto: UpdateAisleDto): Promise<Aisle> {
+  async updateAisle(
+    aisleDto: UpdateAisleDto,
+    user: Partial<User>,
+  ): Promise<Aisle> {
     try {
-      const foundAisle = await this.aisleRepository.findOneOrFail(aisleDto.id);
-      foundAisle.name = aisleDto.name;
+      const foundAisle = await this.aisleRepository.findOneOrFail(aisleDto.id, {
+        filters: { fromStore: { user } },
+      });
+      if (!foundAisle) {
+        throw new NotFoundException();
+      }
+      wrap(foundAisle).assign({
+        ...aisleDto,
+      });
       await this.aisleRepository.persistAndFlush(foundAisle);
       this.em.clear();
-      return await this.getOneById(foundAisle.id);
+      return await this.getOneById(foundAisle.id, user);
     } catch (e) {
       this.logger.error(`${e.message} `, e);
 
@@ -123,9 +170,11 @@ export class AisleService {
    * Delete one aisle
    * @param aisleId the identifier of the aisle to delete
    */
-  async deleteAisle(aisleId: number): Promise<void> {
+  async deleteAisle(aisleId: number, user: Partial<User>): Promise<void> {
     try {
-      const foundAisle = await this.aisleRepository.findOneOrFail(aisleId);
+      const foundAisle = await this.aisleRepository.findOneOrFail(aisleId, {
+        filters: { fromStore: { user } },
+      });
       await this.aisleRepository.removeAndFlush(foundAisle);
     } catch (e) {
       this.logger.error(`${e.message} `, e);
