@@ -10,6 +10,8 @@ import {
   Delete,
   HttpCode,
   Put,
+  Query,
+  ParseArrayPipe,
 } from '@nestjs/common';
 
 import { Request } from 'express';
@@ -22,7 +24,7 @@ import {
   CreateProductDto,
   UpdateProductDto,
 } from './product.dto';
-import { StoreInterceptor } from 'src/utils/interceptors/store.interceptor';
+import { StoreInterceptor } from '../../utils/interceptors/store.interceptor';
 
 /**
  * Controller for the products
@@ -41,8 +43,28 @@ export class ProductController {
     'purchasing manager',
     'department manager',
   )
-  async getAllUsers(@Req() req: Request): Promise<Product[]> {
-    return await this.productService.getAll(req.user as User);
+  async getAllProducts(
+    @Req() req: Request,
+    @Query(
+      'select',
+      new ParseArrayPipe({
+        items: String,
+        separator: ',',
+        optional: true,
+      }),
+    )
+    select: string[] = [],
+    @Query(
+      'nested',
+      new ParseArrayPipe({
+        items: String,
+        separator: ',',
+        optional: true,
+      }),
+    )
+    nested: string[] = [],
+  ): Promise<Product[]> {
+    return await this.productService.getAll(req.user as User, select, nested);
   }
 
   /**

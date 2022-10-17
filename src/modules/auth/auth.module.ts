@@ -1,18 +1,18 @@
 import { Module, Logger } from '@nestjs/common';
-import { AuthService } from './auth.service';
-import { UserModule } from '../user/user.module';
+import { JwtModule } from '@nestjs/jwt';
+import { ConfigService } from '@nestjs/config';
 import { PassportModule } from '@nestjs/passport';
+
+import { MikroOrmModule } from '@mikro-orm/nestjs';
+
+import { AuthService } from './auth.service';
+import { AuthController } from './auth.controller';
 import { LocalStrategy } from '../../utils/strategies/local.strategy';
 import { JwtStrategy } from '../../utils/strategies/jwt.strategy';
-import { MikroOrmModule } from '@mikro-orm/nestjs';
-import { User } from '../../entities/User.entity';
-import { Role } from 'src/entities/Role.entity';
-import { AuthController } from './auth.controller';
-import { Store } from 'src/entities/Store.entity';
-import { JwtModule } from '@nestjs/jwt';
 import { RefreshTokenStrategy } from '../../utils/strategies/jwt-refresh.strategy';
-import { UserService } from 'src/modules/user/user.service';
-import { ConfigService } from '@nestjs/config';
+import { User, Role, Store } from '../../entities';
+import { UserModule } from '../user/user.module';
+import { UserService } from '../user/user.service';
 
 @Module({
   imports: [

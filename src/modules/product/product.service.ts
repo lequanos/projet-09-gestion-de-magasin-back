@@ -6,11 +6,12 @@ import {
 } from '@nestjs/common';
 
 import { InjectRepository } from '@mikro-orm/nestjs';
-import { wrap } from '@mikro-orm/core';
+import { EntityField, wrap } from '@mikro-orm/core';
 import { EntityManager, EntityRepository } from '@mikro-orm/postgresql';
 
-import { Product, User, Brand, Stock } from '../../entities';
+import { Product, User, Brand } from '../../entities';
 import { isNotFoundError } from '../../utils/typeguards/ExceptionTypeGuards';
+import { getFieldsFromQuery } from '../../utils/helpers/getFieldsFromQuery';
 import { CreateProductDto, UpdateProductDto } from './product.dto';
 
 /**
@@ -30,46 +31,28 @@ export class ProductService {
   /**
    * Get all products that are active
    */
-  async getAll(user: Partial<User>): Promise<Product[]> {
+  async getAll(
+    user: Partial<User>,
+    selectParams: string[] = [],
+    nestedParams: string[] = [],
+  ): Promise<Product[]> {
     try {
-      const qb = this.em.createQueryBuilder(Product).getKnex();
+      const fields = getFieldsFromQuery(
+        selectParams,
+        nestedParams,
+        this.em,
+        'product',
+      );
 
-      qb.select([
-        'product.name',
-        'product.code',
-        'product.price',
-        'product.picture_url as pictureUrl',
-        'product.nutri_score as nutriScore',
-        'product.eco_score as ecoScore',
-        'product.unit_packaging as unitPackaging',
-        'product.ingredients',
-        'brand.name as brandName',
-      ])
-        .sum({ inStock: 'stock.quantity' })
-        .join('brand', 'product.brand_id', '=', 'brand.id')
-        .join('stock', 'product.id', '=', 'stock.product_id')
-        .modify((queryBuilder) => {
-          if (user.store?.id) {
-            queryBuilder.andWhere('product.store_id', user.store?.id);
-          }
-        })
-        .andWhere('product.is_active', true)
-        .groupBy(
-          'stock.product_id',
-          'product.name',
-          'product.code',
-          'product.nutri_score',
-          'product.eco_score',
-          'product.picture_url',
-          'product.unit_packaging',
-          'product.ingredients',
-          'product.price',
-          'brand.name',
-        );
-
-      const result = await this.em.getConnection().execute(qb);
-
-      return result as Product[];
+      return await this.productRepository.find(
+        { isActive: true },
+        {
+          fields: fields.length
+            ? (fields as EntityField<Product, never>[])
+            : undefined,
+          filters: { fromStore: { user } },
+        },
+      );
     } catch (e) {
       this.logger.error(`${e.message} `, e);
 

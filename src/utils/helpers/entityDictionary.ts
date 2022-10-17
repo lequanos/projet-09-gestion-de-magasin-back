@@ -1,0 +1,31 @@
+import {
+  Aisle,
+  Brand,
+  Category,
+  Product,
+  Stock,
+  Store,
+  Supplier,
+  User,
+  Role,
+} from '../../entities';
+
+export const entityDictionary = {
+  aisle: Aisle,
+  aisles: Aisle,
+  brand: Brand,
+  brands: Brand,
+  category: Category,
+  categories: Category,
+  product: Product,
+  products: Product,
+  role: Role,
+  roles: Role,
+  stock: Stock,
+  store: Store,
+  stores: Store,
+  supplier: Supplier,
+  suppliers: Supplier,
+  user: User,
+  users: User,
+} as { [key: string]: any };

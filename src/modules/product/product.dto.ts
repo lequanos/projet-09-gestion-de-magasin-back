@@ -80,7 +80,7 @@ export class CreateProductDto {
   public categories: Category[];
 
   @IsOptional()
-  public stock = 0;
+  public inStock = 0;
 }
 
 export class UpdateProductDto {
@@ -143,5 +143,10 @@ export class UpdateProductDto {
   public categories: Category[];
 
   @IsOptional()
-  public stock = 0;
+  public inStock = 0;
+}
+
+export class GetParams {
+  @IsOptional()
+  fields: string;
 }
