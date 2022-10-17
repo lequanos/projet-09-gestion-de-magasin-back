@@ -26,6 +26,8 @@ import { ProductController } from './modules/product/product.controller';
 import { ProductModule } from './modules/product/product.module';
 import { AisleController } from './modules/aisle/aisle.controller';
 import { AisleModule } from './modules/aisle/aisle.module';
+import { CategoryModule } from './modules/category/category.module';
+import { CategoryController } from './modules/category/category.controller';
 
 @Module({
   imports: [
@@ -34,6 +36,7 @@ import { AisleModule } from './modules/aisle/aisle.module';
     StoreModule,
     BrandModule,
     AisleModule,
+    CategoryModule,
     AuthModule,
     ConfigModule.forRoot({
       isGlobal: true,
@@ -77,6 +80,7 @@ import { AisleModule } from './modules/aisle/aisle.module';
     AuthController,
     ProductController,
     AisleController,
+    CategoryController,
   ],
   providers: [
     {
