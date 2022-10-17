@@ -28,6 +28,8 @@ import { AisleController } from './modules/aisle/aisle.controller';
 import { AisleModule } from './modules/aisle/aisle.module';
 import { CategoryModule } from './modules/category/category.module';
 import { CategoryController } from './modules/category/category.controller';
+import { RoleModule } from './modules/role/role.module';
+import { RoleController } from './modules/role/role.controller';
 
 @Module({
   imports: [
@@ -37,6 +39,7 @@ import { CategoryController } from './modules/category/category.controller';
     BrandModule,
     AisleModule,
     CategoryModule,
+    RoleModule,
     AuthModule,
     ConfigModule.forRoot({
       isGlobal: true,
@@ -81,6 +84,7 @@ import { CategoryController } from './modules/category/category.controller';
     ProductController,
     AisleController,
     CategoryController,
+    RoleController,
   ],
   providers: [
     {
