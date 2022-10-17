@@ -1,0 +1,307 @@
+import {
+  ConflictException,
+  Injectable,
+  Logger,
+  NotFoundException,
+} from '@nestjs/common';
+
+import { InjectRepository } from '@mikro-orm/nestjs';
+import { EntityField, wrap } from '@mikro-orm/core';
+import { EntityManager, EntityRepository } from '@mikro-orm/postgresql';
+
+import { Product, User, Brand } from '../../entities';
+import { isNotFoundError } from '../../utils/typeguards/ExceptionTypeGuards';
+import { getFieldsFromQuery } from '../../utils/helpers/getFieldsFromQuery';
+import { CreateProductDto, UpdateProductDto } from './product.dto';
+
+/**
+ * Service for the products
+ */
+@Injectable()
+export class ProductService {
+  constructor(
+    @InjectRepository(Product)
+    private readonly productRepository: EntityRepository<Product>,
+    @InjectRepository(Brand)
+    private readonly brandRepository: EntityRepository<Brand>,
+    private readonly logger: Logger = new Logger('ProductService'),
+    private readonly em: EntityManager,
+  ) {}
+
+  /**
+   * Get all products that are active
+   */
+  async getAll(
+    user: Partial<User>,
+    selectParams: string[] = [],
+    nestedParams: string[] = [],
+  ): Promise<Product[]> {
+    try {
+      const fields = getFieldsFromQuery(
+        selectParams,
+        nestedParams,
+        this.em,
+        'product',
+      );
+
+      return await this.productRepository.find(
+        { isActive: true },
+        {
+          fields: fields.length
+            ? (fields as EntityField<Product, never>[])
+            : undefined,
+          filters: { fromStore: { user } },
+        },
+      );
+    } catch (e) {
+      this.logger.error(`${e.message} `, e);
+
+      if (isNotFoundError(e)) {
+        throw new NotFoundException();
+      }
+
+      throw e;
+    }
+  }
+
+  /**
+   * Get one product by id
+   * @param id the searched product's identifier
+   * @returns the found product
+   */
+  async getOneById(
+    id: number,
+    user: Partial<User>,
+    isActive = true,
+    selectParams: string[] = [],
+    nestedParams: string[] = [],
+  ): Promise<Product> {
+    try {
+      const fields = getFieldsFromQuery(
+        selectParams,
+        nestedParams,
+        this.em,
+        'product',
+      );
+
+      return await this.productRepository.findOneOrFail(
+        {
+          id,
+          isActive,
+        },
+        {
+          fields: fields.length
+            ? (fields as EntityField<Product, never>[])
+            : undefined,
+          filters: { fromStore: { user } },
+        },
+      );
+    } catch (e) {
+      this.logger.error(`${e.message} `, e);
+
+      if (isNotFoundError(e)) {
+        throw new NotFoundException();
+      }
+
+      throw e;
+    }
+  }
+
+  /**
+   * Create a product from a user input
+   * @param productDto the user's input
+   * @returns the created product
+   */
+  async createProduct(
+    productDto: CreateProductDto,
+    user: Partial<User>,
+  ): Promise<Product> {
+    try {
+      const foundProduct = await this.productRepository.findOne(
+        {
+          code: productDto.code,
+        },
+        { filters: { fromStore: { user } } },
+      );
+
+      if (foundProduct)
+        throw new ConflictException(
+          `Product already exists${
+            foundProduct.isActive ? '' : ' but is deactivated'
+          }`,
+        );
+
+      let brand = await this.brandRepository.findOne({
+        name: productDto.brand,
+      });
+
+      if (!brand) {
+        brand = this.brandRepository.create({
+          name: productDto.brand,
+          createdAt: new Date(),
+          updatedAt: new Date(),
+        });
+        await this.brandRepository.persistAndFlush(brand);
+      }
+
+      const productCreated = this.productRepository.create({
+        ...productDto,
+        brand,
+      });
+
+      await this.productRepository.persistAndFlush(productCreated);
+      this.em.clear();
+      return await this.getOneById(productCreated.id, user);
+    } catch (e) {
+      this.logger.error(`${e.message} `, e);
+      throw e;
+    }
+  }
+
+  /**
+   * Update a product from a user input
+   * @param productDto the user's input
+   * @returns the updated product
+   */
+  async updateProduct(
+    productDto: UpdateProductDto,
+    user: Partial<User>,
+  ): Promise<Product> {
+    try {
+      const foundProduct = await this.productRepository.findOneOrFail(
+        productDto.id,
+        {
+          filters: { fromStore: { user } },
+        },
+      );
+
+      if (!foundProduct?.isActive)
+        throw new ConflictException('Product is deactivated');
+
+      let brand = await this.brandRepository.findOne({
+        name: productDto.brand,
+      });
+
+      if (!brand) {
+        brand = this.brandRepository.create({
+          name: productDto.brand,
+          createdAt: new Date(),
+          updatedAt: new Date(),
+        });
+        await this.brandRepository.persistAndFlush(brand);
+      }
+
+      wrap(foundProduct).assign({
+        ...productDto,
+        brand,
+      });
+
+      await this.productRepository.persistAndFlush(foundProduct);
+      this.em.clear();
+      return await this.getOneById(foundProduct.id, user);
+    } catch (e) {
+      this.logger.error(`${e.message} `, e);
+
+      if (isNotFoundError(e)) {
+        throw new NotFoundException();
+      }
+
+      throw e;
+    }
+  }
+
+  /**
+   * Deactivate one product
+   * @param productId the identifier of the product to soft delete
+   * @returns the deactivated product
+   */
+  async deactivateProduct(
+    productId: number,
+    user: Partial<User>,
+  ): Promise<Product> {
+    try {
+      const foundProduct = await this.productRepository.findOneOrFail(
+        productId,
+        {
+          filters: { fromStore: { user } },
+        },
+      );
+
+      if (!foundProduct?.isActive)
+        throw new ConflictException('Product is already deactivated');
+
+      foundProduct.isActive = false;
+      await this.productRepository.persistAndFlush(foundProduct);
+      this.em.clear();
+      return await this.getOneById(foundProduct.id, user, false);
+    } catch (e) {
+      this.logger.error(`${e.message} `, e);
+
+      if (isNotFoundError(e)) {
+        throw new NotFoundException();
+      }
+
+      throw e;
+    }
+  }
+
+  /**
+   * Reactivate one product
+   * @param productId the identifier of the product to reactivate
+   * @returns the reactivated product
+   */
+  async reactivateProduct(
+    productId: number,
+    user: Partial<User>,
+  ): Promise<Product> {
+    try {
+      const foundProduct = await this.productRepository.findOneOrFail(
+        productId,
+        {
+          filters: { fromStore: { user } },
+        },
+      );
+
+      if (foundProduct?.isActive)
+        throw new ConflictException('Product is already activated');
+
+      foundProduct.isActive = true;
+
+      await this.productRepository.persistAndFlush(foundProduct);
+      this.em.clear();
+      return await this.getOneById(foundProduct.id, user);
+    } catch (e) {
+      this.logger.error(`${e.message} `, e);
+
+      if (isNotFoundError(e)) {
+        throw new NotFoundException();
+      }
+
+      throw e;
+    }
+  }
+
+  /**
+   * Delete one product
+   * @param productId the identifier of the product to delete
+   */
+  async deleteProduct(productId: number, user: Partial<User>): Promise<void> {
+    try {
+      const foundProduct = await this.productRepository.findOneOrFail(
+        productId,
+        {
+          filters: { fromStore: { user } },
+        },
+      );
+      await this.productRepository.removeAndFlush(foundProduct);
+    } catch (e) {
+      this.logger.error(`${e.message} `, e);
+
+      if (isNotFoundError(e)) {
+        throw new NotFoundException();
+      }
+
+      throw e;
+    }
+  }
+}

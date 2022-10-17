@@ -67,10 +67,14 @@ export class UserService {
    * @param id the searched user's identifier
    * @returns the found user
    */
-  async getOneById(id: number, user: Partial<User>): Promise<User> {
+  async getOneById(
+    id: number,
+    user: Partial<User>,
+    isActive = true,
+  ): Promise<User> {
     try {
       return await this.userRepository.findOneOrFail(
-        { id, isActive: true },
+        { id, isActive },
         {
           fields: [
             'firstname',
@@ -253,7 +257,7 @@ export class UserService {
       foundUser.isActive = false;
       await this.userRepository.persistAndFlush(foundUser);
       this.em.clear();
-      return await this.getOneById(foundUser.id, foundUser);
+      return await this.getOneById(foundUser.id, foundUser, false);
     } catch (e) {
       this.logger.error(`${e.message} `, e);
 

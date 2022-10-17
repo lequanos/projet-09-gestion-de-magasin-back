@@ -135,6 +135,9 @@ export class UpdateSupplierDto {
   public isActive: boolean;
 
   @IsOptional()
+  public store: Store;
+
+  @IsOptional()
   public createdAt: Date;
 
   @IsOptional()
@@ -189,7 +192,7 @@ export class SupplierDto {
   public pictureUrl: string;
 
   @IsOptional()
-  public isActive: boolean;
+  public isActive = true;
 
   @IsOptional()
   public createdAt: Date;

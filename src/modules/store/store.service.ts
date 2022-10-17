@@ -59,10 +59,10 @@ export class StoreService {
    * @param id the searched store's identifier
    * @returns the found store
    */
-  async getOneById(id: number): Promise<Store> {
+  async getOneById(id: number, isActive = true): Promise<Store> {
     try {
       return await this.storeRepository.findOneOrFail(
-        { id, isActive: true },
+        { id, isActive },
         {
           fields: [
             'name',
@@ -195,7 +195,7 @@ export class StoreService {
 
       await this.storeRepository.persistAndFlush(foundStore);
       this.em.clear();
-      return await this.getOneById(foundStore.id);
+      return await this.getOneById(foundStore.id, false);
     } catch (e) {
       this.logger.error(`${e.message} `, e);
 
