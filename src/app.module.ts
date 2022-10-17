@@ -1,3 +1,4 @@
+import { APP_GUARD } from '@nestjs/core';
 import { Module } from '@nestjs/common';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 
@@ -19,9 +20,12 @@ import { appendFile } from 'fs';
 import { BrandModule } from './modules/brand/brand.module';
 import { BrandController } from './modules/brand/brand.controller';
 import { AuthController } from './modules/auth/auth.controller';
-import { APP_GUARD } from '@nestjs/core';
 import { AccessTokenGuard } from './utils/guards/access-token.guard';
 import { RolesGuard } from './utils/guards/roles.guard';
+import { ProductController } from './modules/product/product.controller';
+import { ProductModule } from './modules/product/product.module';
+import { AisleController } from './modules/aisle/aisle.controller';
+import { AisleModule } from './modules/aisle/aisle.module';
 
 @Module({
   imports: [
@@ -29,6 +33,7 @@ import { RolesGuard } from './utils/guards/roles.guard';
     SupplierModule,
     StoreModule,
     BrandModule,
+    AisleModule,
     AuthModule,
     ConfigModule.forRoot({
       isGlobal: true,
@@ -61,6 +66,7 @@ import { RolesGuard } from './utils/guards/roles.guard';
       }),
       inject: [ConfigService],
     }),
+    ProductModule,
   ],
   controllers: [
     StoreController,
@@ -69,6 +75,8 @@ import { RolesGuard } from './utils/guards/roles.guard';
     BrandController,
     MailController,
     AuthController,
+    ProductController,
+    AisleController,
   ],
   providers: [
     {

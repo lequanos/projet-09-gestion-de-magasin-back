@@ -8,7 +8,9 @@ import {
   ManyToOne,
   Filter,
   types,
+  Formula,
 } from '@mikro-orm/core';
+
 import {
   CustomBaseEntity,
   Category,
@@ -63,7 +65,7 @@ export class Product extends CustomBaseEntity {
   stock = new Collection<Stock>(this);
 
   @ManyToOne(() => Brand)
-  brand?: Brand;
+  brand: Brand;
 
   @ManyToMany(() => Category, 'products', { owner: true })
   categories = new Collection<Category>(this);
@@ -73,6 +75,12 @@ export class Product extends CustomBaseEntity {
 
   @ManyToOne(() => Store)
   store: Store;
+
+  @Formula(
+    (alias) =>
+      `(SELECT SUM(stock.quantity) FROM stock WHERE stock.product_id = ${alias}.id)`,
+  )
+  inStock: number;
 }
 
 export enum ProductNutriscore {

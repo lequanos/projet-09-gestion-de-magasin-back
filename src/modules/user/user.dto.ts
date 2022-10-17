@@ -49,10 +49,10 @@ export class CreateUserDto {
   public isActive = true;
 
   @IsOptional()
-  public createdAt: Date = new Date();
+  public createdAt: Date;
 
   @IsOptional()
-  public updatedAt: Date = new Date();
+  public updatedAt: Date;
 
   @IsOptional()
   public role: Role;
@@ -92,13 +92,13 @@ export class UpdateUserDto {
   public pictureUrl: string;
 
   @IsOptional()
-  public isActive = true;
+  public isActive: boolean;
 
   @IsOptional()
-  public createdAt: Date = new Date();
+  public createdAt: Date;
 
   @IsOptional()
-  public updatedAt: Date = new Date();
+  public updatedAt: Date;
 
   @IsOptional()
   public role: Role;
