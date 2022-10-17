@@ -30,6 +30,8 @@ import { CategoryModule } from './modules/category/category.module';
 import { CategoryController } from './modules/category/category.controller';
 import { StockController } from './modules/stock/stock.controller';
 import { StockModule } from './modules/stock/stock.module';
+import { RoleModule } from './modules/role/role.module';
+import { RoleController } from './modules/role/role.controller';
 
 @Module({
   imports: [
@@ -40,6 +42,7 @@ import { StockModule } from './modules/stock/stock.module';
     AisleModule,
     CategoryModule,
     StockModule,
+    RoleModule,
     AuthModule,
     ConfigModule.forRoot({
       isGlobal: true,
@@ -85,6 +88,7 @@ import { StockModule } from './modules/stock/stock.module';
     AisleController,
     CategoryController,
     StockController,
+    RoleController,
   ],
   providers: [
     {
