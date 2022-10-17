@@ -22,10 +22,10 @@ export class UpdateBrandDto {
   public name: string;
 
   @IsOptional()
-  public createdAt: Date = new Date();
+  public createdAt: Date;
 
   @IsOptional()
-  public updatedAt: Date = new Date();
+  public updatedAt: Date;
 }
 
 export class BrandDto {
@@ -38,8 +38,8 @@ export class BrandDto {
   public name: string;
 
   @IsOptional()
-  public createdAt: Date = new Date();
+  public createdAt: Date;
 
   @IsOptional()
-  public updatedAt: Date = new Date();
+  public updatedAt: Date;
 }

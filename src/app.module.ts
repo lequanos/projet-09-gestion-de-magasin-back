@@ -28,6 +28,8 @@ import { AisleController } from './modules/aisle/aisle.controller';
 import { AisleModule } from './modules/aisle/aisle.module';
 import { CategoryModule } from './modules/category/category.module';
 import { CategoryController } from './modules/category/category.controller';
+import { StockController } from './modules/stock/stock.controller';
+import { StockModule } from './modules/stock/stock.module';
 import { RoleModule } from './modules/role/role.module';
 import { RoleController } from './modules/role/role.controller';
 
@@ -39,6 +41,7 @@ import { RoleController } from './modules/role/role.controller';
     BrandModule,
     AisleModule,
     CategoryModule,
+    StockModule,
     RoleModule,
     AuthModule,
     ConfigModule.forRoot({
@@ -84,6 +87,7 @@ import { RoleController } from './modules/role/role.controller';
     ProductController,
     AisleController,
     CategoryController,
+    StockController,
     RoleController,
   ],
   providers: [

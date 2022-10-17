@@ -24,10 +24,10 @@ export class UpdateCategoryDto {
   public name: string;
 
   @IsOptional()
-  public createdAt: Date = new Date();
+  public createdAt: Date;
 
   @IsOptional()
-  public updatedAt: Date = new Date();
+  public updatedAt: Date;
 
   @IsOptional()
   public aisle: Aisle;
@@ -43,10 +43,10 @@ export class CategoryDto {
   public name: string;
 
   @IsOptional()
-  public createdAt: Date = new Date();
+  public createdAt: Date;
 
   @IsOptional()
-  public updatedAt: Date = new Date();
+  public updatedAt: Date;
 
   @IsOptional()
   public aisle: Aisle;
