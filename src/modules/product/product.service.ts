@@ -73,47 +73,29 @@ export class ProductService {
     id: number,
     user: Partial<User>,
     isActive = true,
+    selectParams: string[] = [],
+    nestedParams: string[] = [],
   ): Promise<Product> {
     try {
-      const qb = this.em.createQueryBuilder(Product).getKnex();
+      const fields = getFieldsFromQuery(
+        selectParams,
+        nestedParams,
+        this.em,
+        'product',
+      );
 
-      qb.select([
-        'product.name',
-        'product.code',
-        'product.price',
-        'product.picture_url as pictureUrl',
-        'product.nutri_score as nutriScore',
-        'product.eco_score as ecoScore',
-        'product.unit_packaging as unitPackaging',
-        'product.ingredients',
-        'brand.name as brandName',
-      ])
-        .sum({ inStock: 'stock.quantity' })
-        .join('brand', 'product.brand_id', '=', 'brand.id')
-        .join('stock', 'product.id', '=', 'stock.product_id')
-        .where('product_id', id)
-        .modify((queryBuilder) => {
-          if (user.store?.id) {
-            queryBuilder.andWhere('product.store_id', user.store?.id);
-          }
-        })
-        .andWhere('product.is_active', isActive)
-        .groupBy(
-          'stock.product_id',
-          'product.name',
-          'product.code',
-          'product.nutri_score',
-          'product.eco_score',
-          'product.picture_url',
-          'product.unit_packaging',
-          'product.ingredients',
-          'product.price',
-          'brand.name',
-        );
-
-      const result = await this.em.getConnection().execute(qb);
-      if (!result.length) throw new Error('Product not found');
-      return result[0] as Product;
+      return await this.productRepository.findOneOrFail(
+        {
+          id,
+          isActive,
+        },
+        {
+          fields: fields.length
+            ? (fields as EntityField<Product, never>[])
+            : undefined,
+          filters: { fromStore: { user } },
+        },
+      );
     } catch (e) {
       this.logger.error(`${e.message} `, e);
 

@@ -80,8 +80,32 @@ export class ProductController {
   async getOneProductById(
     @Req() req: Request,
     @Param() param: ProductIdParamDto,
+    @Query(
+      'select',
+      new ParseArrayPipe({
+        items: String,
+        separator: ',',
+        optional: true,
+      }),
+    )
+    select: string[] = [],
+    @Query(
+      'nested',
+      new ParseArrayPipe({
+        items: String,
+        separator: ',',
+        optional: true,
+      }),
+    )
+    nested: string[] = [],
   ): Promise<Product> {
-    return await this.productService.getOneById(param.id, req.user as User);
+    return await this.productService.getOneById(
+      param.id,
+      req.user as User,
+      true,
+      select,
+      nested,
+    );
   }
 
   /**
