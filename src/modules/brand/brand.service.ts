@@ -8,7 +8,7 @@ import {
 import { EntityManager, EntityRepository } from '@mikro-orm/core';
 import { InjectRepository } from '@mikro-orm/nestjs';
 import { Brand } from '../../entities';
-import { isNotFoundError } from '../../typeguards/ExceptionTypeGuards';
+import { isNotFoundError } from '../../utils/typeguards/ExceptionTypeGuards';
 
 import { BrandDto, UpdateBrandDto } from './brand.dto';
 
