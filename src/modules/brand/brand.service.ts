@@ -5,7 +5,7 @@ import {
   NotFoundException,
 } from '@nestjs/common';
 
-import { EntityManager, EntityRepository } from '@mikro-orm/core';
+import { EntityManager, EntityRepository, wrap } from '@mikro-orm/core';
 import { InjectRepository } from '@mikro-orm/nestjs';
 import { Brand } from '../../entities';
 import { isNotFoundError } from '../../utils/typeguards/ExceptionTypeGuards';
@@ -104,7 +104,13 @@ export class BrandService {
   async updateBrand(brandDto: UpdateBrandDto): Promise<Brand> {
     try {
       const foundBrand = await this.brandRepository.findOneOrFail(brandDto.id);
-      foundBrand.name = brandDto.name;
+      console.log(foundBrand);
+      if (foundBrand.name === brandDto.name) {
+        throw new ConflictException(`${brandDto.name} existe deja`);
+      }
+      wrap(foundBrand).assign({
+        ...brandDto,
+      });
       await this.brandRepository.persistAndFlush(foundBrand);
       this.em.clear();
       return await this.getOneById(foundBrand.id);
