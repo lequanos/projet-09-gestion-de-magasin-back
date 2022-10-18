@@ -2,6 +2,7 @@ version: '3.8'
 services:
   retail-store-app:
     image: registry.digitalocean.com/apo-registry/retail-store-api:latest
+    container_name: retail-store-app
     command: sh -c "npx mikro-orm migration:up && node dist/src/main.js"
     ports:
      - '3000:3000'
@@ -10,13 +11,50 @@ services:
       MIKRO_ORM_HOST: 'db'
     depends_on:
      - db
+    networks:
+      - app-network
   
   webserver:
-    image: nginx:latest
+    image: nginx:mainline-alpine
+    container_name: webserver
+    restart: unless-stopped
     ports:
-      - 80:80
-      - 443:443
-    restart: always
+      - "80:80"
+      - "443:443"
     volumes:
-      - ./nginx/conf/:/etc/nginx/conf.d/:ro
-      - ./certbot/www:/var/www/certbot/:ro
+      - web-root:/var/www/html
+      - ./nginx-conf:/etc/nginx/conf.d
+      - certbot-etc:/etc/letsencrypt
+      - certbot-var:/var/lib/letsencrypt
+      - dhparam:/etc/ssl/certs
+    depends_on:
+      - retail-store-app
+    networks:
+      - app-network
+  
+  certbot:
+    image: certbot/certbot
+    container_name: certbot
+    volumes:
+      - certbot-etc:/etc/letsencrypt
+      - certbot-var:/var/lib/letsencrypt
+      - web-root:/var/www/html
+    depends_on:
+      - webserver
+    command: certonly --webroot --webroot-path=/var/www/html --email tranvanba.quan@gmail.com --agree-tos --no-eff-email --force-renewal -d retail-store-api.live  -d www.retail-store-api.live 
+
+volumes:
+  certbot-etc:
+  certbot-var:
+  web-root:
+    driver: local
+    driver_opts:
+      type: none
+      device: /root/projet-09-gestion-de-magasin-back/dist/
+      o: bind
+  dhparam:
+    driver: local
+    driver_opts:
+      type: none
+      device: /root/projet-09-gestion-de-magasin-back/dhparam/
+      o: bind

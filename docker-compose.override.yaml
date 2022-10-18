@@ -5,6 +5,7 @@ services:
       context: .
       target: ${TARGET}
     command: sh -c "npx mikro-orm migration:up && npm run start:dev"
+    container_name: retail-store-app
     ports:
      - '3000:3000'
     volumes: 
@@ -14,3 +15,5 @@ services:
       MIKRO_ORM_HOST: 'db'
     depends_on:
      - db
+    networks:
+     - app-network
