@@ -23,12 +23,6 @@ export class FakeDataSeeder extends Seeder {
     let psIndex = 0;
     let aisleIndex = 0;
 
-    // const categories = new CategoryFactory(em).make(5);
-    // const aisles = new AisleFactory(em)
-    //   .each((aisle) => {
-    //     aisle.categories.set(faker.helpers.arrayElements(categories));
-    //   })
-    //   .make(5);
     const aisleNames = [
       'Liquide',
       'Vin',
@@ -84,16 +78,20 @@ export class FakeDataSeeder extends Seeder {
       .make(20);
 
     const departmentManagerRole = new RoleFactory(em).makeOne({
+      id: 1,
       name: 'department manager',
     });
 
     const purchasingManagerRole = new RoleFactory(em).makeOne({
+      id: 2,
       name: 'purchasing manager',
     });
     const storeManagerRole = new RoleFactory(em).makeOne({
+      id: 3,
       name: 'store manager',
     });
     const superAdminRole = new RoleFactory(em).makeOne({
+      id: 4,
       name: 'super admin',
     });
 
