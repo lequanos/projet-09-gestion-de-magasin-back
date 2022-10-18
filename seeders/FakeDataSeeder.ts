@@ -80,20 +80,18 @@ export class FakeDataSeeder extends Seeder {
       })
       .make(20);
 
-    const superAdminRole = new RoleFactory(em).makeOne({
-      name: 'super admin',
-    });
-
-    const storeManagerRole = new RoleFactory(em).makeOne({
-      name: 'store manager',
+    const departmentManagerRole = new RoleFactory(em).makeOne({
+      name: 'department manager',
     });
 
     const purchasingManagerRole = new RoleFactory(em).makeOne({
       name: 'purchasing manager',
     });
-
-    const departmentManagerRole = new RoleFactory(em).makeOne({
-      name: 'department manager',
+    const storeManagerRole = new RoleFactory(em).makeOne({
+      name: 'store manager',
+    });
+    const superAdminRole = new RoleFactory(em).makeOne({
+      name: 'super admin',
     });
 
     new UserFactory(em).makeOne({
