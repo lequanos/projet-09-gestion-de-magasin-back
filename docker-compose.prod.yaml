@@ -10,3 +10,13 @@ services:
       MIKRO_ORM_HOST: 'db'
     depends_on:
      - db
+  
+  webserver:
+    image: nginx:latest
+    ports:
+      - 80:80
+      - 443:443
+    restart: always
+    volumes:
+      - ./nginx/conf/:/etc/nginx/conf.d/:ro
+      - ./certbot/www:/var/www/certbot/:ro
