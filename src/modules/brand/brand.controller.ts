@@ -12,6 +12,7 @@ import {
 import { Brand } from '../../entities';
 import { BrandService } from './brand.service';
 import { BrandIdParamDto, BrandDto, UpdateBrandDto } from './brand.dto';
+import { Roles } from '../../utils/decorators/roles.decorator';
 
 /**
  * Controller for the brands
@@ -24,6 +25,7 @@ export class BrandController {
    * Get all brands
    */
   @Get()
+  @Roles('super admin', 'store manager', 'purchasing manager')
   async getAllBrands(): Promise<Brand[]> {
     return await this.brandService.getAll();
   }
@@ -32,6 +34,7 @@ export class BrandController {
    * Get one brand by id
    */
   @Get(':id')
+  @Roles('super admin', 'store manager', 'purchasing manager')
   async getOneBrandById(@Param('id') id: number): Promise<Brand> {
     return await this.brandService.getOneById(id);
   }
@@ -42,6 +45,7 @@ export class BrandController {
    * @returns the created brand
    */
   @Post()
+  @Roles('super admin', 'store manager', 'purchasing manager')
   async createBrand(@Body() brandDto: BrandDto): Promise<Brand> {
     return await this.brandService.createBrand(brandDto);
   }
@@ -52,6 +56,7 @@ export class BrandController {
    * @returns the updated brand
    */
   @Put()
+  @Roles('super admin', 'store manager', 'purchasing manager')
   async updateBrand(@Body() brandDto: UpdateBrandDto): Promise<Brand> {
     return await this.brandService.updateBrand(brandDto);
   }
@@ -61,6 +66,7 @@ export class BrandController {
    */
   @HttpCode(204)
   @Delete('/delete/:id')
+  @Roles('super admin', 'store manager', 'purchasing manager')
   async deleteBrand(@Param() param: BrandIdParamDto): Promise<void> {
     await this.brandService.deleteBrand(param.id);
   }

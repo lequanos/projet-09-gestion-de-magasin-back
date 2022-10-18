@@ -6,6 +6,8 @@ export class Brand extends CustomBaseEntity {
   @Property({ type: 'string', nullable: false, length: 64 })
   name: string;
 
-  @OneToMany(() => Product, (product) => product.brand)
+  @OneToMany(() => Product, (product) => product.brand, {
+    orphanRemoval: true,
+  })
   products = new Collection<Product>(this);
 }

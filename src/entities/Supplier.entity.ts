@@ -4,6 +4,7 @@ import {
   Filter,
   ManyToMany,
   ManyToOne,
+  OneToMany,
   Property,
 } from '@mikro-orm/core';
 import { CustomBaseEntity, Product, ProductSupplier, Store, User } from './';
@@ -46,9 +47,19 @@ export class Supplier extends CustomBaseEntity {
   @Property({ type: 'string', nullable: true, default: 'pictureStore' })
   pictureUrl: string;
 
-  @ManyToMany({ entity: () => Product, pivotEntity: () => ProductSupplier })
+  @ManyToMany({
+    entity: () => Product,
+    pivotEntity: () => ProductSupplier,
+    mappedBy: 'suppliers',
+  })
   products = new Collection<Product>(this);
 
   @ManyToOne(() => Store)
   store: Store;
+
+  @OneToMany(
+    () => ProductSupplier,
+    (productSupplier) => productSupplier.supplier,
+  )
+  productSuppliers = new Collection<ProductSupplier>(this);
 }

@@ -6,6 +6,8 @@ export class Role extends CustomBaseEntity {
   @Property({ type: 'string', nullable: false, length: 64 })
   name: string;
 
-  @OneToMany(() => User, (user) => user.role)
+  @OneToMany(() => User, (user) => user.role, {
+    orphanRemoval: true,
+  })
   users = new Collection<User>(this);
 }

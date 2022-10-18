@@ -1,5 +1,5 @@
 import {
-  MaxLength,
+  IsNumber,
   IsNumberString,
   IsOptional,
   IsNotEmpty,
@@ -20,7 +20,7 @@ export class StockDto {
   public id: number;
 
   @IsNotEmpty()
-  @MaxLength(64)
+  @IsNumber()
   public quantity: number;
 
   @IsOptional()
@@ -29,6 +29,7 @@ export class StockDto {
   @IsOptional()
   public updatedAt: Date;
 
-  @IsOptional()
-  public product: Product;
+  @IsNotEmpty()
+  @IsNumber()
+  public product: number;
 }

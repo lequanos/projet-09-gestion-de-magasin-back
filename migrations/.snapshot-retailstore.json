@@ -412,7 +412,7 @@
           "unsigned": false,
           "autoincrement": false,
           "primary": false,
-          "nullable": true,
+          "nullable": false,
           "mappedType": "integer"
         },
         "store_id": {
@@ -450,7 +450,6 @@
             "id"
           ],
           "referencedTableName": "public.brand",
-          "deleteRule": "set null",
           "updateRule": "cascade"
         },
         "product_store_id_foreign": {
@@ -952,15 +951,6 @@
     },
     {
       "columns": {
-        "id": {
-          "name": "id",
-          "type": "int",
-          "unsigned": false,
-          "autoincrement": false,
-          "primary": false,
-          "nullable": false,
-          "mappedType": "integer"
-        },
         "product_id": {
           "name": "product_id",
           "type": "int",
@@ -978,6 +968,16 @@
           "primary": false,
           "nullable": false,
           "mappedType": "integer"
+        },
+        "purchase_price": {
+          "name": "purchase_price",
+          "type": "real",
+          "unsigned": false,
+          "autoincrement": false,
+          "primary": false,
+          "nullable": false,
+          "default": "0",
+          "mappedType": "float"
         },
         "created_at": {
           "name": "created_at",
@@ -1000,15 +1000,6 @@
           "length": 6,
           "default": "now()",
           "mappedType": "datetime"
-        },
-        "purchase_price": {
-          "name": "purchase_price",
-          "type": "real",
-          "unsigned": false,
-          "autoincrement": false,
-          "primary": false,
-          "nullable": false,
-          "mappedType": "float"
         }
       },
       "name": "product_supplier",
@@ -1017,7 +1008,6 @@
         {
           "keyName": "product_supplier_pkey",
           "columnNames": [
-            "id",
             "product_id",
             "supplier_id"
           ],

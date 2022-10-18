@@ -58,7 +58,6 @@ const config: Options<PostgreSqlDriver> = {
   highlighter: new SqlHighlighter(),
   port: 5432,
   debug: true,
-  host: 'db',
   logger: logger.log.bind(logger),
   metadataProvider: TsMorphMetadataProvider,
 };

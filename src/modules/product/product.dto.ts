@@ -13,8 +13,8 @@ import {
   Store,
   ProductNutriscore,
   ProductEcoscore,
-  Supplier,
   Category,
+  ProductSupplier,
 } from '../../entities';
 
 export class ProductIdParamDto {
@@ -74,10 +74,10 @@ export class CreateProductDto {
   public isActive = true;
 
   @IsDefined()
-  public suppliers: Supplier[];
+  public categories: Category[];
 
   @IsDefined()
-  public categories: Category[];
+  public productSuppliers: ProductSupplier[];
 
   @IsOptional()
   public inStock = 0;
@@ -127,7 +127,7 @@ export class UpdateProductDto {
   @IsOptional()
   public updatedAt: Date;
 
-  @IsDefined()
+  @IsOptional()
   public brand: string;
 
   @IsOptional()
@@ -137,13 +137,13 @@ export class UpdateProductDto {
   public isActive: boolean;
 
   @IsOptional()
-  public suppliers: Supplier[];
-
-  @IsOptional()
   public categories: Category[];
 
   @IsOptional()
   public inStock = 0;
+
+  @IsOptional()
+  public productSuppliers?: ProductSupplier[];
 }
 
 export class GetParams {

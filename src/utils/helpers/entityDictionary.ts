@@ -8,6 +8,7 @@ import {
   Supplier,
   User,
   Role,
+  ProductSupplier,
 } from '../../entities';
 
 export const entityDictionary = {
@@ -28,4 +29,5 @@ export const entityDictionary = {
   suppliers: Supplier,
   user: User,
   users: User,
+  productSuppliers: ProductSupplier,
 } as { [key: string]: any };

@@ -8,6 +8,8 @@ import {
   Patch,
   Put,
   HttpCode,
+  ParseArrayPipe,
+  Query,
 } from '@nestjs/common';
 
 import { Store } from '../../entities';
@@ -32,8 +34,27 @@ export class StoreController {
    */
   @Get()
   @Roles('super admin')
-  async getAllStores(): Promise<Store[]> {
-    return await this.storeService.getAll();
+  async getAllStores(
+    @Query(
+      'select',
+      new ParseArrayPipe({
+        items: String,
+        separator: ',',
+        optional: true,
+      }),
+    )
+    select: string[] = [],
+    @Query(
+      'nested',
+      new ParseArrayPipe({
+        items: String,
+        separator: ',',
+        optional: true,
+      }),
+    )
+    nested: string[] = [],
+  ): Promise<Store[]> {
+    return await this.storeService.getAll(select, nested);
   }
 
   /**
@@ -41,8 +62,28 @@ export class StoreController {
    */
   @Get(':siret')
   @Roles('super admin')
-  async getOneStoreBySiret(@Param() param: SiretParamDto): Promise<Store> {
-    return await this.storeService.getOneBySiret(param.siret);
+  async getOneStoreBySiret(
+    @Param() param: SiretParamDto,
+    @Query(
+      'select',
+      new ParseArrayPipe({
+        items: String,
+        separator: ',',
+        optional: true,
+      }),
+    )
+    select: string[] = [],
+    @Query(
+      'nested',
+      new ParseArrayPipe({
+        items: String,
+        separator: ',',
+        optional: true,
+      }),
+    )
+    nested: string[] = [],
+  ): Promise<Store> {
+    return await this.storeService.getOneBySiret(param.siret, select, nested);
   }
 
   /**

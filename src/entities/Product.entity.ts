@@ -9,6 +9,7 @@ import {
   Filter,
   types,
   Formula,
+  Cascade,
 } from '@mikro-orm/core';
 
 import {
@@ -61,16 +62,27 @@ export class Product extends CustomBaseEntity {
   @Property({ type: 'boolean', nullable: false })
   isActive: boolean;
 
-  @OneToMany(() => Stock, (stock) => stock.product)
+  @OneToMany(() => Stock, (stock) => stock.product, {
+    orphanRemoval: true,
+    cascade: [Cascade.REMOVE],
+  })
   stock = new Collection<Stock>(this);
 
   @ManyToOne(() => Brand)
   brand: Brand;
 
-  @ManyToMany(() => Category, 'products', { owner: true })
+  @ManyToMany({
+    entity: () => Category,
+    mappedBy: 'products',
+    owner: true,
+  })
   categories = new Collection<Category>(this);
 
-  @ManyToMany({ entity: () => Supplier, pivotEntity: () => ProductSupplier })
+  @ManyToMany({
+    entity: () => Supplier,
+    pivotEntity: () => ProductSupplier,
+    cascade: [Cascade.REMOVE],
+  })
   suppliers = new Collection<Supplier>(this);
 
   @ManyToOne(() => Store)
@@ -81,6 +93,16 @@ export class Product extends CustomBaseEntity {
       `(SELECT SUM(stock.quantity) FROM stock WHERE stock.product_id = ${alias}.id)`,
   )
   inStock: number;
+
+  @OneToMany(
+    () => ProductSupplier,
+    (productSupplier) => productSupplier.product,
+    {
+      orphanRemoval: true,
+      cascade: [Cascade.REMOVE],
+    },
+  )
+  productSuppliers = new Collection<ProductSupplier>(this);
 }
 
 export enum ProductNutriscore {

@@ -5,12 +5,18 @@ import {
   NotFoundException,
 } from '@nestjs/common';
 
-import { EntityManager, EntityRepository, wrap } from '@mikro-orm/core';
+import {
+  EntityManager,
+  EntityRepository,
+  wrap,
+  EntityField,
+} from '@mikro-orm/core';
 import { InjectRepository } from '@mikro-orm/nestjs';
+
 import { Store } from '../../entities';
 import { isNotFoundError } from '../../utils/typeguards/ExceptionTypeGuards';
-
 import { StoreDto, UpdateStoreDto } from './store.dto';
+import { getFieldsFromQuery } from '../../utils/helpers/getFieldsFromQuery';
 
 /**
  * Service for the stores
@@ -27,20 +33,24 @@ export class StoreService {
   /**
    * Get all stores that are active
    */
-  async getAll(): Promise<Store[]> {
+  async getAll(
+    selectParams: string[] = [],
+    nestedParams: string[] = [],
+  ): Promise<Store[]> {
     try {
+      const fields = getFieldsFromQuery(
+        selectParams,
+        nestedParams,
+        this.em,
+        'store',
+      );
+
       return await this.storeRepository.find(
         { isActive: true },
         {
-          fields: [
-            'name',
-            'address',
-            'postcode',
-            'city',
-            'siren',
-            'siret',
-            'pictureUrl',
-          ],
+          fields: fields.length
+            ? (fields as EntityField<Store, never>[])
+            : undefined,
         },
       );
     } catch (e) {
@@ -59,20 +69,26 @@ export class StoreService {
    * @param id the searched store's identifier
    * @returns the found store
    */
-  async getOneById(id: number, isActive = true): Promise<Store> {
+  async getOneById(
+    id: number,
+    isActive = true,
+    selectParams: string[] = [],
+    nestedParams: string[] = [],
+  ): Promise<Store> {
     try {
+      const fields = getFieldsFromQuery(
+        selectParams,
+        nestedParams,
+        this.em,
+        'store',
+      );
+
       return await this.storeRepository.findOneOrFail(
         { id, isActive },
         {
-          fields: [
-            'name',
-            'address',
-            'postcode',
-            'city',
-            'siren',
-            'siret',
-            'pictureUrl',
-          ],
+          fields: fields.length
+            ? (fields as EntityField<Store, never>[])
+            : undefined,
         },
       );
     } catch (e) {
@@ -91,23 +107,28 @@ export class StoreService {
    * @param siret the searched siret number
    * @returns the found store
    */
-  async getOneBySiret(siret: string): Promise<Store> {
+  async getOneBySiret(
+    siret: string,
+    selectParams: string[] = [],
+    nestedParams: string[] = [],
+  ): Promise<Store> {
     try {
+      const fields = getFieldsFromQuery(
+        selectParams,
+        nestedParams,
+        this.em,
+        'store',
+      );
+
       return await this.storeRepository.findOneOrFail(
         {
           siret,
           isActive: true,
         },
         {
-          fields: [
-            'name',
-            'address',
-            'postcode',
-            'city',
-            'siren',
-            'siret',
-            'pictureUrl',
-          ],
+          fields: fields.length
+            ? (fields as EntityField<Store, never>[])
+            : undefined,
         },
       );
     } catch (e) {
@@ -156,7 +177,9 @@ export class StoreService {
    */
   async updateStore(storeDto: UpdateStoreDto): Promise<Store> {
     try {
-      const foundStore = await this.storeRepository.findOneOrFail(storeDto.id);
+      const foundStore = await this.storeRepository.findOneOrFail(storeDto.id, {
+        populate: ['aisles'],
+      });
 
       if (!foundStore?.isActive)
         throw new ConflictException('Store is deactivated');

@@ -6,11 +6,17 @@ import {
   NotFoundException,
 } from '@nestjs/common';
 
-import { EntityManager, EntityRepository, wrap } from '@mikro-orm/core';
+import {
+  EntityManager,
+  EntityRepository,
+  wrap,
+  EntityField,
+} from '@mikro-orm/core';
 import { InjectRepository } from '@mikro-orm/nestjs';
 import * as bcrypt from 'bcrypt';
 
 import { isNotFoundError } from '../../utils/typeguards/ExceptionTypeGuards';
+import { getFieldsFromQuery } from '../../utils/helpers/getFieldsFromQuery';
 import { User } from '../../entities';
 import { CreateUserDto, UpdateUserDto } from './user.dto';
 
@@ -29,25 +35,25 @@ export class UserService {
   /**
    * Get all users that are active
    */
-  async getAll(user: Partial<User>): Promise<User[]> {
+  async getAll(
+    user: Partial<User>,
+    selectParams: string[] = [],
+    nestedParams: string[] = [],
+  ): Promise<User[]> {
     try {
+      const fields = getFieldsFromQuery(
+        selectParams,
+        nestedParams,
+        this.em,
+        'user',
+      );
+
       return await this.userRepository.find(
         { isActive: true },
         {
-          fields: [
-            'firstname',
-            'lastname',
-            'email',
-            'pictureUrl',
-            'role',
-            {
-              role: ['name'],
-            },
-            {
-              aisles: ['name'],
-            },
-            'store',
-          ],
+          fields: fields.length
+            ? (fields as EntityField<User, never>[])
+            : undefined,
           filters: { fromStore: { user } },
         },
       );
@@ -71,28 +77,23 @@ export class UserService {
     id: number,
     user: Partial<User>,
     isActive = true,
+    selectParams: string[] = [],
+    nestedParams: string[] = [],
   ): Promise<User> {
     try {
+      const fields = getFieldsFromQuery(
+        selectParams,
+        nestedParams,
+        this.em,
+        'user',
+      );
+
       return await this.userRepository.findOneOrFail(
         { id, isActive },
         {
-          fields: [
-            'firstname',
-            'lastname',
-            'email',
-            'pictureUrl',
-            'role',
-            {
-              role: ['name'],
-            },
-            {
-              aisles: ['name'],
-            },
-            'store',
-            {
-              store: ['name'],
-            },
-          ],
+          fields: fields.length
+            ? (fields as EntityField<User, never>[])
+            : undefined,
           filters: { fromStore: { user } },
         },
       );

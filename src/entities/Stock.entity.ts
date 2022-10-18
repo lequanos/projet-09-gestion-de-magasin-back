@@ -8,4 +8,9 @@ export class Stock extends CustomBaseEntity {
 
   @ManyToOne(() => Product)
   product?: Product;
+
+  constructor(quantity: number) {
+    super();
+    this.quantity = quantity;
+  }
 }

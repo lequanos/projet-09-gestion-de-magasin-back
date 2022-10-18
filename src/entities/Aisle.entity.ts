@@ -6,6 +6,7 @@ import {
   OneToMany,
   Property,
   Filter,
+  Cascade,
 } from '@mikro-orm/core';
 import { CustomBaseEntity, Category, User, Store } from './';
 
@@ -24,9 +25,15 @@ export class Aisle extends CustomBaseEntity {
   @ManyToOne(() => Store)
   store!: Store;
 
-  @ManyToMany({ entity: () => User, mappedBy: 'aisles' })
+  @ManyToMany({
+    entity: () => User,
+    mappedBy: 'aisles',
+  })
   users = new Collection<User>(this);
 
-  @OneToMany(() => Category, (category) => category.aisle)
+  @OneToMany(() => Category, (category) => category.aisle, {
+    orphanRemoval: true,
+    cascade: [Cascade.REMOVE],
+  })
   categories = new Collection<Category>(this);
 }

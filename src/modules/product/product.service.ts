@@ -9,7 +9,7 @@ import { InjectRepository } from '@mikro-orm/nestjs';
 import { EntityField, wrap } from '@mikro-orm/core';
 import { EntityManager, EntityRepository } from '@mikro-orm/postgresql';
 
-import { Product, User, Brand } from '../../entities';
+import { Product, User, Brand, Stock, ProductSupplier } from '../../entities';
 import { isNotFoundError } from '../../utils/typeguards/ExceptionTypeGuards';
 import { getFieldsFromQuery } from '../../utils/helpers/getFieldsFromQuery';
 import { CreateProductDto, UpdateProductDto } from './product.dto';
@@ -24,6 +24,10 @@ export class ProductService {
     private readonly productRepository: EntityRepository<Product>,
     @InjectRepository(Brand)
     private readonly brandRepository: EntityRepository<Brand>,
+    @InjectRepository(Stock)
+    private readonly stockRepository: EntityRepository<Stock>,
+    @InjectRepository(ProductSupplier)
+    private readonly productSupplierRepository: EntityRepository<ProductSupplier>,
     private readonly logger: Logger = new Logger('ProductService'),
     private readonly em: EntityManager,
   ) {}
@@ -116,6 +120,7 @@ export class ProductService {
     productDto: CreateProductDto,
     user: Partial<User>,
   ): Promise<Product> {
+    this.em.begin();
     try {
       const foundProduct = await this.productRepository.findOne(
         {
@@ -141,19 +146,29 @@ export class ProductService {
           createdAt: new Date(),
           updatedAt: new Date(),
         });
-        await this.brandRepository.persistAndFlush(brand);
+        this.brandRepository.persist(brand);
       }
+
+      const stock = this.stockRepository.create({
+        quantity: productDto.inStock,
+        createdAt: new Date(),
+        updatedAt: new Date(),
+      });
 
       const productCreated = this.productRepository.create({
         ...productDto,
         brand,
+        stock,
       });
 
-      await this.productRepository.persistAndFlush(productCreated);
+      this.productRepository.persist(productCreated);
+
+      await this.em.commit();
       this.em.clear();
       return await this.getOneById(productCreated.id, user);
     } catch (e) {
       this.logger.error(`${e.message} `, e);
+      await this.em.rollback();
       throw e;
     }
   }
@@ -167,11 +182,13 @@ export class ProductService {
     productDto: UpdateProductDto,
     user: Partial<User>,
   ): Promise<Product> {
+    this.em.begin();
     try {
       const foundProduct = await this.productRepository.findOneOrFail(
         productDto.id,
         {
           filters: { fromStore: { user } },
+          populate: ['productSuppliers', 'categories', 'stock', 'brand'],
         },
       );
 
@@ -179,7 +196,7 @@ export class ProductService {
         throw new ConflictException('Product is deactivated');
 
       let brand = await this.brandRepository.findOne({
-        name: productDto.brand,
+        name: productDto.brand || foundProduct.brand.name,
       });
 
       if (!brand) {
@@ -188,15 +205,27 @@ export class ProductService {
           createdAt: new Date(),
           updatedAt: new Date(),
         });
-        await this.brandRepository.persistAndFlush(brand);
+        this.brandRepository.persist(brand);
+      }
+
+      const productSuppliers = productDto.productSuppliers?.map(
+        (ps) => new ProductSupplier(ps.supplier, ps.product, ps.purchasePrice),
+      );
+
+      if (productDto.inStock) {
+        foundProduct.stock.add(
+          new Stock(productDto.inStock - foundProduct.inStock),
+        );
       }
 
       wrap(foundProduct).assign({
         ...productDto,
         brand,
+        productSuppliers,
       });
 
-      await this.productRepository.persistAndFlush(foundProduct);
+      this.productRepository.persist(foundProduct);
+      await this.em.commit();
       this.em.clear();
       return await this.getOneById(foundProduct.id, user);
     } catch (e) {
@@ -205,7 +234,7 @@ export class ProductService {
       if (isNotFoundError(e)) {
         throw new NotFoundException();
       }
-
+      this.em.rollback();
       throw e;
     }
   }
@@ -291,6 +320,7 @@ export class ProductService {
         productId,
         {
           filters: { fromStore: { user } },
+          populate: ['productSuppliers', 'categories', 'stock', 'brand'],
         },
       );
       await this.productRepository.removeAndFlush(foundProduct);
