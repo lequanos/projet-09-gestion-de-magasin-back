@@ -191,7 +191,10 @@ export class ProductService {
           populate: ['productSuppliers', 'categories', 'stock', 'brand'],
         },
       );
-
+      if (foundProduct.name === productDto.name) {
+        throw new ConflictException(`${productDto.name} existe deja`);
+      }
+      
       if (!foundProduct?.isActive)
         throw new ConflictException('Product is deactivated');
 
