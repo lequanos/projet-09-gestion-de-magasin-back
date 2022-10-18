@@ -21,6 +21,7 @@ export class FakeDataSeeder extends Seeder {
   async run(em: EntityManager): Promise<void> {
     let storeIndex = 0;
     let psIndex = 0;
+    let aisleIndex = 0;
 
     // const categories = new CategoryFactory(em).make(5);
     // const aisles = new AisleFactory(em)
@@ -28,19 +29,21 @@ export class FakeDataSeeder extends Seeder {
     //     aisle.categories.set(faker.helpers.arrayElements(categories));
     //   })
     //   .make(5);
-    const aisles = new AisleFactory(em).make(7, {
-      name: faker.helpers.unique(() => {
-        return faker.helpers.arrayElement([
-          'Liquide',
-          'Vin',
-          'Epicerie Sucrée',
-          'Epicerie Salée',
-          'Hygiène',
-          'Textile',
-          'Produits frais',
-        ]);
-      }),
-    });
+    const aisleNames = [
+      'Liquide',
+      'Vin',
+      'Epicerie Sucrée',
+      'Epicerie Salée',
+      'Hygiène',
+      'Textile',
+      'Produits frais',
+    ];
+    const aisles = new AisleFactory(em)
+      .each((aisle) => {
+        aisle.name = aisleNames[aisleIndex];
+        aisleIndex++;
+      })
+      .make(7);
 
     const allAisle = new AisleFactory(em).makeOne({
       name: 'tous',
