@@ -146,8 +146,8 @@ export class AisleService {
       const foundAisle = await this.aisleRepository.findOneOrFail(aisleDto.id, {
         filters: { fromStore: { user } },
       });
-      if (!foundAisle) {
-        throw new NotFoundException();
+      if (foundAisle.name === aisleDto.name) {
+        throw new ConflictException(`${aisleDto.name} existe deja`);
       }
       wrap(foundAisle).assign({
         ...aisleDto,
