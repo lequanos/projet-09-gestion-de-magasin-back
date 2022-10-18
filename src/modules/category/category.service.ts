@@ -152,8 +152,8 @@ export class CategoryService {
           filters: { fromStore: { user } },
         },
       );
-      if (!foundCategory) {
-        throw new NotFoundException();
+      if (foundCategory.name === categoryDto.name) {
+        throw new ConflictException(`${categoryDto.name} existe deja`);
       }
       wrap(foundCategory).assign({
         ...categoryDto,
