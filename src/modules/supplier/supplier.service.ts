@@ -157,6 +157,9 @@ export class SupplierService {
         supplierDto.id,
         { filters: { fromStore: { user } } },
       );
+      if (foundSupplier.name === supplierDto.name) {
+        throw new ConflictException(`${supplierDto.name} existe deja`);
+      }
 
       if (!foundSupplier?.isActive)
         throw new ConflictException('Supplier is deactivated');
