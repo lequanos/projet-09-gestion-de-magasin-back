@@ -15,25 +15,69 @@ import {
   StockFactory,
   RoleFactory,
 } from './factories';
-import { User } from '../src/entities';
+import { Aisle, User } from '../src/entities';
 
 export class FakeDataSeeder extends Seeder {
   async run(em: EntityManager): Promise<void> {
     let storeIndex = 0;
 
-    const categories = new CategoryFactory(em).make(5);
-
-    const aisles = new AisleFactory(em)
-      .each((aisle) => {
-        aisle.categories.set(faker.helpers.arrayElements(categories));
-      })
-      .make(5);
+    // const categories = new CategoryFactory(em).make(5);
+    // const aisles = new AisleFactory(em)
+    //   .each((aisle) => {
+    //     aisle.categories.set(faker.helpers.arrayElements(categories));
+    //   })
+    //   .make(5);
+    const aisles = new AisleFactory(em).make(7, {
+      name: faker.helpers.unique(() => {
+        return faker.helpers.arrayElement([
+          'Liquide',
+          'Vin',
+          'Epicerie Sucrée',
+          'Epicerie Salée',
+          'Hygiène',
+          'Textile',
+          'Produits frais',
+        ]);
+      }),
+    });
 
     const allAisle = new AisleFactory(em).makeOne({
       name: 'tous',
     });
 
     aisles.push(allAisle);
+
+    const categoryDictionary: { [key: string]: Aisle | undefined } = {
+      Yaourt: aisles.find((aisle) => aisle.name === 'Produits frais'),
+      Surgelés: aisles.find((aisle) => aisle.name === 'Produits frais'),
+      Soda: aisles.find((aisle) => aisle.name === 'Liquide'),
+      Eaux: aisles.find((aisle) => aisle.name === 'Liquide'),
+      'Vin Rouge': aisles.find((aisle) => aisle.name === 'Vin'),
+      'Vin Blanc': aisles.find((aisle) => aisle.name === 'Vin'),
+      'Vin Rosé': aisles.find((aisle) => aisle.name === 'Vin'),
+      'Papier Toilette': aisles.find((aisle) => aisle.name === 'Hygiène'),
+      'Liquide vaisselle': aisles.find((aisle) => aisle.name === 'Hygiène'),
+      Mouchoir: aisles.find((aisle) => aisle.name === 'Hygiène'),
+      'Petit déjeuner': aisles.find(
+        (aisle) => aisle.name === 'Epicerie Sucrée',
+      ),
+      confiserie: aisles.find((aisle) => aisle.name === 'Epicerie Sucrée'),
+      Chocolat: aisles.find((aisle) => aisle.name === 'Epicerie Sucrée'),
+      Gateaux: aisles.find((aisle) => aisle.name === 'Epicerie Sucrée'),
+      Pâtes: aisles.find((aisle) => aisle.name === 'Epicerie Salée'),
+      Riz: aisles.find((aisle) => aisle.name === 'Epicerie Salée'),
+      Sauce: aisles.find((aisle) => aisle.name === 'Epicerie Salée'),
+      'Vêtement enfants': aisles.find((aisle) => aisle.name === 'Textile'),
+      'Vêtement femme': aisles.find((aisle) => aisle.name === 'Textile'),
+      'Vêtement homme': aisles.find((aisle) => aisle.name === 'Textile'),
+      Chaussures: aisles.find((aisle) => aisle.name === 'Textile'),
+    };
+
+    new CategoryFactory(em)
+      .each((category) => {
+        category.aisle = categoryDictionary[category.name] || allAisle;
+      })
+      .make(20);
 
     const superAdminRole = new RoleFactory(em).makeOne({
       name: 'super admin',

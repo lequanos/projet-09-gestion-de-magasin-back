@@ -14,25 +14,6 @@ export class StockIdParamDto {
   public id: number;
 }
 
-// export class UpdateStockDto {
-//   @IsNumberString()
-//   @IsOptional()
-//   public id: number;
-
-//   @IsOptional()
-//   @MaxLength(64)
-//   public name: string;
-
-//   @IsOptional()
-//   public createdAt: Date = new Date();
-
-//   @IsOptional()
-//   public updatedAt: Date = new Date();
-
-//   @IsOptional()
-//   public aisle: Aisle;
-// }
-
 export class StockDto {
   @IsNumberString()
   @IsOptional()
