@@ -5,9 +5,11 @@ import {
   Get,
   HttpCode,
   Param,
+  ParseArrayPipe,
   Patch,
   Post,
   Put,
+  Query,
   Req,
   UseInterceptors,
 } from '@nestjs/common';
@@ -32,8 +34,28 @@ export class UserController {
    */
   @Get()
   @Roles('super admin', 'store manager', 'purchasing manager')
-  async getAllUsers(@Req() req: Request): Promise<User[]> {
-    return await this.userService.getAll(req.user as User);
+  async getAllUsers(
+    @Req() req: Request,
+    @Query(
+      'select',
+      new ParseArrayPipe({
+        items: String,
+        separator: ',',
+        optional: true,
+      }),
+    )
+    select: string[] = [],
+    @Query(
+      'nested',
+      new ParseArrayPipe({
+        items: String,
+        separator: ',',
+        optional: true,
+      }),
+    )
+    nested: string[] = [],
+  ): Promise<User[]> {
+    return await this.userService.getAll(req.user as User, select, nested);
   }
 
   /**
@@ -44,8 +66,32 @@ export class UserController {
   async getOneUserById(
     @Req() req: Request,
     @Param() param: UserIdParamDto,
+    @Query(
+      'select',
+      new ParseArrayPipe({
+        items: String,
+        separator: ',',
+        optional: true,
+      }),
+    )
+    select: string[] = [],
+    @Query(
+      'nested',
+      new ParseArrayPipe({
+        items: String,
+        separator: ',',
+        optional: true,
+      }),
+    )
+    nested: string[] = [],
   ): Promise<User> {
-    return await this.userService.getOneById(param.id, req.user as User);
+    return await this.userService.getOneById(
+      param.id,
+      req.user as User,
+      true,
+      select,
+      nested,
+    );
   }
 
   /**
@@ -56,10 +102,7 @@ export class UserController {
   @Post()
   @Roles('super admin', 'store manager')
   @UseInterceptors(StoreInterceptor)
-  async createUser(
-    @Req() req: Request,
-    @Body() createUserDto: CreateUserDto,
-  ): Promise<User> {
+  async createUser(@Body() createUserDto: CreateUserDto): Promise<User> {
     return await this.userService.createUser(createUserDto);
   }
 

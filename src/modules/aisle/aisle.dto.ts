@@ -16,7 +16,6 @@ export class AisleIdParamDto {
 
 export class UpdateAisleDto {
   @IsNumberString()
-  @IsOptional()
   public id: number;
 
   @IsOptional()
@@ -48,6 +47,6 @@ export class AisleDto {
   @IsOptional()
   public updatedAt: Date = new Date();
 
-  @IsOptional()
+  @IsDefined()
   public store: Store;
 }

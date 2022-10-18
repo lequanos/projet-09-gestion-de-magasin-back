@@ -5,11 +5,17 @@ import {
   NotFoundException,
 } from '@nestjs/common';
 
-import { EntityManager, EntityRepository, wrap } from '@mikro-orm/core';
+import {
+  EntityManager,
+  EntityRepository,
+  wrap,
+  EntityField,
+} from '@mikro-orm/core';
 import { InjectRepository } from '@mikro-orm/nestjs/mikro-orm.common';
 
 import { isNotFoundError } from '../../utils/typeguards/ExceptionTypeGuards';
 import { Supplier, User } from '../../entities';
+import { getFieldsFromQuery } from '../../utils/helpers/getFieldsFromQuery';
 import { CreateSupplierDto, UpdateSupplierDto } from './supplier.dto';
 
 @Injectable()
@@ -24,24 +30,25 @@ export class SupplierService {
   /**
    * Get all Suppliers who are active
    */
-  async getAll(user: Partial<User>): Promise<Supplier[]> {
+  async getAll(
+    user: Partial<User>,
+    selectParams: string[] = [],
+    nestedParams: string[] = [],
+  ): Promise<Supplier[]> {
     try {
+      const fields = getFieldsFromQuery(
+        selectParams,
+        nestedParams,
+        this.em,
+        'supplier',
+      );
+
       return await this.supplierRepository.find(
         { isActive: true },
         {
-          fields: [
-            'name',
-            'phoneNumber',
-            'address',
-            'postcode',
-            'city',
-            'siren',
-            'siret',
-            'contact',
-            'pictureUrl',
-            'store',
-            { store: ['name'] },
-          ],
+          fields: fields.length
+            ? (fields as EntityField<Supplier, never>[])
+            : undefined,
           filters: { fromStore: { user } },
         },
       );
@@ -65,25 +72,26 @@ export class SupplierService {
     id: number,
     user: Partial<User>,
     isActive = true,
+    selectParams: string[] = [],
+    nestedParams: string[] = [],
   ): Promise<Supplier> {
     try {
+      const fields = getFieldsFromQuery(
+        selectParams,
+        nestedParams,
+        this.em,
+        'supplier',
+      );
+
       return await this.supplierRepository.findOneOrFail(
         {
           id,
           isActive,
         },
         {
-          fields: [
-            'name',
-            'phoneNumber',
-            'address',
-            'postcode',
-            'city',
-            'siren',
-            'siret',
-            'contact',
-            'pictureUrl',
-          ],
+          fields: fields.length
+            ? (fields as EntityField<Supplier, never>[])
+            : undefined,
           filters: { fromStore: { user } },
         },
       );
@@ -178,7 +186,6 @@ export class SupplierService {
    */
   async deactivateSupplier(id: number, user: Partial<User>): Promise<Supplier> {
     try {
-      console.log(id, user);
       const supplier = await this.supplierRepository.findOneOrFail(
         { id },
         {

@@ -14,7 +14,6 @@ export class BrandIdParamDto {
 
 export class UpdateBrandDto {
   @IsNumberString()
-  @IsOptional()
   public id: number;
 
   @IsOptional()

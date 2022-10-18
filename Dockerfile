@@ -14,6 +14,7 @@ RUN npm install typescript ts-node -g
 
 COPY . .
 
+
 ###################
 # BUILD FOR PRODUCTION
 ###################
@@ -53,3 +54,4 @@ RUN echo "MAILJET_API_KEY=$MAILJET_API_KEY" >> .env
 RUN echo "MAILJET_SECRET_KEY=$MAILJET_SECRET_KEY" >> .env
 RUN echo "JWT_ACCESS_SECRET=$JWT_ACCESS_SECRET" >> .env
 RUN echo "JWT_REFRESH_SECRET=$JWT_REFRESH_SECRET" >> .env
+RUN echo "MIKRO_ORM_HOST=db" >> .env

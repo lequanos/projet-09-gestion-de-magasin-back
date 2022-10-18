@@ -11,5 +11,6 @@ services:
       - .:/usr/src/app
     environment:
       DEBUG: 'true'
+      MIKRO_ORM_HOST: 'db'
     depends_on:
      - db

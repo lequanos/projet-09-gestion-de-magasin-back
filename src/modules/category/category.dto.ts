@@ -16,7 +16,6 @@ export class CategoryIdParamDto {
 
 export class UpdateCategoryDto {
   @IsNumberString()
-  @IsOptional()
   public id: number;
 
   @IsOptional()
@@ -48,6 +47,6 @@ export class CategoryDto {
   @IsOptional()
   public updatedAt: Date;
 
-  @IsOptional()
+  @IsDefined()
   public aisle: Aisle;
 }

@@ -5,7 +5,12 @@ import {
   NotFoundException,
 } from '@nestjs/common';
 
-import { EntityField, EntityManager, EntityRepository } from '@mikro-orm/core';
+import {
+  EntityField,
+  EntityManager,
+  EntityRepository,
+  wrap,
+} from '@mikro-orm/core';
 import { InjectRepository } from '@mikro-orm/nestjs';
 import { Stock, User, Product } from '../../entities';
 import { isNotFoundError } from '../../utils/typeguards/ExceptionTypeGuards';
@@ -108,9 +113,8 @@ export class StockService {
    */
   async createStock(stockDto: StockDto, user: Partial<User>): Promise<Stock> {
     try {
-      console.log(stockDto);
       const product = await this.productRepository.findOne({
-        id: stockDto.product as unknown as number,
+        id: stockDto.product,
       });
 
       if (!product) {

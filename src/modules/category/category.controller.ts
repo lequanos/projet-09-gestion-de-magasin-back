@@ -34,7 +34,7 @@ export class CategoryController {
   constructor(private readonly categoryService: CategoryService) {}
 
   /**
-   * Get all categorys
+   * Get all categories
    */
   @Get()
   @Roles(

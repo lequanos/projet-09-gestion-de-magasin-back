@@ -20,6 +20,7 @@ import { User } from '../src/entities';
 export class FakeDataSeeder extends Seeder {
   async run(em: EntityManager): Promise<void> {
     let storeIndex = 0;
+    let psIndex = 0;
 
     const categories = new CategoryFactory(em).make(5);
 
@@ -110,11 +111,12 @@ export class FakeDataSeeder extends Seeder {
 
     new ProductSupplierFactory(em)
       .each((ps) => {
-        ps.product = faker.helpers.arrayElement(products);
-        ps.supplier = faker.helpers.arrayElement(suppliers);
+        ps.product = products[psIndex % products.length];
+        ps.supplier = suppliers[psIndex % suppliers.length];
         ps.purchasePrice = Number(faker.commerce.price(1, 1000, 2));
+        psIndex++;
       })
-      .make(60);
+      .make(40);
 
     new StockFactory(em)
       .each((stock) => {

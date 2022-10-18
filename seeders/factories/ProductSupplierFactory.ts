@@ -7,7 +7,6 @@ export class ProductSupplierFactory extends Factory<ProductSupplier> {
   definition(faker: Faker): Partial<ProductSupplier> {
     return {
       purchasePrice: Number(faker.commerce.price(1, 1000, 2)),
-      id: faker.helpers.unique(() => Math.floor(Math.random() * 100)),
     };
   }
 }

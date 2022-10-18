@@ -5,9 +5,11 @@ import {
   Get,
   HttpCode,
   Param,
+  ParseArrayPipe,
   Patch,
   Post,
   Put,
+  Query,
   Req,
   UseInterceptors,
 } from '@nestjs/common';
@@ -37,8 +39,28 @@ export class SupplierController {
    */
   @Get()
   @Roles('super admin', 'store manager', 'purchasing manager')
-  async getAllSuppliers(@Req() req: Request): Promise<Supplier[]> {
-    return await this.supplierService.getAll(req.user as User);
+  async getAllSuppliers(
+    @Req() req: Request,
+    @Query(
+      'select',
+      new ParseArrayPipe({
+        items: String,
+        separator: ',',
+        optional: true,
+      }),
+    )
+    select: string[] = [],
+    @Query(
+      'nested',
+      new ParseArrayPipe({
+        items: String,
+        separator: ',',
+        optional: true,
+      }),
+    )
+    nested: string[] = [],
+  ): Promise<Supplier[]> {
+    return await this.supplierService.getAll(req.user as User, select, nested);
   }
 
   /**
@@ -49,8 +71,32 @@ export class SupplierController {
   async getOneSupplier(
     @Req() req: Request,
     @Param('id') id: number,
+    @Query(
+      'select',
+      new ParseArrayPipe({
+        items: String,
+        separator: ',',
+        optional: true,
+      }),
+    )
+    select: string[] = [],
+    @Query(
+      'nested',
+      new ParseArrayPipe({
+        items: String,
+        separator: ',',
+        optional: true,
+      }),
+    )
+    nested: string[] = [],
   ): Promise<Supplier> {
-    return await this.supplierService.getOneSupplier(id, req.user as User);
+    return await this.supplierService.getOneSupplier(
+      id,
+      req.user as User,
+      true,
+      select,
+      nested,
+    );
   }
 
   /**
