@@ -297,13 +297,12 @@
         },
         "name": {
           "name": "name",
-          "type": "varchar(64)",
+          "type": "text",
           "unsigned": false,
           "autoincrement": false,
           "primary": false,
           "nullable": false,
-          "length": 64,
-          "mappedType": "string"
+          "mappedType": "text"
         },
         "code": {
           "name": "code",
@@ -390,12 +389,12 @@
         },
         "ingredients": {
           "name": "ingredients",
-          "type": "varchar(255)",
+          "type": "text",
           "unsigned": false,
           "autoincrement": false,
           "primary": false,
           "nullable": false,
-          "mappedType": "string"
+          "mappedType": "text"
         },
         "is_active": {
           "name": "is_active",
