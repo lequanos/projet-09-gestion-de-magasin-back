@@ -10,6 +10,7 @@ import {
   types,
   Formula,
   Cascade,
+  TextType,
 } from '@mikro-orm/core';
 
 import {
@@ -32,7 +33,7 @@ import {
   },
 })
 export class Product extends CustomBaseEntity {
-  @Property({ type: 'string', nullable: false, length: 64 })
+  @Property({ type: TextType, nullable: false })
   name: string;
 
   @Property({ type: 'string', nullable: false, length: 13 })
@@ -56,7 +57,7 @@ export class Product extends CustomBaseEntity {
   @Property({ type: 'number', nullable: false, default: 0 })
   threshold: number;
 
-  @Property({ type: 'string' })
+  @Property({ type: TextType })
   ingredients: string;
 
   @Property({ type: 'boolean', nullable: false })
