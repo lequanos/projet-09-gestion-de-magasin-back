@@ -70,7 +70,7 @@ jobs:
             git checkout origin/${{ steps.extract_branch.outputs.branch }} -- Dockerfile
             git checkout origin/${{ steps.extract_branch.outputs.branch }} -- docker-compose.yaml
             git checkout origin/${{ steps.extract_branch.outputs.branch }} -- docker-compose.prod.yaml
-            docker-compose down
+            docker-compose down --remove-orphans 
             docker system prune -a -f
             docker pull registry.digitalocean.com/apo-registry/retail-store-api:latest
             docker-compose --env-file .env -f docker-compose.yaml -f docker-compose.prod.yaml up -d
