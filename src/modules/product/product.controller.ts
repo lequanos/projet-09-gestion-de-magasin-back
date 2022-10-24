@@ -102,7 +102,6 @@ export class ProductController {
     return await this.productService.getOneById(
       param.id,
       req.user as User,
-      true,
       select,
       nested,
     );
