@@ -6,6 +6,7 @@ import {
   ManyToOne,
   OneToMany,
   Property,
+  TextType,
 } from '@mikro-orm/core';
 import { CustomBaseEntity, Product, ProductSupplier, Store, User } from './';
 @Entity()
@@ -23,7 +24,7 @@ export class Supplier extends CustomBaseEntity {
   @Property({ type: 'string', nullable: false, length: 10 })
   phoneNumber: string;
 
-  @Property({ type: 'string', nullable: false, length: 150 })
+  @Property({ type: TextType, nullable: false, length: 150 })
   address: string;
 
   @Property({ type: 'string', nullable: false, length: 5 })
