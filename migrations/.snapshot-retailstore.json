@@ -832,13 +832,13 @@
         },
         "address": {
           "name": "address",
-          "type": "varchar(150)",
+          "type": "text",
           "unsigned": false,
           "autoincrement": false,
           "primary": false,
           "nullable": false,
           "length": 150,
-          "mappedType": "string"
+          "mappedType": "text"
         },
         "postcode": {
           "name": "postcode",
