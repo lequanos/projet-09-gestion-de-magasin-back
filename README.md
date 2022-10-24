@@ -34,15 +34,25 @@ $ npm install
 
 ## Running the app
 
+Create a .env file following the .env.example
+
 ```bash
 # development
-$ npm run start
-
-# watch mode
-$ npm run start:dev
+$ docker compose --env-file .env
 
 # production mode
-$ npm run start:prod
+$ docker compose --env-file .env -f docker-compose.yaml -f docker-compose.prod.yaml up -d
+```
+
+## Migrations
+
+```bash
+# Migrate the db to the latest version
+$ npx mikro-orm migration:up
+
+# Drop schema, migrate to the latest version of db and run the seeder
+$ npx mikro-orm migration:fresh --seed
+
 ```
 
 ## Test
@@ -51,11 +61,6 @@ $ npm run start:prod
 # unit tests
 $ npm run test
 
-# e2e tests
-$ npm run test:e2e
-
-# test coverage
-$ npm run test:cov
 ```
 
 ## Support
