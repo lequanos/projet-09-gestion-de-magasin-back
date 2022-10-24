@@ -74,7 +74,7 @@ export class CreateProductDto {
   public isActive = true;
 
   @IsDefined()
-  public categories: Category[];
+  public categories: number[];
 
   @IsDefined()
   public productSuppliers: ProductSupplier[];
@@ -137,7 +137,7 @@ export class UpdateProductDto {
   public isActive: boolean;
 
   @IsOptional()
-  public categories: Category[];
+  public categories: number[];
 
   @IsOptional()
   public inStock = 0;

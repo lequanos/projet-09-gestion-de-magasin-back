@@ -3,13 +3,22 @@ import {
   Injectable,
   Logger,
   NotFoundException,
+  BadRequestException,
 } from '@nestjs/common';
 
 import { InjectRepository } from '@mikro-orm/nestjs';
 import { EntityField, FilterQuery, wrap } from '@mikro-orm/core';
 import { EntityManager, EntityRepository } from '@mikro-orm/postgresql';
 
-import { Product, User, Brand, Stock, ProductSupplier } from '../../entities';
+import {
+  Product,
+  User,
+  Brand,
+  Stock,
+  ProductSupplier,
+  Aisle,
+  Category,
+} from '../../entities';
 import { isNotFoundError } from '../../utils/typeguards/ExceptionTypeGuards';
 import { getFieldsFromQuery } from '../../utils/helpers/getFieldsFromQuery';
 import { CreateProductDto, UpdateProductDto } from './product.dto';
@@ -28,6 +37,10 @@ export class ProductService {
     private readonly stockRepository: EntityRepository<Stock>,
     @InjectRepository(ProductSupplier)
     private readonly productSupplierRepository: EntityRepository<ProductSupplier>,
+    @InjectRepository(Aisle)
+    private readonly aisleRepository: EntityRepository<Aisle>,
+    @InjectRepository(Category)
+    private readonly categoryRepository: EntityRepository<Category>,
     private readonly logger: Logger = new Logger('ProductService'),
     private readonly em: EntityManager,
   ) {}
@@ -179,6 +192,27 @@ export class ProductService {
         this.brandRepository.persist(brand);
       }
 
+      const categories = await Promise.all(
+        productDto.categories.map((id) =>
+          this.categoryRepository.findOneOrFail(
+            { id },
+            { populate: ['aisle'] },
+          ),
+        ),
+      );
+
+      const aisles = await Promise.all(
+        categories.map((cat) =>
+          this.aisleRepository.findOneOrFail({ id: cat.aisle.id }),
+        ),
+      );
+
+      if ([...new Set(aisles.map((aisle) => aisle.id))].length > 1) {
+        throw new BadRequestException(
+          'Please select only categories from the same aisle',
+        );
+      }
+
       const stock = this.stockRepository.create({
         quantity: productDto.inStock,
         createdAt: new Date(),
@@ -239,6 +273,27 @@ export class ProductService {
           updatedAt: new Date(),
         });
         this.brandRepository.persist(brand);
+      }
+
+      const categories = await Promise.all(
+        productDto.categories.map((id) =>
+          this.categoryRepository.findOneOrFail(
+            { id },
+            { populate: ['aisle'] },
+          ),
+        ),
+      );
+
+      const aisles = await Promise.all(
+        categories.map((cat) =>
+          this.aisleRepository.findOneOrFail({ id: cat.aisle.id }),
+        ),
+      );
+
+      if ([...new Set(aisles.map((aisle) => aisle.id))].length > 1) {
+        throw new BadRequestException(
+          'Please select only categories from the same aisle',
+        );
       }
 
       const productSuppliers = productDto.productSuppliers?.map(
