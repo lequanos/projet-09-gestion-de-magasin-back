@@ -9,7 +9,6 @@ import {
   Filter,
   types,
   Formula,
-  Cascade,
   TextType,
 } from '@mikro-orm/core';
 
@@ -65,7 +64,6 @@ export class Product extends CustomBaseEntity {
 
   @OneToMany(() => Stock, (stock) => stock.product, {
     orphanRemoval: true,
-    cascade: [Cascade.REMOVE],
   })
   stock = new Collection<Stock>(this);
 
@@ -82,7 +80,6 @@ export class Product extends CustomBaseEntity {
   @ManyToMany({
     entity: () => Supplier,
     pivotEntity: () => ProductSupplier,
-    cascade: [Cascade.REMOVE],
   })
   suppliers = new Collection<Supplier>(this);
 
@@ -100,7 +97,6 @@ export class Product extends CustomBaseEntity {
     (productSupplier) => productSupplier.product,
     {
       orphanRemoval: true,
-      cascade: [Cascade.REMOVE],
     },
   )
   productSuppliers = new Collection<ProductSupplier>(this);
