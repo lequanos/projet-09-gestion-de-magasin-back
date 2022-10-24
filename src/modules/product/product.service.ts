@@ -95,8 +95,38 @@ export class ProductService {
 
         {
           fields: fields.length
-            ? (fields as EntityField<Product, never>[])
-            : undefined,
+            ? (fields as EntityField<Product, string>[])
+            : [
+                'id',
+                'name',
+                'code',
+                'price',
+                'pictureUrl',
+                'nutriScore',
+                'ecoScore',
+                'unitPackaging',
+                'threshold',
+                'ingredients',
+                'isActive',
+                'categories',
+                'store',
+                {
+                  store: ['id'],
+                },
+                'brand',
+                {
+                  brand: ['name'],
+                },
+                'suppliers',
+                {
+                  suppliers: ['id'],
+                },
+                'inStock',
+                'productSuppliers',
+                {
+                  productSuppliers: ['supplier', 'purchasePrice'],
+                },
+              ],
           filters: { fromStore: { user } },
         },
       );
