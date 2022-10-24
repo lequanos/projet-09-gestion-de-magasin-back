@@ -10,6 +10,7 @@ import {
   types,
   Formula,
   TextType,
+  EntityManager,
 } from '@mikro-orm/core';
 
 import {
@@ -21,6 +22,7 @@ import {
   Supplier,
   Store,
   User,
+  Aisle,
 } from './';
 
 @Entity()
@@ -29,6 +31,30 @@ import {
   cond: ({ user }: { user: Partial<User> }) => {
     if (user?.role?.name === 'super admin') return;
     return { store: user.store };
+  },
+})
+@Filter({
+  name: 'fromAisles',
+  cond: async ({ user }: { user: Partial<User> }, _, em: EntityManager) => {
+    if (user?.aisles?.toArray().find((aisle) => aisle.name === 'tous')) return;
+    let categories: number[] = [];
+    let aisles: Aisle[] = [];
+
+    if (user.aisles) {
+      aisles = await em.find(
+        Aisle,
+        { id: { $in: [...user.aisles.toArray().map((x) => x.id)] } },
+        { populate: ['categories'] },
+      );
+    }
+
+    aisles.forEach((aisle) => {
+      return (categories = [
+        ...categories,
+        ...(aisle.categories?.toArray().map((cat) => cat.id) || []),
+      ]);
+    });
+    return { categories: { $in: [...new Set(categories)] } };
   },
 })
 export class Product extends CustomBaseEntity {

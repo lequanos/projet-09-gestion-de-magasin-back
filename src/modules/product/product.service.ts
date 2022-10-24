@@ -68,7 +68,7 @@ export class ProductService {
         fields: fields.length
           ? (fields as EntityField<Product, never>[])
           : undefined,
-        filters: { fromStore: { user } },
+        filters: { fromStore: { user }, fromAisles: { user } },
       });
     } catch (e) {
       this.logger.error(`${e.message} `, e);
@@ -140,7 +140,7 @@ export class ProductService {
                   productSuppliers: ['supplier', 'purchasePrice'],
                 },
               ],
-          filters: { fromStore: { user } },
+          filters: { fromStore: { user }, fromAisles: { user } },
         },
       );
     } catch (e) {

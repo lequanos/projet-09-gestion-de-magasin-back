@@ -22,6 +22,7 @@ export class FakeDataSeeder extends Seeder {
     let storeIndex = 0;
     let psIndex = 0;
     let aisleIndex = 0;
+    let userIndex = 0;
 
     const aisleNames = [
       'Liquide',
@@ -71,7 +72,7 @@ export class FakeDataSeeder extends Seeder {
       Chaussures: aisles.find((aisle) => aisle.name === 'Textile'),
     };
 
-    new CategoryFactory(em)
+    const categories = new CategoryFactory(em)
       .each((category) => {
         category.aisle = categoryDictionary[category.name] || allAisle;
       })
@@ -138,9 +139,19 @@ export class FakeDataSeeder extends Seeder {
     const users = new UserFactory(em)
       .each((user) => {
         user.role = departmentManagerRole;
-        user.aisles.set(faker.helpers.arrayElements(aisles));
+        user.aisles.set(
+          faker.helpers.arrayElements(
+            aisles.filter((aisle) => aisle.name != 'tous'),
+          ),
+        );
+        user.email = `departmentManager${
+          userIndex > 0 ? userIndex : ''
+        }@retailstore.com`;
+        userIndex++;
       })
-      .make(6);
+      .make(6, {
+        password: await bcrypt.hash('departmentManager', 10),
+      });
 
     const brands = new BrandFactory(em).make(10);
 
@@ -210,6 +221,8 @@ export class FakeDataSeeder extends Seeder {
 
     products.forEach((product) => {
       product.store = faker.helpers.arrayElement(stores);
+      const firstCategory = faker.helpers.arrayElement(categories);
+      product.categories.add(firstCategory);
     });
 
     await em.flush();
