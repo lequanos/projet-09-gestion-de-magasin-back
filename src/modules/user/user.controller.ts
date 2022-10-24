@@ -59,6 +59,46 @@ export class UserController {
   }
 
   /**
+   * Get the current user
+   */
+  @Get('/me')
+  @Roles(
+    'super admin',
+    'store manager',
+    'purchasing manager',
+    'department manager',
+  )
+  async getMe(
+    @Req() req: Request,
+    @Query(
+      'select',
+      new ParseArrayPipe({
+        items: String,
+        separator: ',',
+        optional: true,
+      }),
+    )
+    select: string[] = [],
+    @Query(
+      'nested',
+      new ParseArrayPipe({
+        items: String,
+        separator: ',',
+        optional: true,
+      }),
+    )
+    nested: string[] = [],
+  ): Promise<User> {
+    return await this.userService.getOneById(
+      (req.user as User)?.id,
+      req.user as User,
+      true,
+      select,
+      nested,
+    );
+  }
+
+  /**
    * Get one user by id
    */
   @Get(':id')
@@ -93,6 +133,7 @@ export class UserController {
       nested,
     );
   }
+
 
   /**
    * Create one user
