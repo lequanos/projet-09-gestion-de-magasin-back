@@ -6,7 +6,7 @@ import {
 } from '@nestjs/common';
 
 import { InjectRepository } from '@mikro-orm/nestjs';
-import { EntityField, wrap } from '@mikro-orm/core';
+import { EntityField, FilterQuery, wrap } from '@mikro-orm/core';
 import { EntityManager, EntityRepository } from '@mikro-orm/postgresql';
 
 import { Product, User, Brand, Stock, ProductSupplier } from '../../entities';
@@ -47,16 +47,16 @@ export class ProductService {
         this.em,
         'product',
       );
-
-      return await this.productRepository.find(
-        { isActive: true },
-        {
-          fields: fields.length
-            ? (fields as EntityField<Product, never>[])
-            : undefined,
-          filters: { fromStore: { user } },
-        },
-      );
+      const filterQuery: FilterQuery<Product> = {};
+      if (user.role?.name === 'department manager') {
+        filterQuery.isActive = true;
+      }
+      return await this.productRepository.find(filterQuery, {
+        fields: fields.length
+          ? (fields as EntityField<Product, never>[])
+          : undefined,
+        filters: { fromStore: { user } },
+      });
     } catch (e) {
       this.logger.error(`${e.message} `, e);
 
@@ -76,7 +76,6 @@ export class ProductService {
   async getOneById(
     id: number,
     user: Partial<User>,
-    isActive = true,
     selectParams: string[] = [],
     nestedParams: string[] = [],
   ): Promise<Product> {
@@ -87,12 +86,13 @@ export class ProductService {
         this.em,
         'product',
       );
-
+      const filterQuery: FilterQuery<Product> = { id };
+      if (user.role?.name === 'department manager') {
+        filterQuery.isActive = true;
+      }
       return await this.productRepository.findOneOrFail(
-        {
-          id,
-          isActive,
-        },
+        filterQuery,
+
         {
           fields: fields.length
             ? (fields as EntityField<Product, never>[])
@@ -265,7 +265,7 @@ export class ProductService {
       foundProduct.isActive = false;
       await this.productRepository.persistAndFlush(foundProduct);
       this.em.clear();
-      return await this.getOneById(foundProduct.id, user, false);
+      return await this.getOneById(foundProduct.id, user);
     } catch (e) {
       this.logger.error(`${e.message} `, e);
 
