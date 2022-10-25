@@ -134,6 +134,7 @@ export enum ProductNutriscore {
   C = 'C',
   D = 'D',
   E = 'E',
+  NONAPPLICABLE = 'Non Applicable',
 }
 
 export enum ProductEcoscore {
@@ -142,4 +143,5 @@ export enum ProductEcoscore {
   C = 'C',
   D = 'D',
   E = 'E',
+  NONAPPLICABLE = 'Non Applicable',
 }
