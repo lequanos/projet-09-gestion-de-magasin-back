@@ -92,7 +92,6 @@ export class UserController {
     return await this.userService.getOneById(
       (req.user as User)?.id,
       req.user as User,
-      true,
       select,
       nested,
     );
@@ -128,7 +127,6 @@ export class UserController {
     return await this.userService.getOneById(
       param.id,
       req.user as User,
-      true,
       select,
       nested,
     );

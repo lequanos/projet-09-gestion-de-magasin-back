@@ -29,7 +29,6 @@ export class CreateProductDto {
   public id: number;
 
   @IsNotEmpty()
-  @MaxLength(64)
   public name: string;
 
   @IsNotEmpty()
@@ -88,7 +87,6 @@ export class UpdateProductDto {
   public id: number;
 
   @IsOptional()
-  @MaxLength(64)
   public name: string;
 
   @IsOptional()

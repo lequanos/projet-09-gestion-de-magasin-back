@@ -25,7 +25,6 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
         role: payload.role,
         store: payload.store,
       },
-      true,
       [
         'firstname',
         'lastname',
@@ -36,6 +35,7 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
         'aisles',
       ],
       ['role.name', 'aisles.name'],
+      true,
     );
     this.em.clear();
     if (!user) {
