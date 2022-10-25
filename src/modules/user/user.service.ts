@@ -11,6 +11,7 @@ import {
   EntityRepository,
   wrap,
   EntityField,
+  FilterQuery,
 } from '@mikro-orm/core';
 import { InjectRepository } from '@mikro-orm/nestjs';
 import * as bcrypt from 'bcrypt';
@@ -49,7 +50,7 @@ export class UserService {
       );
 
       return await this.userRepository.find(
-        { isActive: true },
+        {},
         {
           fields: fields.length
             ? (fields as EntityField<User, never>[])
@@ -76,9 +77,9 @@ export class UserService {
   async getOneById(
     id: number,
     user: Partial<User>,
-    isActive = true,
     selectParams: string[] = [],
     nestedParams: string[] = [],
+    isActive: boolean | undefined = undefined,
   ): Promise<User> {
     try {
       const fields = getFieldsFromQuery(
@@ -87,9 +88,12 @@ export class UserService {
         this.em,
         'user',
       );
-
+      const filterQuery: FilterQuery<User> = { id };
+      if (isActive) {
+        filterQuery.isActive = isActive;
+      }
       return await this.userRepository.findOneOrFail(
-        { id, isActive },
+        filterQuery,
         {
           fields: fields.length
             ? (fields as EntityField<User, never>[])
@@ -258,7 +262,7 @@ export class UserService {
       foundUser.isActive = false;
       await this.userRepository.persistAndFlush(foundUser);
       this.em.clear();
-      return await this.getOneById(foundUser.id, foundUser, false);
+      return await this.getOneById(foundUser.id, foundUser);
     } catch (e) {
       this.logger.error(`${e.message} `, e);
 

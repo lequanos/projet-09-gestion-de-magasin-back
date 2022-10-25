@@ -44,7 +44,7 @@ export class SupplierService {
       );
 
       return await this.supplierRepository.find(
-        { isActive: true },
+        {},
         {
           fields: fields.length
             ? (fields as EntityField<Supplier, never>[])
@@ -71,7 +71,6 @@ export class SupplierService {
   async getOneSupplier(
     id: number,
     user: Partial<User>,
-    isActive = true,
     selectParams: string[] = [],
     nestedParams: string[] = [],
   ): Promise<Supplier> {
@@ -86,7 +85,6 @@ export class SupplierService {
       return await this.supplierRepository.findOneOrFail(
         {
           id,
-          isActive,
         },
         {
           fields: fields.length
@@ -202,7 +200,7 @@ export class SupplierService {
       supplier.isActive = false;
       await this.supplierRepository.persistAndFlush(supplier);
       this.em.clear();
-      return await this.getOneSupplier(supplier.id, user, false);
+      return await this.getOneSupplier(supplier.id, user);
     } catch (e) {
       this.logger.error(`${e.message} `, e);
 

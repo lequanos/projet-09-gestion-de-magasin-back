@@ -93,7 +93,6 @@ export class SupplierController {
     return await this.supplierService.getOneSupplier(
       id,
       req.user as User,
-      true,
       select,
       nested,
     );
