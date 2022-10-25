@@ -33,7 +33,6 @@ export class CreateSupplierDto {
   public phoneNumber: string;
 
   @IsNotEmpty()
-  @MaxLength(150)
   public address: string;
 
   @IsNotEmpty()
@@ -98,7 +97,6 @@ export class UpdateSupplierDto {
   public phoneNumber: string;
 
   @IsOptional()
-  @MaxLength(150)
   public address: string;
 
   @IsOptional()
