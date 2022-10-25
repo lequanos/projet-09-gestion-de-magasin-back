@@ -22,6 +22,7 @@ import {
 import { isNotFoundError } from '../../utils/typeguards/ExceptionTypeGuards';
 import { getFieldsFromQuery } from '../../utils/helpers/getFieldsFromQuery';
 import { CreateProductDto, UpdateProductDto } from './product.dto';
+import { MailService } from '../mail/mail.service';
 
 /**
  * Service for the products
@@ -35,12 +36,11 @@ export class ProductService {
     private readonly brandRepository: EntityRepository<Brand>,
     @InjectRepository(Stock)
     private readonly stockRepository: EntityRepository<Stock>,
-    @InjectRepository(ProductSupplier)
-    private readonly productSupplierRepository: EntityRepository<ProductSupplier>,
     @InjectRepository(Aisle)
     private readonly aisleRepository: EntityRepository<Aisle>,
     @InjectRepository(Category)
     private readonly categoryRepository: EntityRepository<Category>,
+    private readonly mailService: MailService,
     private readonly logger: Logger = new Logger('ProductService'),
     private readonly em: EntityManager,
   ) {}
@@ -229,6 +229,13 @@ export class ProductService {
 
       await this.em.commit();
       this.em.clear();
+
+      if (productCreated.inStock <= productCreated.threshold) {
+        await this.mailService.sendEmailToPurchasingManagers({
+          product: productCreated,
+        });
+      }
+
       return await this.getOneById(productCreated.id, user);
     } catch (e) {
       this.logger.error(`${e.message} `, e);
@@ -315,6 +322,13 @@ export class ProductService {
       this.productRepository.persist(foundProduct);
       await this.em.commit();
       this.em.clear();
+
+      if (foundProduct.inStock <= foundProduct.threshold) {
+        await this.mailService.sendEmailToPurchasingManagers({
+          product: foundProduct,
+        });
+      }
+
       return await this.getOneById(foundProduct.id, user);
     } catch (e) {
       this.logger.error(`${e.message} `, e);

@@ -5,18 +5,14 @@ import {
   NotFoundException,
 } from '@nestjs/common';
 
-import {
-  EntityField,
-  EntityManager,
-  EntityRepository,
-  wrap,
-} from '@mikro-orm/core';
+import { EntityField, EntityManager, EntityRepository } from '@mikro-orm/core';
 import { InjectRepository } from '@mikro-orm/nestjs';
 import { Stock, User, Product } from '../../entities';
 import { isNotFoundError } from '../../utils/typeguards/ExceptionTypeGuards';
 
 import { StockDto } from './stock.dto';
 import { getFieldsFromQuery } from 'src/utils/helpers/getFieldsFromQuery';
+import { MailService } from '../mail/mail.service';
 
 /**
  * Service for the stocks
@@ -30,6 +26,7 @@ export class StockService {
     private readonly em: EntityManager,
     @InjectRepository(Product)
     private readonly productRepository: EntityRepository<Product>,
+    private readonly mailService: MailService,
   ) {}
 
   /**
@@ -123,6 +120,13 @@ export class StockService {
       const stock = this.stockRepository.create(stockDto);
       await this.stockRepository.persistAndFlush(stock);
       this.em.clear();
+
+      if (product.inStock <= product.threshold) {
+        await this.mailService.sendEmailToPurchasingManagers({
+          product,
+        });
+      }
+
       return await this.getOneById(stock.id, user);
     } catch (e) {
       this.logger.error(`${e.message} `, e);

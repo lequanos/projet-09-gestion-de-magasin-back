@@ -134,7 +134,6 @@ export class UserController {
     );
   }
 
-
   /**
    * Create one user
    * @param createUserDto the user's input

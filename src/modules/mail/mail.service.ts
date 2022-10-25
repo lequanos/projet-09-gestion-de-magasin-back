@@ -21,7 +21,7 @@ export class MailService {
   ): Promise<boolean> {
     try {
       const admin = await this.userRepository.findOneOrFail({
-        role: { name: 'admin' } as FilterQuery<Role>,
+        role: { name: 'super admin' } as FilterQuery<Role>,
       });
 
       const resultCustomerMail = await this.sendEmail(
@@ -77,6 +77,37 @@ export class MailService {
       return true;
     } catch (e) {
       this.logger.error(`Email not sent to ${email}`);
+      this.logger.error(e);
+
+      throw e;
+    }
+  }
+
+  async sendEmailToPurchasingManagers(
+    context: { [name: string]: any } | undefined = undefined,
+  ): Promise<boolean> {
+    try {
+      const purchasingManagers = await this.userRepository.find({
+        role: { name: 'purchasing manager' } as FilterQuery<Role>,
+      });
+
+      await Promise.all(
+        purchasingManagers.map((manager) =>
+          this.mailerService.sendMail({
+            to: manager.email,
+            from: 'noreplyretailstore@gmail.com',
+            subject: `Alerte quantité sur ${context?.product.name}`,
+            template: 'alertProduct',
+            context,
+          }),
+        ),
+      );
+
+      this.logger.debug(`Alert email successfully`);
+
+      return true;
+    } catch (e) {
+      this.logger.error(`Email not sent successfully`);
       this.logger.error(e);
 
       throw e;
