@@ -347,7 +347,8 @@
             "B",
             "C",
             "D",
-            "E"
+            "E",
+            "Non Applicable"
           ],
           "mappedType": "enum"
         },
@@ -363,7 +364,8 @@
             "B",
             "C",
             "D",
-            "E"
+            "E",
+            "Non Applicable"
           ],
           "mappedType": "enum"
         },
