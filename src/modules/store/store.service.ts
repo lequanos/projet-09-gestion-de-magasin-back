@@ -49,7 +49,7 @@ export class StoreService {
       );
 
       return await this.storeRepository.find(
-        { isActive: true },
+        {},
         {
           fields: fields.length
             ? (fields as EntityField<Store, never>[])
@@ -74,7 +74,6 @@ export class StoreService {
    */
   async getOneById(
     id: number,
-    isActive = true,
     selectParams: string[] = [],
     nestedParams: string[] = [],
   ): Promise<Store> {
@@ -87,7 +86,7 @@ export class StoreService {
       );
 
       return await this.storeRepository.findOneOrFail(
-        { id, isActive },
+        { id },
         {
           fields: fields.length
             ? (fields as EntityField<Store, never>[])
@@ -124,10 +123,7 @@ export class StoreService {
       );
 
       return await this.storeRepository.findOneOrFail(
-        {
-          siret,
-          isActive: true,
-        },
+        { siret },
         {
           fields: fields.length
             ? (fields as EntityField<Store, never>[])
@@ -230,7 +226,7 @@ export class StoreService {
 
       await this.storeRepository.persistAndFlush(foundStore);
       this.em.clear();
-      return await this.getOneById(foundStore.id, false);
+      return await this.getOneById(foundStore.id);
     } catch (e) {
       this.logger.error(`${e.message} `, e);
 
