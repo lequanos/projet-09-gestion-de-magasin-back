@@ -349,7 +349,11 @@ export class ProductService {
       if (isNotFoundError(e)) {
         throw new NotFoundException();
       }
-      this.em.rollback();
+
+      if (this.em.isInTransaction()) {
+        await this.em.rollback();
+      }
+      
       throw e;
     }
   }
