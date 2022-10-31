@@ -131,7 +131,7 @@ export class ProductController {
    * @returns the updated product
    */
   @Patch()
-  @Roles('super admin', 'store manager', 'purchasing manager')
+  @Roles('super admin', 'store manager', 'purchasing manager', 'department manager')
   @UseInterceptors(StoreInterceptor)
   async updatePartialProduct(
     @Req() req: Request,
@@ -149,7 +149,7 @@ export class ProductController {
    * @returns the updated product
    */
   @Put()
-  @Roles('super admin', 'store manager', 'purchasing manager')
+  @Roles('super admin', 'store manager', 'purchasing manager', 'department manager')
   @UseInterceptors(StoreInterceptor)
   async updateProduct(
     @Req() req: Request,

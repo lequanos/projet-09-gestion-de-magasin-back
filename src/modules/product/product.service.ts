@@ -283,7 +283,7 @@ export class ProductService {
       }
 
       const categories = await Promise.all(
-        productDto.categories.map((id) =>
+        productDto.categories?.map((id) =>
           this.categoryRepository.findOneOrFail(
             { id },
             { populate: ['aisle'] },

@@ -135,13 +135,13 @@ export class UpdateProductDto {
   public isActive: boolean;
 
   @IsOptional()
-  public categories: number[];
+  public categories: number[] = [];
 
   @IsOptional()
   public inStock = 0;
 
   @IsOptional()
-  public productSuppliers?: ProductSupplier[];
+  public productSuppliers?: ProductSupplier[] = [];
 }
 
 export class GetParams {
