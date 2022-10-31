@@ -4,7 +4,7 @@ import { Seeder } from '@mikro-orm/seeder';
 import * as bcrypt from 'bcrypt';
 import { Role } from '../src/entities';
 
-import { AisleFactory, UserFactory, RoleFactory } from './factories';
+import { UserFactory, RoleFactory } from './factories';
 
 export class ProdDataSeeder extends Seeder {
   async run(em: EntityManager): Promise<void> {

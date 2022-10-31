@@ -353,7 +353,6 @@ export class ProductService {
       if (this.em.isInTransaction()) {
         await this.em.rollback();
       }
-      
       throw e;
     }
   }

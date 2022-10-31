@@ -3,7 +3,7 @@ import { Test, TestingModule } from '@nestjs/testing';
 
 import { getRepositoryToken } from '@mikro-orm/nestjs';
 
-import { Store } from '../../../entities';
+import { Store, Aisle } from '../../../entities';
 
 import { StoreDto, UpdateStoreDto } from '../store.dto';
 
@@ -78,6 +78,18 @@ describe('StoreService', () => {
     }),
   };
 
+  const mockAisleRepository = {
+    create: jest.fn().mockImplementation((dto) => {
+      const aisleToCreate = new Aisle();
+      aisleToCreate.name = dto.name;
+      aisleToCreate.store = dto.store;
+      return aisleToCreate;
+    }),
+    persistAndFlush: jest.fn().mockImplementation(() => {
+      return;
+    }),
+  };
+
   const mockEntityManager = {
     clear: jest.fn(),
   };
@@ -96,6 +108,10 @@ describe('StoreService', () => {
         {
           provide: getRepositoryToken(Store),
           useValue: mockStoreRepository,
+        },
+        {
+          provide: getRepositoryToken(Aisle),
+          useValue: mockAisleRepository,
         },
         {
           provide: EntityManager,
