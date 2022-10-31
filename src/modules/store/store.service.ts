@@ -13,10 +13,11 @@ import {
 } from '@mikro-orm/core';
 import { InjectRepository } from '@mikro-orm/nestjs';
 
-import { Store } from '../../entities';
+import { Store, Aisle } from '../../entities';
 import { isNotFoundError } from '../../utils/typeguards/ExceptionTypeGuards';
 import { StoreDto, UpdateStoreDto } from './store.dto';
 import { getFieldsFromQuery } from '../../utils/helpers/getFieldsFromQuery';
+import { AisleDto } from '../aisle/aisle.dto';
 
 /**
  * Service for the stores
@@ -26,6 +27,8 @@ export class StoreService {
   constructor(
     @InjectRepository(Store)
     private readonly storeRepository: EntityRepository<Store>,
+    @InjectRepository(Aisle)
+    private readonly aisleRepository: EntityRepository<Aisle>,
     private readonly logger: Logger = new Logger('StoreService'),
     private readonly em: EntityManager,
   ) {}
@@ -159,8 +162,17 @@ export class StoreService {
             foundStore.isActive ? '' : ' but is deactivated'
           }`,
         );
+
       const store = this.storeRepository.create(storeDto);
+
+      const allAisle = new AisleDto();
+      allAisle.name = 'tous';
+      allAisle.store = store;
+      const aisle = this.aisleRepository.create(allAisle);
+
+      await this.aisleRepository.persistAndFlush(aisle);
       await this.storeRepository.persistAndFlush(store);
+
       this.em.clear();
       return await this.getOneById(store.id);
     } catch (e) {
