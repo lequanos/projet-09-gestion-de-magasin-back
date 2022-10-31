@@ -31,16 +31,11 @@ export class ProdDataSeeder extends Seeder {
         name: 'super admin',
       });
 
-      const allAisle = new AisleFactory(em).makeOne({
-        name: 'tous',
-      });
-
       new UserFactory(em).makeOne({
         email: 'superrole.retailstore@gmail.com',
         password: await bcrypt.hash('superAdmin', 10),
         isActive: true,
         role: superAdminRole,
-        aisles: allAisle,
       });
 
       await em.flush();

@@ -36,6 +36,7 @@ import {
 @Filter({
   name: 'fromAisles',
   cond: async ({ user }: { user: Partial<User> }, _, em: EntityManager) => {
+    if (user?.role?.name === 'super admin') return;
     if (user?.aisles?.toArray().find((aisle) => aisle.name === 'tous')) return;
     let categories: number[] = [];
     let aisles: Aisle[] = [];
@@ -134,7 +135,7 @@ export enum ProductNutriscore {
   C = 'C',
   D = 'D',
   E = 'E',
-  "NOT-APPLICABLE" = 'NOT-APPLICABLE',
+  'NOT-APPLICABLE' = 'NOT-APPLICABLE',
 }
 
 export enum ProductEcoscore {
@@ -143,5 +144,5 @@ export enum ProductEcoscore {
   C = 'C',
   D = 'D',
   E = 'E',
-  "NOT-APPLICABLE" = 'NOT-APPLICABLE',
+  'NOT-APPLICABLE' = 'NOT-APPLICABLE',
 }
