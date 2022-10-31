@@ -240,7 +240,9 @@ export class ProductService {
       return await this.getOneById(productCreated.id, user);
     } catch (e) {
       this.logger.error(`${e.message} `, e);
-      await this.em.rollback();
+      if (this.em.isInTransaction()) {
+        await this.em.rollback();
+      }
       throw e;
     }
   }
