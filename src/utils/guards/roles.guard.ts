@@ -35,13 +35,7 @@ export class RolesGuard implements CanActivate {
     ) {
       const { body } = context.switchToHttp().getRequest();
       Object.keys(body).forEach((key) => {
-        if (
-          (key !== 'id' &&
-            key !== 'inStock' &&
-            key === 'categories' &&
-            !body[key].length) ||
-          (key === 'productSuppliers' && !body[key].length)
-        ) {
+        if (key !== 'id' && key !== 'inStock') {
           throw new BadRequestException(
             `You are not allowed to update this field : ${key}`,
           );
