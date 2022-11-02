@@ -1,4 +1,10 @@
-import { Entity, Property, OneToMany, Collection } from '@mikro-orm/core';
+import {
+  Entity,
+  Property,
+  OneToMany,
+  Collection,
+  Cascade,
+} from '@mikro-orm/core';
 import { CustomBaseEntity, Aisle, User } from './';
 @Entity()
 export class Store extends CustomBaseEntity {
@@ -33,6 +39,7 @@ export class Store extends CustomBaseEntity {
 
   @OneToMany(() => Aisle, (aisle) => aisle.store, {
     orphanRemoval: true,
+    cascade: [Cascade.PERSIST, Cascade.REMOVE],
   })
   aisles = new Collection<Aisle>(this);
 }
