@@ -12,10 +12,10 @@ export class ProductSupplier {
   @Property({ type: types.float, nullable: false, default: 0 })
   purchasePrice: number;
 
-  @ManyToOne({ primary: true })
+  @ManyToOne({ primary: true, onDelete: 'cascade' })
   supplier: Supplier;
 
-  @ManyToOne({ primary: true })
+  @ManyToOne({ primary: true, onDelete: 'cascade' })
   product: Product;
 
   @Property({ defaultRaw: 'now()' })

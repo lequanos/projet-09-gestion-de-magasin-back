@@ -463,6 +463,7 @@
             "id"
           ],
           "referencedTableName": "public.store",
+          "deleteRule": "cascade",
           "updateRule": "cascade"
         }
       }
@@ -627,6 +628,7 @@
             "id"
           ],
           "referencedTableName": "public.store",
+          "deleteRule": "cascade",
           "updateRule": "cascade"
         }
       }
@@ -946,6 +948,7 @@
             "id"
           ],
           "referencedTableName": "public.store",
+          "deleteRule": "cascade",
           "updateRule": "cascade"
         }
       }
@@ -1029,6 +1032,7 @@
             "id"
           ],
           "referencedTableName": "public.product",
+          "deleteRule": "cascade",
           "updateRule": "cascade"
         },
         "product_supplier_supplier_id_foreign": {
@@ -1041,6 +1045,7 @@
             "id"
           ],
           "referencedTableName": "public.supplier",
+          "deleteRule": "cascade",
           "updateRule": "cascade"
         }
       }
@@ -1211,7 +1216,7 @@
             "id"
           ],
           "referencedTableName": "public.store",
-          "deleteRule": "set null",
+          "deleteRule": "cascade",
           "updateRule": "cascade"
         }
       }

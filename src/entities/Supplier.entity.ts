@@ -55,7 +55,7 @@ export class Supplier extends CustomBaseEntity {
   })
   products = new Collection<Product>(this);
 
-  @ManyToOne(() => Store)
+  @ManyToOne({ entity: () => Store, onDelete: 'cascade' })
   store: Store;
 
   @OneToMany(

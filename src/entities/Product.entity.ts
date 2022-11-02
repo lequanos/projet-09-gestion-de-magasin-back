@@ -110,7 +110,7 @@ export class Product extends CustomBaseEntity {
   })
   suppliers = new Collection<Supplier>(this);
 
-  @ManyToOne(() => Store)
+  @ManyToOne({ entity: () => Store, onDelete: 'cascade' })
   store: Store;
 
   @Formula(

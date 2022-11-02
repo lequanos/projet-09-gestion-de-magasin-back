@@ -21,7 +21,7 @@ export class Aisle extends CustomBaseEntity {
   @Property({ type: 'string', nullable: false, length: 64 })
   name: string;
 
-  @ManyToOne(() => Store)
+  @ManyToOne({ entity: () => Store, onDelete: 'cascade' })
   store!: Store;
 
   @ManyToMany({

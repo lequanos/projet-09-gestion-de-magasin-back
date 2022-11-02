@@ -44,7 +44,7 @@ export class User extends CustomBaseEntity {
   @ManyToOne(() => Role)
   role: Role;
 
-  @ManyToOne(() => Store, { nullable: true })
+  @ManyToOne({ entity: () => Store, onDelete: 'cascade', nullable: true })
   store: Store;
 
   @ManyToMany({ entity: () => Aisle, inversedBy: 'users' })

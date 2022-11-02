@@ -38,8 +38,7 @@ export class Store extends CustomBaseEntity {
   users = new Collection<User>(this);
 
   @OneToMany(() => Aisle, (aisle) => aisle.store, {
-    orphanRemoval: true,
-    cascade: [Cascade.PERSIST, Cascade.REMOVE],
+    cascade: [Cascade.ALL],
   })
   aisles = new Collection<Aisle>(this);
 }
