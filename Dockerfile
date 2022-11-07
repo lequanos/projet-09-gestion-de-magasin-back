@@ -2,7 +2,7 @@
 # BUILD FOR LOCAL DEVELOPMENT
 ###################
 
-FROM node:16-alpine As development
+FROM node:18-alpine As development
 
 WORKDIR /usr/src/app
 
@@ -19,7 +19,7 @@ COPY . .
 # BUILD FOR PRODUCTION
 ###################
 
-FROM node:16-alpine As build
+FROM node:18-alpine As build
 
 ARG MIKRO_ORM_USER
 ARG MIKRO_ORM_PASSWORD
