@@ -2,23 +2,24 @@
 # BUILD FOR LOCAL DEVELOPMENT
 ###################
 
-FROM node:18-alpine As development
+FROM node:19-alpine3.15 As development
 
 WORKDIR /usr/src/app
 
-COPY . .
+COPY package*.json ./
 
 RUN npm ci
 
 RUN npm install typescript ts-node -g
 
+COPY . .
 
 
 ###################
 # BUILD FOR PRODUCTION
 ###################
 
-FROM node:18-alpine As build
+FROM node:19-alpine3.15 As build
 
 ARG MIKRO_ORM_USER
 ARG MIKRO_ORM_PASSWORD
