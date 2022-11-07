@@ -8,6 +8,8 @@ WORKDIR /usr/src/app
 
 COPY package*.json ./
 
+RUN npm --v
+
 RUN npm ci
 
 RUN npm install typescript ts-node -g
