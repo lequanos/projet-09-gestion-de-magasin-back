@@ -46,7 +46,7 @@ export class Role extends CustomBaseEntity {
   })
   users = new Collection<User>(this);
 
-  @Enum({ items: () => Permission, array: true })
+  @Enum({ items: () => Permission, array: true, default: [] })
   permissions: Permission[];
 
   @ManyToOne({ entity: () => Store, onDelete: 'cascade', nullable: true })
