@@ -29,14 +29,13 @@ import {
 @Filter({
   name: 'fromStore',
   cond: ({ user }: { user: Partial<User> }) => {
-    if (user?.role?.name === 'super admin') return;
+    console.log(user)
     return { store: user.store };
   },
 })
 @Filter({
   name: 'fromAisles',
   cond: async ({ user }: { user: Partial<User> }, _, em: EntityManager) => {
-    if (user?.role?.name === 'super admin') return;
     if (user?.aisles?.toArray().find((aisle) => aisle.name === 'tous')) return;
     let categories: number[] = [];
     let aisles: Aisle[] = [];
@@ -50,10 +49,10 @@ import {
     }
 
     aisles.forEach((aisle) => {
-      return (categories = [
+      categories = [
         ...categories,
         ...(aisle.categories?.toArray().map((cat) => cat.id) || []),
-      ]);
+      ];
     });
     return { categories: { $in: [...new Set(categories)] } };
   },

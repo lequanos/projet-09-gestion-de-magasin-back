@@ -23,7 +23,6 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
       payload.id,
       {
         role: payload.role,
-        store: payload.store,
       },
       [
         'firstname',
@@ -38,6 +37,7 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
       ['role.name', 'aisles.name'],
       true,
     );
+    user.store = payload.store;
     this.em.clear();
     if (!user) {
       throw new NotFoundException('User not found');

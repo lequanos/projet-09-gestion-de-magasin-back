@@ -19,9 +19,9 @@ export class StoreInterceptor implements NestInterceptor {
     if (!user) throw new UnauthorizedException('Please login');
     if (!body) throw new BadRequestException('Please provide a payload');
 
-    if (user?.role.name !== 'super admin') {
-      body.store = user.store.id;
-    } else if (user?.role.name === 'super admin' && !body.store) {
+    body.store = user.store.id;
+
+    if (!body.store) {
       throw new BadRequestException('Please provide a store for the resource');
     }
 
