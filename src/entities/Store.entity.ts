@@ -5,7 +5,7 @@ import {
   Collection,
   Cascade,
 } from '@mikro-orm/core';
-import { CustomBaseEntity, Aisle, User } from './';
+import { CustomBaseEntity, Aisle, User, Role } from './';
 @Entity()
 export class Store extends CustomBaseEntity {
   @Property({ type: 'string', nullable: false, length: 64 })
@@ -41,4 +41,9 @@ export class Store extends CustomBaseEntity {
     cascade: [Cascade.ALL],
   })
   aisles = new Collection<Aisle>(this);
+
+  @OneToMany(() => Role, (role) => role.store, {
+    cascade: [Cascade.ALL],
+  })
+  roles = new Collection<Role>(this);
 }

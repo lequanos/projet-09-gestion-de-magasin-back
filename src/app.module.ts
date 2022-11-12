@@ -16,7 +16,6 @@ import { UserModule } from './modules/user/user.module';
 import { MailController } from './modules/mail/mail.controller';
 import { MailModule } from './modules/mail/mail.module';
 import { AuthModule } from './modules/auth/auth.module';
-import { appendFile } from 'fs';
 import { BrandModule } from './modules/brand/brand.module';
 import { BrandController } from './modules/brand/brand.controller';
 import { AuthController } from './modules/auth/auth.controller';
@@ -32,6 +31,7 @@ import { StockController } from './modules/stock/stock.controller';
 import { StockModule } from './modules/stock/stock.module';
 import { RoleModule } from './modules/role/role.module';
 import { RoleController } from './modules/role/role.controller';
+import { PermissionsGuard } from './utils/guards/permissions.guard';
 
 @Module({
   imports: [
@@ -98,6 +98,10 @@ import { RoleController } from './modules/role/role.controller';
     {
       provide: APP_GUARD,
       useClass: RolesGuard,
+    },
+    {
+      provide: APP_GUARD,
+      useClass: PermissionsGuard,
     },
   ],
 })

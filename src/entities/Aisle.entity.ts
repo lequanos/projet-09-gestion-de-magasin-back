@@ -12,10 +12,7 @@ import { CustomBaseEntity, Category, User, Store } from './';
 @Entity()
 @Filter({
   name: 'fromStore',
-  cond: ({ user }: { user: Partial<User> }) => {
-    if (user?.role?.name === 'super admin') return;
-    return { store: user.store };
-  },
+  cond: ({ user }: { user: Partial<User> }) => ({ store: user.store }),
 })
 export class Aisle extends CustomBaseEntity {
   @Property({ type: 'string', nullable: false, length: 64 })

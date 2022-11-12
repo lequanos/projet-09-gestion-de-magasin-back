@@ -106,66 +106,6 @@
           "nullable": false,
           "length": 64,
           "mappedType": "string"
-        }
-      },
-      "name": "role",
-      "schema": "public",
-      "indexes": [
-        {
-          "keyName": "role_pkey",
-          "columnNames": [
-            "id"
-          ],
-          "composite": false,
-          "primary": true,
-          "unique": true
-        }
-      ],
-      "checks": [],
-      "foreignKeys": {}
-    },
-    {
-      "columns": {
-        "id": {
-          "name": "id",
-          "type": "serial",
-          "unsigned": true,
-          "autoincrement": true,
-          "primary": true,
-          "nullable": false,
-          "mappedType": "integer"
-        },
-        "created_at": {
-          "name": "created_at",
-          "type": "timestamptz(0)",
-          "unsigned": false,
-          "autoincrement": false,
-          "primary": false,
-          "nullable": false,
-          "length": 6,
-          "default": "now()",
-          "mappedType": "datetime"
-        },
-        "updated_at": {
-          "name": "updated_at",
-          "type": "timestamptz(0)",
-          "unsigned": false,
-          "autoincrement": false,
-          "primary": false,
-          "nullable": false,
-          "length": 6,
-          "default": "now()",
-          "mappedType": "datetime"
-        },
-        "name": {
-          "name": "name",
-          "type": "varchar(64)",
-          "unsigned": false,
-          "autoincrement": false,
-          "primary": false,
-          "nullable": false,
-          "length": 64,
-          "mappedType": "string"
         },
         "address": {
           "name": "address",
@@ -261,6 +201,120 @@
       ],
       "checks": [],
       "foreignKeys": {}
+    },
+    {
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "serial",
+          "unsigned": true,
+          "autoincrement": true,
+          "primary": true,
+          "nullable": false,
+          "mappedType": "integer"
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "timestamptz(0)",
+          "unsigned": false,
+          "autoincrement": false,
+          "primary": false,
+          "nullable": false,
+          "length": 6,
+          "default": "now()",
+          "mappedType": "datetime"
+        },
+        "updated_at": {
+          "name": "updated_at",
+          "type": "timestamptz(0)",
+          "unsigned": false,
+          "autoincrement": false,
+          "primary": false,
+          "nullable": false,
+          "length": 6,
+          "default": "now()",
+          "mappedType": "datetime"
+        },
+        "name": {
+          "name": "name",
+          "type": "varchar(64)",
+          "unsigned": false,
+          "autoincrement": false,
+          "primary": false,
+          "nullable": false,
+          "length": 64,
+          "mappedType": "string"
+        },
+        "permissions": {
+          "name": "permissions",
+          "type": "text[]",
+          "unsigned": false,
+          "autoincrement": false,
+          "primary": false,
+          "nullable": false,
+          "enumItems": [
+            "READ_ALL",
+            "MANAGE_ALL",
+            "READ_AISLE",
+            "MANAGE_AISLE",
+            "READ_BRAND",
+            "MANAGE_BRAND",
+            "READ_CATEGORY",
+            "MANAGE_CATEGORY",
+            "READ_PRODUCT",
+            "MANAGE_PRODUCT",
+            "READ_ROLE",
+            "MANAGE_ROLE",
+            "READ_STOCK",
+            "MANAGE_STOCK",
+            "READ_STORE",
+            "MANAGE_STORE",
+            "READ_SUPPLIER",
+            "MANAGE_SUPPLIER",
+            "READ_USER",
+            "MANAGE_USER"
+          ],
+          "mappedType": "array"
+        },
+        "store_id": {
+          "name": "store_id",
+          "type": "int",
+          "unsigned": false,
+          "autoincrement": false,
+          "primary": false,
+          "nullable": true,
+          "mappedType": "integer"
+        }
+      },
+      "name": "role",
+      "schema": "public",
+      "indexes": [
+        {
+          "keyName": "role_pkey",
+          "columnNames": [
+            "id"
+          ],
+          "composite": false,
+          "primary": true,
+          "unique": true
+        }
+      ],
+      "checks": [],
+      "foreignKeys": {
+        "role_store_id_foreign": {
+          "constraintName": "role_store_id_foreign",
+          "columnNames": [
+            "store_id"
+          ],
+          "localTableName": "public.role",
+          "referencedColumnNames": [
+            "id"
+          ],
+          "referencedTableName": "public.store",
+          "deleteRule": "cascade",
+          "updateRule": "cascade"
+        }
+      }
     },
     {
       "columns": {

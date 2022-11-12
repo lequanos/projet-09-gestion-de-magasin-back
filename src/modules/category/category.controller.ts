@@ -16,14 +16,14 @@ import {
 
 import { Request } from 'express';
 
-import { Category, User } from '../../entities';
+import { Category, User, Permission } from '../../entities';
 import { CategoryService } from './category.service';
 import {
   CategoryIdParamDto,
   CategoryDto,
   UpdateCategoryDto,
 } from './category.dto';
-import { Roles } from 'src/utils/decorators/roles.decorator';
+import { Permissions } from 'src/utils/decorators/permissions.decorator';
 import { StoreInterceptor } from 'src/utils/interceptors/store.interceptor';
 
 /**
@@ -37,12 +37,7 @@ export class CategoryController {
    * Get all categories
    */
   @Get()
-  @Roles(
-    'super admin',
-    'store manager',
-    'purchasing manager',
-    'department manager',
-  )
+  @Permissions(Permission.READ_ALL, Permission.READ_CATEGORY)
   async getAllCategorys(
     @Req() req: Request,
     @Query(
@@ -71,12 +66,7 @@ export class CategoryController {
    * Get one category by id
    */
   @Get(':id')
-  @Roles(
-    'super admin',
-    'store manager',
-    'purchasing manager',
-    'department manager',
-  )
+  @Permissions(Permission.READ_ALL, Permission.READ_CATEGORY)
   async getOneCategoryById(
     @Req() req: Request,
     @Param() param: CategoryIdParamDto,
@@ -113,7 +103,7 @@ export class CategoryController {
    * @returns the created category
    */
   @Post()
-  @Roles('super admin', 'store manager', 'purchasing manager')
+  @Permissions(Permission.MANAGE_ALL, Permission.MANAGE_CATEGORY)
   @UseInterceptors(StoreInterceptor)
   async createCategory(
     @Req() req: Request,
@@ -131,7 +121,7 @@ export class CategoryController {
    * @returns the updated category
    */
   @Patch()
-  @Roles('super admin', 'store manager', 'purchasing manager')
+  @Permissions(Permission.MANAGE_ALL, Permission.MANAGE_CATEGORY)
   @UseInterceptors(StoreInterceptor)
   async updatePartialCategory(
     @Req() req: Request,
@@ -149,7 +139,7 @@ export class CategoryController {
    * @returns the updated category
    */
   @Put()
-  @Roles('super admin', 'store manager', 'purchasing manager')
+  @Permissions(Permission.MANAGE_ALL, Permission.MANAGE_CATEGORY)
   @UseInterceptors(StoreInterceptor)
   async updateCategory(
     @Req() req: Request,
@@ -166,7 +156,7 @@ export class CategoryController {
    */
   @HttpCode(204)
   @Delete('/delete/:id')
-  @Roles('super admin', 'store manager', 'purchasing manager')
+  @Permissions(Permission.MANAGE_ALL, Permission.MANAGE_CATEGORY)
   async deleteCategory(
     @Req() req: Request,
     @Param() param: CategoryIdParamDto,
