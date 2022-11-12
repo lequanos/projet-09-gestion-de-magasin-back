@@ -12,6 +12,7 @@ import {
   Category,
   ProductSupplier,
   Stock,
+  Role,
 } from './entities';
 import { TsMorphMetadataProvider } from '@mikro-orm/reflection';
 import { PostgreSqlDriver } from '@mikro-orm/postgresql';
@@ -31,6 +32,7 @@ const config: Options<PostgreSqlDriver> = {
     Category,
     ProductSupplier,
     Stock,
+    Role,
   ],
   seeder: {
     path: './dist/seeders',
