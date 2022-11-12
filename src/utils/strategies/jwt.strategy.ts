@@ -4,6 +4,7 @@ import { Injectable, NotFoundException } from '@nestjs/common';
 import { UserService } from '../../modules/user/user.service';
 import { JwtDto } from '../../modules/auth/auth.dto';
 import { EntityManager } from '@mikro-orm/core';
+import { Permission } from '../../entities';
 
 @Injectable()
 export class JwtStrategy extends PassportStrategy(Strategy) {
@@ -23,7 +24,9 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
       payload.id,
       {
         role: payload.role,
-        store: payload.role.name === 'super admin' ? undefined : payload.store,
+        store: payload.role.permissions.includes(Permission.READ_ALL)
+          ? undefined
+          : payload.store,
       },
       [
         'firstname',
@@ -35,10 +38,11 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
         'aisles',
         'refreshToken',
       ],
-      ['role.name', 'aisles.name'],
+      ['role.name', 'role.permissions', 'aisles.name'],
       true,
     );
     user.store = payload.store;
+
     this.em.clear();
     if (!user) {
       throw new NotFoundException('User not found');

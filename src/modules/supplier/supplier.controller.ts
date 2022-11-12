@@ -16,7 +16,6 @@ import {
 
 import { Request } from 'express';
 
-import { Roles } from '../../utils/decorators/roles.decorator';
 import { Permissions } from '../../utils/decorators/permissions.decorator';
 import { Supplier, User, Permission } from '../../entities';
 import {
@@ -39,7 +38,7 @@ export class SupplierController {
    * Get all Suppliers
    */
   @Get()
-  @Permissions(Permission.READ_ALL)
+  @Permissions(Permission.READ_ALL, Permission.READ_SUPPLIER)
   async getAllSuppliers(
     @Req() req: Request,
     @Query(
@@ -68,7 +67,7 @@ export class SupplierController {
    * Get one Supplier
    */
   @Get(':id')
-  @Roles('super admin', 'store manager', 'purchasing manager')
+  @Permissions(Permission.READ_ALL, Permission.READ_SUPPLIER)
   async getOneSupplier(
     @Req() req: Request,
     @Param('id') id: number,
@@ -103,7 +102,7 @@ export class SupplierController {
    * Create Supplier
    */
   @Post()
-  @Roles('super admin', 'store manager', 'purchasing manager')
+  @Permissions(Permission.MANAGE_ALL, Permission.MANAGE_SUPPLIER)
   @UseInterceptors(StoreInterceptor)
   async createSupplier(
     @Req() req: Request,
@@ -122,7 +121,7 @@ export class SupplierController {
    */
 
   @Patch()
-  @Roles('super admin', 'store manager', 'purchasing manager')
+  @Permissions(Permission.MANAGE_ALL, Permission.MANAGE_SUPPLIER)
   @UseInterceptors(StoreInterceptor)
   async updatePartialSupplier(
     @Req() req: Request,
@@ -141,7 +140,7 @@ export class SupplierController {
    */
 
   @Put()
-  @Roles('super admin', 'store manager', 'purchasing manager')
+  @Permissions(Permission.MANAGE_ALL, Permission.MANAGE_SUPPLIER)
   @UseInterceptors(StoreInterceptor)
   async updateSupplier(
     @Req() req: Request,
@@ -159,7 +158,7 @@ export class SupplierController {
    * @returns
    */
   @Delete(':id')
-  @Roles('super admin', 'store manager', 'purchasing manager')
+  @Permissions(Permission.MANAGE_ALL, Permission.MANAGE_SUPPLIER)
   async deactivateSupplier(
     @Req() req: Request,
     @Param() param: SupplierIdParamDto,
@@ -175,7 +174,7 @@ export class SupplierController {
    * @returns
    */
   @Patch(':id')
-  @Roles('super admin', 'store manager', 'purchasing manager')
+  @Permissions(Permission.MANAGE_ALL, Permission.MANAGE_SUPPLIER)
   async reactivateSupplier(
     @Req() req: Request,
     @Param() param: SupplierIdParamDto,
@@ -191,7 +190,7 @@ export class SupplierController {
    */
   @HttpCode(204)
   @Delete('/delete/:id')
-  @Roles('super admin', 'store manager', 'purchasing manager')
+  @Permissions(Permission.MANAGE_ALL, Permission.MANAGE_SUPPLIER)
   async deleteSupplier(
     @Req() req: Request,
     @Param() param: SupplierIdParamDto,

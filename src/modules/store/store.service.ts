@@ -13,11 +13,12 @@ import {
 } from '@mikro-orm/core';
 import { InjectRepository } from '@mikro-orm/nestjs';
 
-import { Store, Aisle } from '../../entities';
+import { Store, Aisle, Role, Permission } from '../../entities';
 import { isNotFoundError } from '../../utils/typeguards/ExceptionTypeGuards';
 import { StoreDto, UpdateStoreDto } from './store.dto';
 import { getFieldsFromQuery } from '../../utils/helpers/getFieldsFromQuery';
 import { AisleDto } from '../aisle/aisle.dto';
+import { RoleDto } from '../role/role.dto';
 
 /**
  * Service for the stores
@@ -29,6 +30,8 @@ export class StoreService {
     private readonly storeRepository: EntityRepository<Store>,
     @InjectRepository(Aisle)
     private readonly aisleRepository: EntityRepository<Aisle>,
+    @InjectRepository(Role)
+    private readonly roleRepository: EntityRepository<Role>,
     private readonly logger: Logger = new Logger('StoreService'),
     private readonly em: EntityManager,
   ) {}
@@ -166,8 +169,34 @@ export class StoreService {
       allAisle.store = store;
       const aisle = this.aisleRepository.create(allAisle);
 
-      await this.aisleRepository.persistAndFlush(aisle);
-      await this.storeRepository.persistAndFlush(store);
+      const storeManagerRole = new RoleDto();
+      storeManagerRole.name = 'store manager';
+      storeManagerRole.permissions = [
+        Permission.READ_AISLE,
+        Permission.MANAGE_AISLE,
+        Permission.READ_BRAND,
+        Permission.MANAGE_BRAND,
+        Permission.READ_CATEGORY,
+        Permission.MANAGE_CATEGORY,
+        Permission.READ_ROLE,
+        Permission.MANAGE_ROLE,
+        Permission.READ_PRODUCT,
+        Permission.MANAGE_PRODUCT,
+        Permission.READ_STOCK,
+        Permission.MANAGE_STOCK,
+        Permission.READ_SUPPLIER,
+        Permission.MANAGE_SUPPLIER,
+        Permission.READ_USER,
+        Permission.MANAGE_USER,
+      ];
+      storeManagerRole.store = store;
+      const role = this.roleRepository.create(storeManagerRole);
+
+      await Promise.all([
+        this.aisleRepository.persistAndFlush(aisle),
+        this.storeRepository.persistAndFlush(store),
+        this.roleRepository.persistAndFlush(role),
+      ]);
 
       this.em.clear();
       return await this.getOneById(store.id);

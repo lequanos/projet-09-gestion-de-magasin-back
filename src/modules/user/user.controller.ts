@@ -16,8 +16,8 @@ import {
 
 import { Request } from 'express';
 
-import { Roles } from '../../utils/decorators/roles.decorator';
-import { User } from '../../entities';
+import { Permissions } from '../../utils/decorators/permissions.decorator';
+import { User, Permission } from '../../entities';
 import { CreateUserDto, UpdateUserDto, UserIdParamDto } from './user.dto';
 import { UserService } from './user.service';
 import { StoreInterceptor } from '../../utils/interceptors/store.interceptor';
@@ -33,7 +33,7 @@ export class UserController {
    * Get all users
    */
   @Get()
-  @Roles('super admin', 'store manager', 'purchasing manager')
+  @Permissions(Permission.READ_ALL, Permission.READ_USER)
   async getAllUsers(
     @Req() req: Request,
     @Query(
@@ -62,12 +62,6 @@ export class UserController {
    * Get the current user
    */
   @Get('/me')
-  @Roles(
-    'super admin',
-    'store manager',
-    'purchasing manager',
-    'department manager',
-  )
   async getMe(
     @Req() req: Request,
     @Query(
@@ -101,7 +95,7 @@ export class UserController {
    * Get one user by id
    */
   @Get(':id')
-  @Roles('super admin', 'store manager')
+  @Permissions(Permission.READ_ALL, Permission.READ_USER)
   async getOneUserById(
     @Req() req: Request,
     @Param() param: UserIdParamDto,
@@ -138,7 +132,7 @@ export class UserController {
    * @returns the created user
    */
   @Post()
-  @Roles('super admin', 'store manager')
+  @Permissions(Permission.MANAGE_ALL, Permission.MANAGE_USER)
   @UseInterceptors(StoreInterceptor)
   async createUser(@Body() createUserDto: CreateUserDto): Promise<User> {
     return await this.userService.createUser(createUserDto);
@@ -150,7 +144,7 @@ export class UserController {
    * @returns the updated user
    */
   @Patch()
-  @Roles('super admin', 'store manager')
+  @Permissions(Permission.MANAGE_ALL, Permission.MANAGE_USER)
   @UseInterceptors(StoreInterceptor)
   async updatePartialUser(
     @Req() req: Request,
@@ -165,7 +159,7 @@ export class UserController {
    * @returns the updated user
    */
   @Put()
-  @Roles('super admin', 'store manager')
+  @Permissions(Permission.MANAGE_ALL, Permission.MANAGE_USER)
   @UseInterceptors(StoreInterceptor)
   async updateUser(
     @Req() req: Request,
@@ -178,7 +172,7 @@ export class UserController {
    * Deactivate one user
    */
   @Delete(':id')
-  @Roles('super admin', 'store manager')
+  @Permissions(Permission.MANAGE_ALL, Permission.MANAGE_USER)
   async deactivateUser(
     @Req() req: Request,
     @Param() param: UserIdParamDto,
@@ -190,7 +184,7 @@ export class UserController {
    * Reactivate one user
    */
   @Patch(':id')
-  @Roles('super admin', 'store manager')
+  @Permissions(Permission.MANAGE_ALL, Permission.MANAGE_USER)
   async reactivateUser(
     @Req() req: Request,
     @Param() param: UserIdParamDto,
@@ -203,7 +197,7 @@ export class UserController {
    */
   @HttpCode(204)
   @Delete('/delete/:id')
-  @Roles('super admin', 'store manager')
+  @Permissions(Permission.MANAGE_ALL, Permission.MANAGE_USER)
   async deleteUser(
     @Req() req: Request,
     @Param() param: UserIdParamDto,

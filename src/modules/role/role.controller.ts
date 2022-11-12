@@ -9,10 +9,10 @@ import {
 
 import { Request } from 'express';
 
-import { Role, User } from '../../entities';
+import { Role, User, Permission } from '../../entities';
 import { RoleService } from './role.service';
 import { RoleIdParamDto } from './role.dto';
-import { Roles } from 'src/utils/decorators/roles.decorator';
+import { Permissions } from 'src/utils/decorators/permissions.decorator';
 
 /**
  * Controller for the roles
@@ -25,12 +25,7 @@ export class RoleController {
    * Get all roles
    */
   @Get()
-  @Roles(
-    'super admin',
-    'store manager',
-    'purchasing manager',
-    'department manager',
-  )
+  @Permissions(Permission.READ_ALL, Permission.READ_ROLE)
   async getAllRoles(
     @Req() req: Request,
     @Query(
@@ -59,12 +54,7 @@ export class RoleController {
    * Get one role by id
    */
   @Get(':id')
-  @Roles(
-    'super admin',
-    'store manager',
-    'purchasing manager',
-    'department manager',
-  )
+  @Permissions(Permission.READ_ALL, Permission.READ_ROLE)
   async getOneRoleById(
     @Req() req: Request,
     @Param() param: RoleIdParamDto,

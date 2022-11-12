@@ -16,10 +16,10 @@ import {
 
 import { Request } from 'express';
 
-import { Aisle, User } from '../../entities';
+import { Aisle, Permission, User } from '../../entities';
 import { AisleService } from './aisle.service';
 import { AisleIdParamDto, AisleDto, UpdateAisleDto } from './aisle.dto';
-import { Roles } from 'src/utils/decorators/roles.decorator';
+import { Permissions } from 'src/utils/decorators/permissions.decorator';
 import { StoreInterceptor } from 'src/utils/interceptors/store.interceptor';
 
 /**
@@ -33,12 +33,7 @@ export class AisleController {
    * Get all aisles
    */
   @Get()
-  @Roles(
-    'super admin',
-    'store manager',
-    'purchasing manager',
-    'department manager',
-  )
+  @Permissions(Permission.READ_ALL, Permission.READ_AISLE)
   async getAllAisles(
     @Req() req: Request,
     @Query(
@@ -67,12 +62,7 @@ export class AisleController {
    * Get one aisle by id
    */
   @Get(':id')
-  @Roles(
-    'super admin',
-    'store manager',
-    'purchasing manager',
-    'department manager',
-  )
+  @Permissions(Permission.READ_ALL, Permission.READ_AISLE)
   async getOneAisleById(
     @Req() req: Request,
     @Param() param: AisleIdParamDto,
@@ -109,7 +99,7 @@ export class AisleController {
    * @returns the created aisle
    */
   @Post()
-  @Roles('super admin', 'store manager', 'purchasing manager')
+  @Permissions(Permission.MANAGE_ALL, Permission.MANAGE_AISLE)
   @UseInterceptors(StoreInterceptor)
   async createAisle(
     @Req() req: Request,
@@ -124,7 +114,7 @@ export class AisleController {
    * @returns the updated aisle
    */
   @Patch()
-  @Roles('super admin', 'store manager', 'purchasing manager')
+  @Permissions(Permission.MANAGE_ALL, Permission.MANAGE_AISLE)
   @UseInterceptors(StoreInterceptor)
   async updatePartialAisle(
     @Req() req: Request,
@@ -139,7 +129,7 @@ export class AisleController {
    * @returns the updated aisle
    */
   @Put()
-  @Roles('super admin', 'store manager', 'purchasing manager')
+  @Permissions(Permission.MANAGE_ALL, Permission.MANAGE_AISLE)
   @UseInterceptors(StoreInterceptor)
   async updateAisle(
     @Req() req: Request,
@@ -153,7 +143,7 @@ export class AisleController {
    */
   @HttpCode(204)
   @Delete('/delete/:id')
-  @Roles('super admin', 'store manager', 'purchasing manager')
+  @Permissions(Permission.MANAGE_ALL, Permission.MANAGE_AISLE)
   async deleteAisle(
     @Req() req: Request,
     @Param() param: AisleIdParamDto,

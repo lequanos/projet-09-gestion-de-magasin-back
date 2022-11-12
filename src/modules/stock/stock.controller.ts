@@ -12,10 +12,10 @@ import {
 
 import { Request } from 'express';
 
-import { Stock, User } from '../../entities';
+import { Stock, User, Permission } from '../../entities';
 import { StockService } from './stock.service';
 import { StockIdParamDto, StockDto } from './stock.dto';
-import { Roles } from 'src/utils/decorators/roles.decorator';
+import { Permissions } from 'src/utils/decorators/permissions.decorator';
 import { StoreInterceptor } from 'src/utils/interceptors/store.interceptor';
 
 /**
@@ -29,12 +29,7 @@ export class StockController {
    * Get all stocks
    */
   @Get()
-  @Roles(
-    'super admin',
-    'store manager',
-    'purchasing manager',
-    'department manager',
-  )
+  @Permissions(Permission.READ_ALL, Permission.READ_STOCK)
   async getAllStocks(
     @Req() req: Request,
     @Query(
@@ -63,12 +58,7 @@ export class StockController {
    * Get one stock by id
    */
   @Get(':id')
-  @Roles(
-    'super admin',
-    'store manager',
-    'purchasing manager',
-    'department manager',
-  )
+  @Permissions(Permission.READ_ALL, Permission.READ_STOCK)
   async getOneStockById(
     @Req() req: Request,
     @Param() param: StockIdParamDto,
@@ -105,7 +95,7 @@ export class StockController {
    * @returns the created stock
    */
   @Post()
-  @Roles('super admin', 'store manager', 'purchasing manager')
+  @Permissions(Permission.MANAGE_ALL, Permission.MANAGE_STOCK)
   @UseInterceptors(StoreInterceptor)
   async createStock(
     @Req() req: Request,

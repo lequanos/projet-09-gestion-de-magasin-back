@@ -20,13 +20,13 @@ export class PermissionsGuard implements CanActivate {
       PERMISSIONS_KEY,
       [context.getHandler(), context.getClass()],
     );
-      console.log(requiredPermissions)
+
     if (!requiredPermissions) {
       return true;
     }
 
     const { user }: { user: User } = context.switchToHttp().getRequest();
-
+    console.log(user);
     if (!user)
       throw new UnauthorizedException('Please login to access resource');
 
@@ -46,6 +46,8 @@ export class PermissionsGuard implements CanActivate {
       });
     }
 
-    return false;
+    return requiredPermissions.some((perm) =>
+      user.role?.permissions.includes(perm),
+    );
   }
 }

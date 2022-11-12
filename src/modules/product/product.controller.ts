@@ -17,8 +17,8 @@ import {
 import { Request } from 'express';
 
 import { ProductService } from './product.service';
-import { Roles } from '../../utils/decorators/roles.decorator';
-import { Product, User } from '../../entities';
+import { Permissions } from '../../utils/decorators/permissions.decorator';
+import { Product, User, Permission } from '../../entities';
 import {
   ProductIdParamDto,
   CreateProductDto,
@@ -37,12 +37,7 @@ export class ProductController {
    * Get all products
    */
   @Get()
-  @Roles(
-    'super admin',
-    'store manager',
-    'purchasing manager',
-    'department manager',
-  )
+  @Permissions(Permission.READ_ALL, Permission.READ_PRODUCT)
   async getAllProducts(
     @Req() req: Request,
     @Query(
@@ -71,12 +66,7 @@ export class ProductController {
    * Get one product by id
    */
   @Get(':id')
-  @Roles(
-    'super admin',
-    'store manager',
-    'purchasing manager',
-    'department manager',
-  )
+  @Permissions(Permission.READ_ALL, Permission.READ_PRODUCT)
   async getOneProductById(
     @Req() req: Request,
     @Param() param: ProductIdParamDto,
@@ -113,7 +103,7 @@ export class ProductController {
    * @returns the created product
    */
   @Post()
-  @Roles('super admin', 'store manager', 'purchasing manager')
+  @Permissions(Permission.MANAGE_ALL, Permission.MANAGE_PRODUCT)
   @UseInterceptors(StoreInterceptor)
   async createProduct(
     @Req() req: Request,
@@ -131,12 +121,7 @@ export class ProductController {
    * @returns the updated product
    */
   @Patch()
-  @Roles(
-    'super admin',
-    'store manager',
-    'purchasing manager',
-    'department manager',
-  )
+  @Permissions(Permission.MANAGE_ALL, Permission.MANAGE_PRODUCT)
   @UseInterceptors(StoreInterceptor)
   async updatePartialProduct(
     @Req() req: Request,
@@ -154,12 +139,7 @@ export class ProductController {
    * @returns the updated product
    */
   @Put()
-  @Roles(
-    'super admin',
-    'store manager',
-    'purchasing manager',
-    'department manager',
-  )
+  @Permissions(Permission.MANAGE_ALL, Permission.MANAGE_PRODUCT)
   @UseInterceptors(StoreInterceptor)
   async updateProduct(
     @Req() req: Request,
@@ -175,7 +155,7 @@ export class ProductController {
    * Deactivate one product
    */
   @Delete(':id')
-  @Roles('super admin', 'store manager', 'purchasing manager')
+  @Permissions(Permission.MANAGE_ALL, Permission.MANAGE_PRODUCT)
   async deactivateProduct(
     @Req() req: Request,
     @Param() param: ProductIdParamDto,
@@ -190,7 +170,7 @@ export class ProductController {
    * Reactivate one product
    */
   @Patch(':id')
-  @Roles('super admin', 'store manager', 'purchasing manager')
+  @Permissions(Permission.MANAGE_ALL, Permission.MANAGE_PRODUCT)
   async reactivateProduct(
     @Req() req: Request,
     @Param() param: ProductIdParamDto,
@@ -206,7 +186,7 @@ export class ProductController {
    */
   @HttpCode(204)
   @Delete('/delete/:id')
-  @Roles('super admin', 'store manager', 'purchasing manager')
+  @Permissions(Permission.MANAGE_ALL, Permission.MANAGE_PRODUCT)
   async deleteProduct(
     @Req() req: Request,
     @Param() param: ProductIdParamDto,

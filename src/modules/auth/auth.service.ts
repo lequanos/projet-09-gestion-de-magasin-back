@@ -1,9 +1,4 @@
-import {
-  ForbiddenException,
-  Injectable,
-  Logger,
-  UnauthorizedException,
-} from '@nestjs/common';
+import { Injectable, Logger, UnauthorizedException } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 
 import { EntityRepository } from '@mikro-orm/core';
@@ -41,7 +36,7 @@ export class AuthService {
             'role',
             'password',
             {
-              role: ['name'],
+              role: ['name', 'permissions'],
             },
             {
               aisles: ['name'],
@@ -53,7 +48,7 @@ export class AuthService {
 
       const result = await bcrypt.compare(password, user.password);
       if (!result) {
-        throw new ForbiddenException('Invalid credentials');
+        throw new UnauthorizedException('Invalid credentials');
       }
       user.refreshToken = this.jwtService.sign(
         {},
@@ -69,7 +64,7 @@ export class AuthService {
       this.logger.error(`${e.message} `, e);
 
       if (isNotFoundError(e)) {
-        throw new ForbiddenException('Invalid credentials');
+        throw new UnauthorizedException('Invalid credentials');
       }
 
       throw e;
@@ -83,6 +78,7 @@ export class AuthService {
       role: {
         id: user.role.id,
         name: user.role.name,
+        permissions: user.role.permissions,
       },
       store: user.store ? { id: user.store.id } : null,
     };
@@ -106,7 +102,7 @@ export class AuthService {
     });
 
     if (!foundUser || !foundUser.refreshToken)
-      throw new ForbiddenException('Access Denied, nonono');
+      throw new UnauthorizedException('Access Denied, nonono');
 
     if (!foundUser.isActive)
       throw new UnauthorizedException('Your account has been deactivated');
@@ -129,6 +125,7 @@ export class AuthService {
           role: {
             id: user.role.id,
             name: user.role.name,
+            permissions: user.role.permissions,
           },
           store: user.store
             ? { id: user.store.id }
@@ -163,6 +160,7 @@ export class AuthService {
       role: {
         id: user.role.id,
         name: user.role.name,
+        permissions: user.role.permissions,
       },
       store: { id: store },
     };

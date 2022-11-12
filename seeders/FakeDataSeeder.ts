@@ -78,7 +78,7 @@ export class FakeDataSeeder extends Seeder {
       })
       .make(20);
 
-    const departmentManagerRole = new RoleFactory(em).makeOne({
+    const departmentManagerRole = new RoleFactory(em).make(2, {
       name: 'department manager',
       permissions: [
         Permission.READ_PRODUCT,
@@ -89,7 +89,7 @@ export class FakeDataSeeder extends Seeder {
       ],
     });
 
-    const purchasingManagerRole = new RoleFactory(em).makeOne({
+    const purchasingManagerRole = new RoleFactory(em).make(2, {
       name: 'purchasing manager',
       permissions: [
         Permission.READ_AISLE,
@@ -108,7 +108,7 @@ export class FakeDataSeeder extends Seeder {
       ],
     });
 
-    const storeManagerRole = new RoleFactory(em).makeOne({
+    const storeManagerRole = new RoleFactory(em).make(2, {
       name: 'store manager',
       permissions: [
         Permission.READ_AISLE,
@@ -147,7 +147,7 @@ export class FakeDataSeeder extends Seeder {
       email: 'storeManager@retailstore.com',
       password: await bcrypt.hash('storeManager', 10),
       isActive: true,
-      role: storeManagerRole,
+      role: storeManagerRole[0],
       aisles: allAisle,
     });
 
@@ -155,7 +155,7 @@ export class FakeDataSeeder extends Seeder {
       email: 'storeManager@retailstore2.com',
       password: await bcrypt.hash('storeManager', 10),
       isActive: true,
-      role: storeManagerRole,
+      role: storeManagerRole[1],
       aisles: allAisle,
     });
 
@@ -163,7 +163,7 @@ export class FakeDataSeeder extends Seeder {
       email: 'purchasingManager@retailstore.com',
       password: await bcrypt.hash('purchasingManager', 10),
       isActive: true,
-      role: purchasingManagerRole,
+      role: purchasingManagerRole[0],
       aisles: allAisle,
     });
 
@@ -171,13 +171,14 @@ export class FakeDataSeeder extends Seeder {
       email: 'purchasingManager@retailstore2.com',
       password: await bcrypt.hash('purchasingManager', 10),
       isActive: true,
-      role: purchasingManagerRole,
+      role: purchasingManagerRole[1],
       aisles: allAisle,
     });
 
     const users = new UserFactory(em)
       .each((user) => {
-        user.role = departmentManagerRole;
+        user.role =
+          departmentManagerRole[userIndex % departmentManagerRole.length];
         user.aisles.set(
           faker.helpers.arrayElements(
             aisles.filter((aisle) => aisle.name != 'tous'),
@@ -237,16 +238,18 @@ export class FakeDataSeeder extends Seeder {
           ...managers,
         ]);
 
+        store.roles.set([
+          storeManagerRole[storeIndex],
+          purchasingManagerRole[storeIndex],
+          departmentManagerRole[storeIndex],
+        ]);
+
         storeIndex = storeIndex === 1 ? 0 : storeIndex + 1;
       })
       .make(2);
 
     aisles.forEach((aisle) => {
       aisle.store = faker.helpers.arrayElement(stores);
-    });
-
-    users.forEach((user) => {
-      user.store = faker.helpers.arrayElement(stores);
     });
 
     storeManagerUser1.store = stores[0];
@@ -262,6 +265,22 @@ export class FakeDataSeeder extends Seeder {
       product.store = faker.helpers.arrayElement(stores);
       const firstCategory = faker.helpers.arrayElement(categories);
       product.categories.add(firstCategory);
+    });
+
+    departmentManagerRole.forEach((role, index) => {
+      role.store = stores[index];
+    });
+
+    purchasingManagerRole.forEach((role, index) => {
+      role.store = stores[index];
+    });
+
+    storeManagerRole.forEach((role, index) => {
+      role.store = stores[index];
+    });
+
+    users.forEach((user) => {
+      user.store = user.role.store;
     });
 
     await em.flush();

@@ -28,10 +28,7 @@ import {
 @Entity()
 @Filter({
   name: 'fromStore',
-  cond: ({ user }: { user: Partial<User> }) => {
-    console.log(user)
-    return { store: user.store };
-  },
+  cond: ({ user }: { user: Partial<User> }) => ({ store: user.store }),
 })
 @Filter({
   name: 'fromAisles',

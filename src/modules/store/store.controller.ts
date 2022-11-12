@@ -12,7 +12,7 @@ import {
   Query,
 } from '@nestjs/common';
 
-import { Store } from '../../entities';
+import { Store, Permission } from '../../entities';
 import { StoreService } from './store.service';
 import {
   SiretParamDto,
@@ -20,7 +20,7 @@ import {
   StoreDto,
   UpdateStoreDto,
 } from './store.dto';
-import { Roles } from '../../utils/decorators/roles.decorator';
+import { Permissions } from '../../utils/decorators/permissions.decorator';
 
 /**
  * Controller for the stores
@@ -33,7 +33,7 @@ export class StoreController {
    * Get all stores
    */
   @Get()
-  @Roles('super admin')
+  @Permissions(Permission.READ_ALL, Permission.READ_STORE)
   async getAllStores(
     @Query(
       'select',
@@ -61,7 +61,7 @@ export class StoreController {
    * Get one store by siret
    */
   @Get(':siret')
-  @Roles('super admin')
+  @Permissions(Permission.READ_ALL, Permission.READ_STORE)
   async getOneStoreBySiret(
     @Param() param: SiretParamDto,
     @Query(
@@ -92,7 +92,7 @@ export class StoreController {
    * @returns the created store
    */
   @Post()
-  @Roles('super admin')
+  @Permissions(Permission.MANAGE_ALL, Permission.MANAGE_STORE)
   async createStore(@Body() storeDto: StoreDto): Promise<Store> {
     return await this.storeService.createStore(storeDto);
   }
@@ -103,7 +103,7 @@ export class StoreController {
    * @returns the updated store
    */
   @Patch()
-  @Roles('super admin')
+  @Permissions(Permission.MANAGE_ALL, Permission.MANAGE_STORE)
   async updatePartialStore(@Body() storeDto: UpdateStoreDto): Promise<Store> {
     return await this.storeService.updateStore(storeDto);
   }
@@ -114,7 +114,7 @@ export class StoreController {
    * @returns the updated store
    */
   @Put()
-  @Roles('super admin')
+  @Permissions(Permission.MANAGE_ALL, Permission.MANAGE_STORE)
   async updateStore(@Body() storeDto: UpdateStoreDto): Promise<Store> {
     return await this.storeService.updateStore(storeDto);
   }
@@ -123,7 +123,7 @@ export class StoreController {
    * Deactivate one store
    */
   @Delete(':id')
-  @Roles('super admin')
+  @Permissions(Permission.MANAGE_ALL, Permission.MANAGE_STORE)
   async deactivateStore(@Param() param: StoreIdParamDto): Promise<Store> {
     return await this.storeService.deactivateStore(param.id);
   }
@@ -132,7 +132,7 @@ export class StoreController {
    * Reactivate one store
    */
   @Patch(':id')
-  @Roles('super admin')
+  @Permissions(Permission.MANAGE_ALL, Permission.MANAGE_STORE)
   async reactivateStore(@Param() param: StoreIdParamDto): Promise<Store> {
     return await this.storeService.reactivateStore(param.id);
   }
@@ -142,7 +142,7 @@ export class StoreController {
    */
   @HttpCode(204)
   @Delete('/delete/:id')
-  @Roles('super admin')
+  @Permissions(Permission.MANAGE_ALL, Permission.MANAGE_STORE)
   async deleteStore(@Param() param: StoreIdParamDto): Promise<void> {
     await this.storeService.deleteStore(param.id);
   }

@@ -1,5 +1,13 @@
-import { Entity, Property, OneToMany, Collection, Enum } from '@mikro-orm/core';
-import { CustomBaseEntity, User } from './';
+import {
+  Entity,
+  Property,
+  OneToMany,
+  Collection,
+  Enum,
+  ManyToOne,
+  Filter,
+} from '@mikro-orm/core';
+import { CustomBaseEntity, Store, User } from './';
 
 export enum Permission {
   READ_ALL = 'READ_ALL',
@@ -25,6 +33,10 @@ export enum Permission {
 }
 
 @Entity()
+@Filter({
+  name: 'fromStore',
+  cond: ({ user }: { user: Partial<User> }) => ({ store: user.store }),
+})
 export class Role extends CustomBaseEntity {
   @Property({ type: 'string', nullable: false, length: 64 })
   name: string;
@@ -36,4 +48,7 @@ export class Role extends CustomBaseEntity {
 
   @Enum({ items: () => Permission, array: true })
   permissions: Permission[];
+
+  @ManyToOne({ entity: () => Store, onDelete: 'cascade', nullable: true })
+  store: Store;
 }
