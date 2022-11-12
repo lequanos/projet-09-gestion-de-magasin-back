@@ -92,15 +92,12 @@ export class UserService {
       if (isActive) {
         filterQuery.isActive = isActive;
       }
-      return await this.userRepository.findOneOrFail(
-        filterQuery,
-        {
-          fields: fields.length
-            ? (fields as EntityField<User, never>[])
-            : undefined,
-          filters: { fromStore: { user } },
-        },
-      );
+      return await this.userRepository.findOneOrFail(filterQuery, {
+        fields: fields.length
+          ? (fields as EntityField<User, never>[])
+          : undefined,
+        filters: { fromStore: { user } },
+      });
     } catch (e) {
       this.logger.error(`${e.message} `, e);
 
