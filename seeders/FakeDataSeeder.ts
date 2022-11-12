@@ -15,7 +15,7 @@ import {
   StockFactory,
   RoleFactory,
 } from './factories';
-import { Aisle, User } from '../src/entities';
+import { Aisle, Permission, User } from '../src/entities';
 
 export class FakeDataSeeder extends Seeder {
   async run(em: EntityManager): Promise<void> {
@@ -79,21 +79,60 @@ export class FakeDataSeeder extends Seeder {
       .make(20);
 
     const departmentManagerRole = new RoleFactory(em).makeOne({
-      id: 1,
       name: 'department manager',
+      permissions: [
+        Permission.READ_PRODUCT,
+        Permission.MANAGE_PRODUCT,
+        Permission.READ_ROLE,
+        Permission.READ_STOCK,
+        Permission.MANAGE_STOCK,
+      ],
     });
 
     const purchasingManagerRole = new RoleFactory(em).makeOne({
-      id: 2,
       name: 'purchasing manager',
+      permissions: [
+        Permission.READ_AISLE,
+        Permission.MANAGE_AISLE,
+        Permission.READ_BRAND,
+        Permission.MANAGE_BRAND,
+        Permission.READ_CATEGORY,
+        Permission.MANAGE_CATEGORY,
+        Permission.READ_ROLE,
+        Permission.READ_PRODUCT,
+        Permission.MANAGE_PRODUCT,
+        Permission.READ_STOCK,
+        Permission.MANAGE_STOCK,
+        Permission.READ_SUPPLIER,
+        Permission.MANAGE_SUPPLIER,
+      ],
     });
+
     const storeManagerRole = new RoleFactory(em).makeOne({
-      id: 3,
       name: 'store manager',
+      permissions: [
+        Permission.READ_AISLE,
+        Permission.MANAGE_AISLE,
+        Permission.READ_BRAND,
+        Permission.MANAGE_BRAND,
+        Permission.READ_CATEGORY,
+        Permission.MANAGE_CATEGORY,
+        Permission.READ_ROLE,
+        Permission.MANAGE_ROLE,
+        Permission.READ_PRODUCT,
+        Permission.MANAGE_PRODUCT,
+        Permission.READ_STOCK,
+        Permission.MANAGE_STOCK,
+        Permission.READ_SUPPLIER,
+        Permission.MANAGE_SUPPLIER,
+        Permission.READ_USER,
+        Permission.MANAGE_USER,
+      ],
     });
+
     const superAdminRole = new RoleFactory(em).makeOne({
-      id: 4,
       name: 'super admin',
+      permissions: [Permission.READ_ALL, Permission.MANAGE_ALL],
     });
 
     new UserFactory(em).makeOne({

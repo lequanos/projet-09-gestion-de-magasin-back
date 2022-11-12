@@ -106,6 +106,37 @@
           "nullable": false,
           "length": 64,
           "mappedType": "string"
+        },
+        "permissions": {
+          "name": "permissions",
+          "type": "text[]",
+          "unsigned": false,
+          "autoincrement": false,
+          "primary": false,
+          "nullable": false,
+          "enumItems": [
+            "READ_ALL",
+            "MANAGE_ALL",
+            "READ_AISLE",
+            "MANAGE_AISLE",
+            "READ_BRAND",
+            "MANAGE_BRAND",
+            "READ_CATEGORY",
+            "MANAGE_CATEGORY",
+            "READ_PRODUCT",
+            "MANAGE_PRODUCT",
+            "READ_ROLE",
+            "MANAGE_ROLE",
+            "READ_STOCK",
+            "MANAGE_STOCK",
+            "READ_STORE",
+            "MANAGE_STORE",
+            "READ_SUPPLIER",
+            "MANAGE_SUPPLIER",
+            "READ_USER",
+            "MANAGE_USER"
+          ],
+          "mappedType": "array"
         }
       },
       "name": "role",
