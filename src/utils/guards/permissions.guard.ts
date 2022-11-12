@@ -20,7 +20,7 @@ export class PermissionsGuard implements CanActivate {
       PERMISSIONS_KEY,
       [context.getHandler(), context.getClass()],
     );
-
+      console.log(requiredPermissions)
     if (!requiredPermissions) {
       return true;
     }
@@ -46,8 +46,6 @@ export class PermissionsGuard implements CanActivate {
       });
     }
 
-    return requiredPermissions.some((perm) =>
-      user.role?.permissions.includes(perm),
-    );
+    return false;
   }
 }

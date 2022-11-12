@@ -17,7 +17,8 @@ import {
 import { Request } from 'express';
 
 import { Roles } from '../../utils/decorators/roles.decorator';
-import { Supplier, User } from '../../entities';
+import { Permissions } from '../../utils/decorators/permissions.decorator';
+import { Supplier, User, Permission } from '../../entities';
 import {
   CreateSupplierDto,
   SupplierIdParamDto,
@@ -38,7 +39,7 @@ export class SupplierController {
    * Get all Suppliers
    */
   @Get()
-  @Roles('super admin', 'store manager', 'purchasing manager')
+  @Permissions(Permission.READ_ALL)
   async getAllSuppliers(
     @Req() req: Request,
     @Query(

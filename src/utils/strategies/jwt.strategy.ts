@@ -23,6 +23,7 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
       payload.id,
       {
         role: payload.role,
+        store: payload.role.name === 'super admin' ? undefined : payload.store,
       },
       [
         'firstname',
