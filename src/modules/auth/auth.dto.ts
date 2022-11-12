@@ -1,3 +1,4 @@
+import { IsDefined, IsNumber } from 'class-validator';
 import { Store, Role } from '../../entities';
 
 export class JwtDto {
@@ -10,4 +11,10 @@ export class JwtDto {
 export class TokensDto {
   public access_token: string;
   public refresh_token: string;
+}
+
+export class SelectStoreDto {
+  @IsNumber()
+  @IsDefined()
+  public store: number;
 }

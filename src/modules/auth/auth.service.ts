@@ -1,4 +1,9 @@
-import { ForbiddenException, Injectable, Logger } from '@nestjs/common';
+import {
+  ForbiddenException,
+  Injectable,
+  Logger,
+  UnauthorizedException,
+} from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 
 import { EntityRepository } from '@mikro-orm/core';
@@ -94,16 +99,19 @@ export class AuthService {
     return this.userService.updateUserRefreshToken(userId, null);
   }
 
-  async refreshTokens(userId: number, refreshToken: string) {
-    const user = await this.userRepository.findOneOrFail({
-      id: userId,
-      refreshToken,
+  async refreshTokens(user: User) {
+    const foundUser = await this.userRepository.findOneOrFail({
+      id: user.id,
+      refreshToken: user.refreshToken,
     });
 
-    if (!user || !user.refreshToken)
+    if (!foundUser || !foundUser.refreshToken)
       throw new ForbiddenException('Access Denied, nonono');
 
-    const tokens = await this.getTokens(user);
+    if (!foundUser.isActive)
+      throw new UnauthorizedException('Your account has been deactivated');
+
+    const tokens = await this.getTokens(foundUser, user.store.id);
 
     await this.userService.updateUserRefreshToken(
       user.id,
@@ -112,14 +120,21 @@ export class AuthService {
     return tokens;
   }
 
-  async getTokens(user: User) {
+  async getTokens(user: User, storeId: number) {
     const [accessToken, refreshToken] = await Promise.all([
       this.jwtService.signAsync(
         {
           mail: user.email,
           id: user.id,
-          role: user.role,
-          store: user.store,
+          role: {
+            id: user.role.id,
+            name: user.role.name,
+          },
+          store: user.store
+            ? { id: user.store.id }
+            : storeId
+            ? { id: storeId }
+            : null,
         },
         {
           secret: this.configService.get<string>('JWT_ACCESS_SECRET'),
@@ -138,6 +153,24 @@ export class AuthService {
     return {
       access_token: accessToken,
       refresh_token: refreshToken,
+    };
+  }
+
+  async selectStore(user: User, store: number): Promise<TokensDto> {
+    const payload = {
+      mail: user.email,
+      id: user.id,
+      role: {
+        id: user.role.id,
+        name: user.role.name,
+      },
+      store: { id: store },
+    };
+    return {
+      access_token: this.jwtService.sign(payload, {
+        secret: this.configService.get<string>('JWT_ACCESS_SECRET'),
+      }),
+      refresh_token: user.refreshToken,
     };
   }
 }
