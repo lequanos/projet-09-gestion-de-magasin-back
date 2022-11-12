@@ -29,9 +29,7 @@ export class AuthController {
   @UseGuards(RefreshTokenGuard)
   @Get('refresh')
   async refresh(@Req() req: Request): Promise<TokensDto> {
-    const userId = (req.user as User).id;
-    const refreshToken = (req.user as User).refreshToken;
-    return await this.authService.refreshTokens(userId, refreshToken);
+    return await this.authService.refreshTokens(req.user as User);
   }
 
   @Post('store')
@@ -40,6 +38,7 @@ export class AuthController {
     @Req() req: Request,
     @Body() selectStoreDto: SelectStoreDto,
   ): Promise<TokensDto> {
-    return await this.authService.selectStore(req.user as User, selectStoreDto);
+    const { store } = selectStoreDto;
+    return await this.authService.selectStore(req.user as User, store);
   }
 }

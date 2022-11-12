@@ -33,6 +33,7 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
         'role',
         'store',
         'aisles',
+        'refreshToken',
       ],
       ['role.name', 'aisles.name'],
       true,
