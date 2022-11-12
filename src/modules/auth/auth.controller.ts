@@ -1,13 +1,14 @@
-import { Controller, Req, Post, UseGuards, Get } from '@nestjs/common';
+import { Controller, Req, Post, UseGuards, Get, Body } from '@nestjs/common';
 
 import { Request } from 'express';
 
 import { LocalAuthGuard } from '../../utils/guards/local-auth.guard';
 import { User } from '../../entities';
 import { Public } from '../../utils/decorators/public.decorator';
-import { TokensDto } from './auth.dto';
+import { SelectStoreDto, TokensDto } from './auth.dto';
 import { AuthService } from './auth.service';
 import { RefreshTokenGuard } from '../../utils/guards/refresh-token.guard';
+import { Roles } from '../../utils/decorators/roles.decorator';
 
 @Controller('auth')
 export class AuthController {
@@ -31,5 +32,14 @@ export class AuthController {
     const userId = (req.user as User).id;
     const refreshToken = (req.user as User).refreshToken;
     return await this.authService.refreshTokens(userId, refreshToken);
+  }
+
+  @Post('store')
+  @Roles('super admin')
+  async selectStore(
+    @Req() req: Request,
+    @Body() selectStoreDto: SelectStoreDto,
+  ): Promise<TokensDto> {
+    return await this.authService.selectStore(req.user as User, selectStoreDto);
   }
 }

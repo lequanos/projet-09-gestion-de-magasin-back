@@ -9,7 +9,7 @@ import * as bcrypt from 'bcrypt';
 
 import { User } from '../../entities/User.entity';
 import { isNotFoundError } from '../../utils/typeguards/ExceptionTypeGuards';
-import { TokensDto } from './auth.dto';
+import { SelectStoreDto, TokensDto } from './auth.dto';
 import { UserService } from '../user/user.service';
 
 @Injectable()
@@ -138,6 +138,28 @@ export class AuthService {
     return {
       access_token: accessToken,
       refresh_token: refreshToken,
+    };
+  }
+
+  async selectStore(
+    user: User,
+    selectStoreDto: SelectStoreDto,
+  ): Promise<TokensDto> {
+    const payload = {
+      mail: user.email,
+      id: user.id,
+      role: {
+        id: user.role.id,
+        name: user.role.name,
+      },
+      store: selectStoreDto.storeId,
+    };
+
+    return {
+      access_token: this.jwtService.sign(payload, {
+        secret: this.configService.get<string>('JWT_ACCESS_SECRET'),
+      }),
+      refresh_token: user.refreshToken,
     };
   }
 }
