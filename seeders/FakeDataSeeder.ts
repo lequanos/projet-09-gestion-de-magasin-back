@@ -40,11 +40,16 @@ export class FakeDataSeeder extends Seeder {
       })
       .make(7);
 
-    const allAisle = new AisleFactory(em).makeOne({
-      name: 'tous',
+    const allAisle1 = new AisleFactory(em).makeOne({
+      name: 'All',
     });
 
-    aisles.push(allAisle);
+    const allAisle2 = new AisleFactory(em).makeOne({
+      name: 'All',
+    });
+
+    aisles.push(allAisle1);
+    aisles.push(allAisle2);
 
     const categoryDictionary: { [key: string]: Aisle | undefined } = {
       Yaourt: aisles.find((aisle) => aisle.name === 'Produits frais'),
@@ -74,7 +79,7 @@ export class FakeDataSeeder extends Seeder {
 
     const categories = new CategoryFactory(em)
       .each((category) => {
-        category.aisle = categoryDictionary[category.name] || allAisle;
+        category.aisle = categoryDictionary[category.name] || allAisle1;
       })
       .make(20);
 
@@ -135,12 +140,11 @@ export class FakeDataSeeder extends Seeder {
       permissions: [Permission.READ_ALL, Permission.MANAGE_ALL],
     });
 
-    new UserFactory(em).makeOne({
+    const superAdmin = new UserFactory(em).makeOne({
       email: 'superadmin@retailstore.com',
       password: await bcrypt.hash('superAdmin', 10),
       isActive: true,
       role: superAdminRole,
-      aisles: allAisle,
     });
 
     const storeManagerUser1 = new UserFactory(em).makeOne({
@@ -148,7 +152,6 @@ export class FakeDataSeeder extends Seeder {
       password: await bcrypt.hash('storeManager', 10),
       isActive: true,
       role: storeManagerRole[0],
-      aisles: allAisle,
     });
 
     const storeManagerUser2 = new UserFactory(em).makeOne({
@@ -156,7 +159,6 @@ export class FakeDataSeeder extends Seeder {
       password: await bcrypt.hash('storeManager', 10),
       isActive: true,
       role: storeManagerRole[1],
-      aisles: allAisle,
     });
 
     const purchasingManagerUser1 = new UserFactory(em).makeOne({
@@ -164,7 +166,6 @@ export class FakeDataSeeder extends Seeder {
       password: await bcrypt.hash('purchasingManager', 10),
       isActive: true,
       role: purchasingManagerRole[0],
-      aisles: allAisle,
     });
 
     const purchasingManagerUser2 = new UserFactory(em).makeOne({
@@ -172,7 +173,6 @@ export class FakeDataSeeder extends Seeder {
       password: await bcrypt.hash('purchasingManager', 10),
       isActive: true,
       role: purchasingManagerRole[1],
-      aisles: allAisle,
     });
 
     const users = new UserFactory(em)
@@ -252,10 +252,18 @@ export class FakeDataSeeder extends Seeder {
       aisle.store = faker.helpers.arrayElement(stores);
     });
 
+    allAisle1.store = stores[0];
+    allAisle2.store = stores[1];
+
+    superAdmin.aisles.set([allAisle1, allAisle2]);
     storeManagerUser1.store = stores[0];
+    storeManagerUser1.aisles.set([allAisle1]);
     storeManagerUser2.store = stores[1];
+    storeManagerUser2.aisles.set([allAisle2]);
     purchasingManagerUser1.store = stores[0];
+    purchasingManagerUser1.aisles.set([allAisle1]);
     purchasingManagerUser2.store = stores[1];
+    purchasingManagerUser2.aisles.set([allAisle2]);
 
     suppliers.forEach((supplier) => {
       supplier.store = faker.helpers.arrayElement(stores);

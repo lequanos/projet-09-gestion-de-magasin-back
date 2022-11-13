@@ -151,24 +151,32 @@ export class SupplierService {
     user: Partial<User>,
   ): Promise<Supplier> {
     try {
-      const foundSupplier = await this.supplierRepository.findOneOrFail(
+      const supplierToUpdate = await this.supplierRepository.findOneOrFail(
         supplierDto.id,
         { filters: { fromStore: { user } } },
       );
-      if (foundSupplier.name === supplierDto.name) {
+
+      const foundSupplier = await this.supplierRepository.findOne(
+        {
+          name: supplierDto.name,
+        },
+        { filters: { fromStore: { user } } },
+      );
+
+      if (foundSupplier) {
         throw new ConflictException(`${supplierDto.name} existe deja`);
       }
 
-      if (!foundSupplier?.isActive)
+      if (!supplierToUpdate?.isActive)
         throw new ConflictException('Supplier is deactivated');
 
-      wrap(foundSupplier).assign({
+      wrap(supplierToUpdate).assign({
         ...supplierDto,
       });
 
-      await this.supplierRepository.persistAndFlush(foundSupplier);
+      await this.supplierRepository.persistAndFlush(supplierToUpdate);
       this.em.clear();
-      return await this.getOneSupplier(foundSupplier.id, user);
+      return await this.getOneSupplier(supplierToUpdate.id, user);
     } catch (e) {
       this.logger.error(`${e.message} `, e);
 

@@ -214,20 +214,31 @@ export class StoreService {
    */
   async updateStore(storeDto: UpdateStoreDto): Promise<Store> {
     try {
-      const foundStore = await this.storeRepository.findOneOrFail(storeDto.id, {
-        populate: ['aisles'],
+      const storeToUpdate = await this.storeRepository.findOneOrFail(
+        storeDto.id,
+        {
+          populate: ['aisles'],
+        },
+      );
+
+      const foundStore = await this.storeRepository.findOne({
+        name: storeDto.name,
       });
 
-      if (!foundStore?.isActive)
+      if (foundStore) {
+        throw new ConflictException(`${storeDto.name} existe deja`);
+      }
+
+      if (!storeToUpdate?.isActive)
         throw new ConflictException('Store is deactivated');
 
-      wrap(foundStore).assign({
+      wrap(storeToUpdate).assign({
         ...storeDto,
       });
 
-      await this.storeRepository.persistAndFlush(foundStore);
+      await this.storeRepository.persistAndFlush(storeToUpdate);
       this.em.clear();
-      return await this.getOneById(foundStore.id);
+      return await this.getOneById(storeToUpdate.id);
     } catch (e) {
       this.logger.error(`${e.message} `, e);
 

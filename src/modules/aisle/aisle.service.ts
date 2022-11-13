@@ -143,18 +143,32 @@ export class AisleService {
     user: Partial<User>,
   ): Promise<Aisle> {
     try {
-      const foundAisle = await this.aisleRepository.findOneOrFail(aisleDto.id, {
-        filters: { fromStore: { user } },
-      });
-      if (foundAisle.name === aisleDto.name) {
+      const aisleToUpdate = await this.aisleRepository.findOneOrFail(
+        aisleDto.id,
+        {
+          filters: { fromStore: { user } },
+        },
+      );
+
+      const foundAisle = await this.aisleRepository.findOne(
+        {
+          name: aisleDto.name,
+        },
+        {
+          filters: { fromStore: { user } },
+        },
+      );
+
+      if (foundAisle) {
         throw new ConflictException(`${aisleDto.name} existe deja`);
       }
-      wrap(foundAisle).assign({
+
+      wrap(aisleToUpdate).assign({
         ...aisleDto,
       });
-      await this.aisleRepository.persistAndFlush(foundAisle);
+      await this.aisleRepository.persistAndFlush(aisleToUpdate);
       this.em.clear();
-      return await this.getOneById(foundAisle.id, user);
+      return await this.getOneById(aisleToUpdate.id, user);
     } catch (e) {
       this.logger.error(`${e.message} `, e);
 

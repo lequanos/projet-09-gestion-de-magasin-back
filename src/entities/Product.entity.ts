@@ -23,6 +23,7 @@ import {
   Store,
   User,
   Aisle,
+  Permission,
 } from './';
 
 @Entity()
@@ -33,7 +34,8 @@ import {
 @Filter({
   name: 'fromAisles',
   cond: async ({ user }: { user: Partial<User> }, _, em: EntityManager) => {
-    if (user?.aisles?.toArray().find((aisle) => aisle.name === 'tous')) return;
+    if (user?.role?.permissions.includes(Permission.READ_ALL)) return;
+    if (user?.aisles?.toArray().find((aisle) => aisle.name === 'All')) return;
     let categories: number[] = [];
     let aisles: Aisle[] = [];
 

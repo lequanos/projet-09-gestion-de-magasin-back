@@ -146,21 +146,33 @@ export class CategoryService {
     user: Partial<User>,
   ): Promise<Category> {
     try {
-      const foundCategory = await this.categoryRepository.findOneOrFail(
+      const categoryToUpdate = await this.categoryRepository.findOneOrFail(
         categoryDto.id,
         {
           filters: { fromStore: { user } },
         },
       );
-      if (foundCategory.name === categoryDto.name) {
+
+      const foundCategory = await this.categoryRepository.findOne(
+        {
+          name: categoryDto.name,
+        },
+        {
+          filters: { fromStore: { user } },
+        },
+      );
+
+      if (foundCategory) {
         throw new ConflictException(`${categoryDto.name} existe deja`);
       }
-      wrap(foundCategory).assign({
+
+      wrap(categoryToUpdate).assign({
         ...categoryDto,
       });
-      await this.categoryRepository.persistAndFlush(foundCategory);
+
+      await this.categoryRepository.persistAndFlush(categoryToUpdate);
       this.em.clear();
-      return await this.getOneById(foundCategory.id, user);
+      return await this.getOneById(categoryToUpdate.id, user);
     } catch (e) {
       this.logger.error(`${e.message} `, e);
 

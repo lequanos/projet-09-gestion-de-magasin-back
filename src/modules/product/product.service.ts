@@ -258,7 +258,7 @@ export class ProductService {
   ): Promise<Product> {
     this.em.begin();
     try {
-      const foundProduct = await this.productRepository.findOneOrFail(
+      const productToUpdate = await this.productRepository.findOneOrFail(
         productDto.id,
         {
           filters: { fromStore: { user } },
@@ -266,15 +266,24 @@ export class ProductService {
         },
       );
 
-      if (foundProduct.name === productDto.name) {
+      const foundProduct = await this.productRepository.findOne(
+        {
+          name: productDto.name,
+        },
+        {
+          filters: { fromStore: { user } },
+        },
+      );
+
+      if (foundProduct) {
         throw new ConflictException(`${productDto.name} existe deja`);
       }
 
-      if (!foundProduct?.isActive)
+      if (!productToUpdate?.isActive)
         throw new ConflictException('Product is deactivated');
 
       let brand = await this.brandRepository.findOne({
-        name: productDto.brand || foundProduct.brand.name,
+        name: productDto.brand || productToUpdate.brand.name,
       });
 
       if (!brand) {
@@ -312,14 +321,14 @@ export class ProductService {
       );
 
       if (productDto.inStock) {
-        foundProduct.stock.add(
-          new Stock(productDto.inStock - foundProduct.inStock),
+        productToUpdate.stock.add(
+          new Stock(productDto.inStock - productToUpdate.inStock),
         );
       }
 
       productDto.categories = productDto.categories.length
         ? productDto.categories
-        : foundProduct.categories.toArray().map((cat) => cat.id);
+        : productToUpdate.categories.toArray().map((cat) => cat.id);
 
       if (productDto.productSuppliers?.length) {
         productDto.productSuppliers = productSuppliers;
@@ -327,22 +336,22 @@ export class ProductService {
         delete productDto.productSuppliers;
       }
 
-      wrap(foundProduct).assign({
+      wrap(productToUpdate).assign({
         ...productDto,
         brand,
       });
 
-      this.productRepository.persist(foundProduct);
+      this.productRepository.persist(productToUpdate);
       await this.em.commit();
       this.em.clear();
 
-      if (foundProduct.inStock <= foundProduct.threshold) {
+      if (productToUpdate.inStock <= productToUpdate.threshold) {
         await this.mailService.sendEmailToPurchasingManagers({
-          product: foundProduct,
+          product: productToUpdate,
         });
       }
 
-      return await this.getOneById(foundProduct.id, user);
+      return await this.getOneById(productToUpdate.id, user);
     } catch (e) {
       this.logger.error(`${e.message} `, e);
 

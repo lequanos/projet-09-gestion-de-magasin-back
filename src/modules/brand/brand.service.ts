@@ -103,17 +103,25 @@ export class BrandService {
    */
   async updateBrand(brandDto: UpdateBrandDto): Promise<Brand> {
     try {
-      const foundBrand = await this.brandRepository.findOneOrFail(brandDto.id);
-      console.log(foundBrand);
-      if (foundBrand.name === brandDto.name) {
+      const brandToUpdate = await this.brandRepository.findOneOrFail(
+        brandDto.id,
+      );
+
+      const foundBrand = await this.brandRepository.findOne({
+        name: brandDto.name,
+      });
+
+      if (foundBrand) {
         throw new ConflictException(`${brandDto.name} existe deja`);
       }
-      wrap(foundBrand).assign({
+
+      wrap(brandToUpdate).assign({
         ...brandDto,
       });
-      await this.brandRepository.persistAndFlush(foundBrand);
+
+      await this.brandRepository.persistAndFlush(brandToUpdate);
       this.em.clear();
-      return await this.getOneById(foundBrand.id);
+      return await this.getOneById(brandToUpdate.id);
     } catch (e) {
       this.logger.error(`${e.message} `, e);
 

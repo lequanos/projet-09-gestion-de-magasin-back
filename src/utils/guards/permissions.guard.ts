@@ -26,7 +26,7 @@ export class PermissionsGuard implements CanActivate {
     }
 
     const { user }: { user: User } = context.switchToHttp().getRequest();
-    console.log(user);
+
     if (!user)
       throw new UnauthorizedException('Please login to access resource');
 
