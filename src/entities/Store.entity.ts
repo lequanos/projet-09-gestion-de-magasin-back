@@ -4,6 +4,7 @@ import {
   OneToMany,
   Collection,
   Cascade,
+  Formula,
 } from '@mikro-orm/core';
 import { CustomBaseEntity, Aisle, User, Role } from './';
 @Entity()
@@ -31,6 +32,15 @@ export class Store extends CustomBaseEntity {
 
   @Property({ type: 'string', nullable: true, default: 'pictureStore' })
   pictureUrl: string;
+
+  @Formula(
+    (alias) =>
+      `(SELECT COUNT(*) FROM stock
+        JOIN product ON product.id = stock.product_id
+        JOIN store ON store.id = product.store_id
+        WHERE product.store_id = ${alias}.id)`,
+  )
+  movement?: number;
 
   @OneToMany(() => User, (user) => user.store, {
     orphanRemoval: true,

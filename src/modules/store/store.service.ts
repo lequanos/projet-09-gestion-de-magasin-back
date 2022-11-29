@@ -10,12 +10,13 @@ import {
   EntityRepository,
   wrap,
   EntityField,
+  QueryOrder,
 } from '@mikro-orm/core';
 import { InjectRepository } from '@mikro-orm/nestjs';
 
 import { Store, Aisle, Role, Permission } from '../../entities';
 import { isNotFoundError } from '../../utils/typeguards/ExceptionTypeGuards';
-import { StoreDto, UpdateStoreDto } from './store.dto';
+import { CreateStoreDto, UpdateStoreDto } from './store.dto';
 import { getFieldsFromQuery } from '../../utils/helpers/getFieldsFromQuery';
 import { AisleDto } from '../aisle/aisle.dto';
 import { RoleDto } from '../role/role.dto';
@@ -51,12 +52,17 @@ export class StoreService {
         'store',
       );
 
+      const orderBy = selectParams.includes('movement')
+        ? { movement: QueryOrder.DESC }
+        : { id: QueryOrder.ASC };
+
       return await this.storeRepository.find(
         {},
         {
           fields: fields.length
             ? (fields as EntityField<Store, never>[])
             : undefined,
+          orderBy,
         },
       );
     } catch (e) {
@@ -149,7 +155,7 @@ export class StoreService {
    * @param storeDto the user's input
    * @returns the created store
    */
-  async createStore(storeDto: StoreDto): Promise<Store> {
+  async createStore(storeDto: CreateStoreDto): Promise<Store> {
     try {
       const foundStore = await this.storeRepository.findOne({
         siret: storeDto.siret,
@@ -314,6 +320,34 @@ export class StoreService {
     try {
       const foundStore = await this.storeRepository.findOneOrFail(storeId);
       await this.storeRepository.removeAndFlush(foundStore);
+    } catch (e) {
+      this.logger.error(`${e.message} `, e);
+
+      if (isNotFoundError(e)) {
+        throw new NotFoundException();
+      }
+
+      throw e;
+    }
+  }
+
+  /**
+   * Search for stores
+   */
+  async searchStores(search: string): Promise<Store[]> {
+    try {
+      return await this.storeRepository.find(
+        {
+          $or: [
+            { name: { $ilike: `%${search}%` } },
+            { siret: { $ilike: `%${search}%` } },
+            { siren: { $ilike: `%${search}%` } },
+          ],
+        },
+        {
+          fields: ['name'],
+        },
+      );
     } catch (e) {
       this.logger.error(`${e.message} `, e);
 

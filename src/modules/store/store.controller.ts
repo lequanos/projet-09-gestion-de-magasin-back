@@ -17,8 +17,9 @@ import { StoreService } from './store.service';
 import {
   SiretParamDto,
   StoreIdParamDto,
-  StoreDto,
+  CreateStoreDto,
   UpdateStoreDto,
+  SearchParamDto,
 } from './store.dto';
 import { Permissions } from '../../utils/decorators/permissions.decorator';
 
@@ -58,6 +59,21 @@ export class StoreController {
   }
 
   /**
+   * Get most active stores
+   */
+  @Get('most-active')
+  @Permissions(Permission.READ_ALL, Permission.READ_STORE)
+  async getMostActiveStores(): Promise<Store[]> {
+    return await this.storeService.getAll([
+      'id',
+      'name',
+      'city',
+      'siret',
+      'movement',
+    ]);
+  }
+
+  /**
    * Get one store by siret
    */
   @Get(':siret')
@@ -87,13 +103,22 @@ export class StoreController {
   }
 
   /**
+   * Search for stores
+   */
+  @Get('search/:search')
+  @Permissions(Permission.READ_ALL, Permission.READ_STORE)
+  async searchStores(@Param() param: SearchParamDto): Promise<Store[]> {
+    return await this.storeService.searchStores(param.search);
+  }
+
+  /**
    * Create one store
    * @param storeDto the user's input
    * @returns the created store
    */
   @Post()
   @Permissions(Permission.MANAGE_ALL, Permission.MANAGE_STORE)
-  async createStore(@Body() storeDto: StoreDto): Promise<Store> {
+  async createStore(@Body() storeDto: CreateStoreDto): Promise<Store> {
     return await this.storeService.createStore(storeDto);
   }
 
