@@ -3,7 +3,7 @@ import { StoreController } from '../store.controller';
 import { StoreService } from '../store.service';
 import { Store } from '../../../entities';
 import { Logger } from '@nestjs/common';
-import { StoreDto } from '../store.dto';
+import { CreateStoreDto } from '../store.dto';
 
 describe('StoreController', () => {
   let controller: StoreController;
@@ -23,7 +23,7 @@ describe('StoreController', () => {
   storeCreated.siret = '22222222222222';
   storeCreated.isActive = true;
 
-  const storeDto = new StoreDto();
+  const storeDto = new CreateStoreDto();
   storeDto.name = 'NameTest2';
   storeDto.address = 'AddressTest2';
   storeDto.siren = '222222222';

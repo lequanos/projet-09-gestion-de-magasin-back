@@ -5,7 +5,7 @@ import { getRepositoryToken } from '@mikro-orm/nestjs';
 
 import { Store, Aisle, Role } from '../../../entities';
 
-import { StoreDto, UpdateStoreDto } from '../store.dto';
+import { CreateStoreDto, UpdateStoreDto } from '../store.dto';
 
 import { StoreService } from '../store.service';
 import { EntityManager } from '@mikro-orm/core';
@@ -26,7 +26,7 @@ describe('StoreService', () => {
 
   stores.push(store);
 
-  const storeDto = new StoreDto();
+  const storeDto = new CreateStoreDto();
   storeDto.name = 'NameTest2';
   storeDto.address = 'AddressTest2';
   storeDto.siren = '222222222';
@@ -188,7 +188,7 @@ describe('StoreService', () => {
   });
 
   it('should throw error if db is not connected', async () => {
-    const storeDto = new StoreDto();
+    const storeDto = new CreateStoreDto();
     storeDto.name = 'NameTest3';
     storeDto.address = 'AddressTest2';
     storeDto.siren = '222222222';
@@ -201,7 +201,7 @@ describe('StoreService', () => {
   });
 
   it('should throw error if store already exists', async () => {
-    const storeDto = new StoreDto();
+    const storeDto = new CreateStoreDto();
     storeDto.name = 'NameTest3';
     storeDto.address = 'AddressTest2';
     storeDto.siren = '222222222';
