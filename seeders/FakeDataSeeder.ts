@@ -181,7 +181,7 @@ export class FakeDataSeeder extends Seeder {
           departmentManagerRole[userIndex % departmentManagerRole.length];
         user.aisles.set(
           faker.helpers.arrayElements(
-            aisles.filter((aisle) => aisle.name != 'tous'),
+            aisles.filter((aisle) => aisle.name != 'All'),
           ),
         );
         user.email = `departmentManager${

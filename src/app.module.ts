@@ -32,6 +32,8 @@ import { StockModule } from './modules/stock/stock.module';
 import { RoleModule } from './modules/role/role.module';
 import { RoleController } from './modules/role/role.controller';
 import { PermissionsGuard } from './utils/guards/permissions.guard';
+import { DashboardController } from './modules/dashboard/dashboard.controller';
+import { DashboardModule } from './modules/dashboard/dashboard.module';
 
 @Module({
   imports: [
@@ -76,6 +78,7 @@ import { PermissionsGuard } from './utils/guards/permissions.guard';
       inject: [ConfigService],
     }),
     ProductModule,
+    DashboardModule,
   ],
   controllers: [
     StoreController,
@@ -89,6 +92,7 @@ import { PermissionsGuard } from './utils/guards/permissions.guard';
     CategoryController,
     StockController,
     RoleController,
+    DashboardController,
   ],
   providers: [
     {

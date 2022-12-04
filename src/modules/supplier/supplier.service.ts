@@ -14,7 +14,7 @@ import {
 import { InjectRepository } from '@mikro-orm/nestjs/mikro-orm.common';
 
 import { isNotFoundError } from '../../utils/typeguards/ExceptionTypeGuards';
-import { Supplier, User } from '../../entities';
+import { Supplier, SupplierStats, User } from '../../entities';
 import { getFieldsFromQuery } from '../../utils/helpers/getFieldsFromQuery';
 import { CreateSupplierDto, UpdateSupplierDto } from './supplier.dto';
 
@@ -255,7 +255,7 @@ export class SupplierService {
    * Delete one supplier
    * @param supplierId the id of the supplier to delete
    */
-  async deleteStore(supplierId: number, user: Partial<User>): Promise<void> {
+  async deleteSupplier(supplierId: number, user: Partial<User>): Promise<void> {
     try {
       const foundSupplier = await this.supplierRepository.findOneOrFail(
         { id: supplierId },
@@ -265,6 +265,23 @@ export class SupplierService {
       );
 
       await this.supplierRepository.removeAndFlush(foundSupplier);
+    } catch (e) {
+      this.logger.error(`${e.message} `, e);
+
+      if (isNotFoundError(e)) {
+        throw new NotFoundException();
+      }
+
+      throw e;
+    }
+  }
+
+  /**
+   * Get stats for dashboard card
+   */
+  async getStats(): Promise<SupplierStats> {
+    try {
+      return (await this.em.find(SupplierStats, {}))[0];
     } catch (e) {
       this.logger.error(`${e.message} `, e);
 

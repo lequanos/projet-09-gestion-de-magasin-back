@@ -18,7 +18,7 @@ import { Request } from 'express';
 
 import { ProductService } from './product.service';
 import { Permissions } from '../../utils/decorators/permissions.decorator';
-import { Product, User, Permission } from '../../entities';
+import { Product, User, Permission, ProductStats } from '../../entities';
 import {
   ProductIdParamDto,
   CreateProductDto,
@@ -60,6 +60,15 @@ export class ProductController {
     nested: string[] = [],
   ): Promise<Product[]> {
     return await this.productService.getAll(req.user as User, select, nested);
+  }
+
+  /**
+   * Get product stats for dashboard
+   */
+  @Get('stats')
+  @Permissions(Permission.READ_ALL, Permission.READ_PRODUCT)
+  async getProductsStats(): Promise<ProductStats> {
+    return await this.productService.getStats();
   }
 
   /**

@@ -17,7 +17,7 @@ import {
 import { Request } from 'express';
 
 import { Permissions } from '../../utils/decorators/permissions.decorator';
-import { Supplier, User, Permission } from '../../entities';
+import { Supplier, User, Permission, SupplierStats } from '../../entities';
 import {
   CreateSupplierDto,
   SupplierIdParamDto,
@@ -31,7 +31,6 @@ import { StoreInterceptor } from '../../utils/interceptors/store.interceptor';
  */
 @Controller('supplier')
 export class SupplierController {
-  supplierRepository: any;
   constructor(private readonly supplierService: SupplierService) {}
 
   /**
@@ -61,6 +60,15 @@ export class SupplierController {
     nested: string[] = [],
   ): Promise<Supplier[]> {
     return await this.supplierService.getAll(req.user as User, select, nested);
+  }
+
+  /**
+   * Get supplier stats for dashboard
+   */
+  @Get('stats')
+  @Permissions(Permission.READ_ALL, Permission.READ_SUPPLIER)
+  async getSuppliersStats(): Promise<SupplierStats> {
+    return await this.supplierService.getStats();
   }
 
   /**
@@ -195,6 +203,6 @@ export class SupplierController {
     @Req() req: Request,
     @Param() param: SupplierIdParamDto,
   ): Promise<void> {
-    await this.supplierService.deleteStore(param.id, req.user as User);
+    await this.supplierService.deleteSupplier(param.id, req.user as User);
   }
 }

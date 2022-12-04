@@ -53,6 +53,7 @@ import {
         ...(aisle.categories?.toArray().map((cat) => cat.id) || []),
       ];
     });
+
     return { categories: { $in: [...new Set(categories)] } };
   },
 })
@@ -117,6 +118,14 @@ export class Product extends CustomBaseEntity {
   )
   inStock: number;
 
+  @Formula(
+    (alias) =>
+      `(SELECT COUNT(*) FROM stock
+        JOIN product ON product.id = stock.product_id
+        WHERE stock.product_id = ${alias}.id)`,
+  )
+  movement?: number;
+
   @OneToMany(
     () => ProductSupplier,
     (productSupplier) => productSupplier.product,
@@ -125,6 +134,30 @@ export class Product extends CustomBaseEntity {
     },
   )
   productSuppliers = new Collection<ProductSupplier>(this);
+}
+
+@Entity({
+  expression: `
+  SELECT
+    (SELECT COUNT(*) FROM product WHERE is_active = true)::INT AS active_products_count,
+    (SELECT COUNT(*) FROM product)::INT AS products_count,
+    (
+      COALESCE((
+        (SELECT COUNT(*) FROM product WHERE is_active = true) - (SELECT COUNT(*) FROM product WHERE is_active = true AND product.created_at <= NOW() - INTERVAL '7 DAYS')
+      )::FLOAT * 100
+      / NULLIF((SELECT COUNT(*) FROM product WHERE is_active = true AND product.created_at <= NOW() - INTERVAL '7 DAYS'), 0), 0)
+    ) as progression
+  `,
+})
+export class ProductStats {
+  @Property({ type: 'number', nullable: false })
+  activeProductsCount: number;
+
+  @Property({ type: 'number', nullable: false })
+  productsCount: number;
+
+  @Property({ type: 'number', nullable: false })
+  progression: number;
 }
 
 export enum ProductNutriscore {

@@ -64,10 +64,10 @@ export class Store extends CustomBaseEntity {
     (SELECT COUNT(*) FROM store WHERE is_active = true)::INT AS active_stores_count,
     (SELECT COUNT(*) FROM store)::INT AS stores_count,
     (
-      (
+      COALESCE((
         (SELECT COUNT(*) FROM store WHERE is_active = true) - (SELECT COUNT(*) FROM store WHERE is_active = true AND store.created_at <= NOW() - INTERVAL '7 DAYS')
       )::FLOAT * 100
-      / (SELECT COUNT(*) FROM store WHERE is_active = true AND store.created_at <= NOW() - INTERVAL '7 DAYS')
+      / NULLIF((SELECT COUNT(*) FROM store WHERE is_active = true AND store.created_at <= NOW() - INTERVAL '7 DAYS'), 0), 0)
     ) as progression
   `,
 })

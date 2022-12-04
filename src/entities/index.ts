@@ -9,3 +9,4 @@ export * from './Category.entity';
 export * from './ProductSupplier.entity';
 export * from './Stock.entity';
 export * from './Role.entity';
+export * from './Dashboard.entity';

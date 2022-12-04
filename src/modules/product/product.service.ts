@@ -7,7 +7,7 @@ import {
 } from '@nestjs/common';
 
 import { InjectRepository } from '@mikro-orm/nestjs';
-import { EntityField, FilterQuery, wrap } from '@mikro-orm/core';
+import { EntityField, FilterQuery, wrap, QueryOrder } from '@mikro-orm/core';
 import { EntityManager, EntityRepository } from '@mikro-orm/postgresql';
 
 import {
@@ -18,6 +18,7 @@ import {
   ProductSupplier,
   Aisle,
   Category,
+  ProductStats,
 } from '../../entities';
 import { isNotFoundError } from '../../utils/typeguards/ExceptionTypeGuards';
 import { getFieldsFromQuery } from '../../utils/helpers/getFieldsFromQuery';
@@ -64,10 +65,16 @@ export class ProductService {
       if (user.role?.name === 'department manager') {
         filterQuery.isActive = true;
       }
+
+      const orderBy = selectParams.includes('movement')
+        ? { movement: QueryOrder.DESC }
+        : { id: QueryOrder.ASC };
+
       return await this.productRepository.find(filterQuery, {
         fields: fields.length
           ? (fields as EntityField<Product, never>[])
           : undefined,
+        orderBy,
         filters: { fromStore: { user }, fromAisles: { user } },
       });
     } catch (e) {
@@ -451,6 +458,23 @@ export class ProductService {
         },
       );
       await this.productRepository.removeAndFlush(foundProduct);
+    } catch (e) {
+      this.logger.error(`${e.message} `, e);
+
+      if (isNotFoundError(e)) {
+        throw new NotFoundException();
+      }
+
+      throw e;
+    }
+  }
+
+  /**
+   * Get stats for dashboard card
+   */
+  async getStats(): Promise<ProductStats> {
+    try {
+      return (await this.em.find(ProductStats, {}))[0];
     } catch (e) {
       this.logger.error(`${e.message} `, e);
 

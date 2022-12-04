@@ -15,6 +15,8 @@ import {
   Role,
   StoreStats,
   UserStats,
+  SupplierStats,
+  ProductStats,
 } from './entities';
 import { TsMorphMetadataProvider } from '@mikro-orm/reflection';
 import { PostgreSqlDriver } from '@mikro-orm/postgresql';
@@ -37,6 +39,8 @@ const config: Options<PostgreSqlDriver> = {
     Role,
     StoreStats,
     UserStats,
+    SupplierStats,
+    ProductStats,
   ],
   seeder: {
     path: './dist/seeders',

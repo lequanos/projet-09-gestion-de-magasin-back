@@ -54,10 +54,10 @@ export class User extends CustomBaseEntity {
     (SELECT COUNT(*) FROM "user" WHERE is_active = true)::INT AS active_users_count,
     (SELECT COUNT(*) FROM "user")::INT AS users_count,
     (
-      (
+      COALESCE((
         (SELECT COUNT(*) FROM "user" WHERE is_active = true) - (SELECT COUNT(*) FROM "user" WHERE is_active = true AND "user".created_at <= NOW() - INTERVAL '7 DAYS')
       )::FLOAT * 100
-      / (SELECT COUNT(*) FROM "user" WHERE is_active = true AND "user".created_at <= NOW() - INTERVAL '7 DAYS')
+      / NULLIF((SELECT COUNT(*) FROM "user" WHERE is_active = true AND "user".created_at <= NOW() - INTERVAL '7 DAYS'), 0), 0)
     ) as progression
   `,
 })
