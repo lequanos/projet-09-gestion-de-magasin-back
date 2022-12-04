@@ -47,3 +47,27 @@ export class User extends CustomBaseEntity {
   @ManyToMany({ entity: () => Aisle, inversedBy: 'users' })
   aisles = new Collection<Aisle>(this);
 }
+
+@Entity({
+  expression: `
+  SELECT
+    (SELECT COUNT(*) FROM "user" WHERE is_active = true)::INT AS active_users_count,
+    (SELECT COUNT(*) FROM "user")::INT AS users_count,
+    (
+      (
+        (SELECT COUNT(*) FROM "user" WHERE is_active = true) - (SELECT COUNT(*) FROM "user" WHERE is_active = true AND "user".created_at <= NOW() - INTERVAL '7 DAYS')
+      )::FLOAT * 100
+      / (SELECT COUNT(*) FROM "user" WHERE is_active = true AND "user".created_at <= NOW() - INTERVAL '7 DAYS')
+    ) as progression
+  `,
+})
+export class UserStats {
+  @Property({ type: 'number', nullable: false })
+  activeUsersCount: number;
+
+  @Property({ type: 'number', nullable: false })
+  usersCount: number;
+
+  @Property({ type: 'number', nullable: false })
+  progression: number;
+}

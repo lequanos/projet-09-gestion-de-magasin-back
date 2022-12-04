@@ -16,11 +16,6 @@ export class SiretParamDto {
   public siret: string;
 }
 
-export class SearchParamDto {
-  @IsNotEmpty()
-  public search: string;
-}
-
 export class StoreIdParamDto {
   @IsNumberString()
   @IsDefined()

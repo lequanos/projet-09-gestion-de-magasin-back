@@ -57,3 +57,27 @@ export class Store extends CustomBaseEntity {
   })
   roles = new Collection<Role>(this);
 }
+
+@Entity({
+  expression: `
+  SELECT
+    (SELECT COUNT(*) FROM store WHERE is_active = true)::INT AS active_stores_count,
+    (SELECT COUNT(*) FROM store)::INT AS stores_count,
+    (
+      (
+        (SELECT COUNT(*) FROM store WHERE is_active = true) - (SELECT COUNT(*) FROM store WHERE is_active = true AND store.created_at <= NOW() - INTERVAL '7 DAYS')
+      )::FLOAT * 100
+      / (SELECT COUNT(*) FROM store WHERE is_active = true AND store.created_at <= NOW() - INTERVAL '7 DAYS')
+    ) as progression
+  `,
+})
+export class StoreStats {
+  @Property({ type: 'number', nullable: false })
+  activeStoresCount: number;
+
+  @Property({ type: 'number', nullable: false })
+  storesCount: number;
+
+  @Property({ type: 'number', nullable: false })
+  progression: number;
+}

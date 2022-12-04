@@ -14,7 +14,7 @@ import {
 } from '@mikro-orm/core';
 import { InjectRepository } from '@mikro-orm/nestjs';
 
-import { Store, Aisle, Role, Permission } from '../../entities';
+import { Store, Aisle, Role, Permission, StoreStats } from '../../entities';
 import { isNotFoundError } from '../../utils/typeguards/ExceptionTypeGuards';
 import { CreateStoreDto, UpdateStoreDto } from './store.dto';
 import { getFieldsFromQuery } from '../../utils/helpers/getFieldsFromQuery';
@@ -348,6 +348,23 @@ export class StoreService {
           fields: ['name'],
         },
       );
+    } catch (e) {
+      this.logger.error(`${e.message} `, e);
+
+      if (isNotFoundError(e)) {
+        throw new NotFoundException();
+      }
+
+      throw e;
+    }
+  }
+
+  /**
+   * Get stats for dashboard card
+   */
+  async getStats(): Promise<StoreStats> {
+    try {
+      return (await this.em.find(StoreStats, {}))[0];
     } catch (e) {
       this.logger.error(`${e.message} `, e);
 

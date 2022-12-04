@@ -12,14 +12,13 @@ import {
   Query,
 } from '@nestjs/common';
 
-import { Store, Permission } from '../../entities';
+import { Store, Permission, StoreStats } from '../../entities';
 import { StoreService } from './store.service';
 import {
   SiretParamDto,
   StoreIdParamDto,
   CreateStoreDto,
   UpdateStoreDto,
-  SearchParamDto,
 } from './store.dto';
 import { Permissions } from '../../utils/decorators/permissions.decorator';
 
@@ -59,6 +58,15 @@ export class StoreController {
   }
 
   /**
+   * Search for stores
+   */
+  @Get('search')
+  @Permissions(Permission.READ_ALL, Permission.READ_STORE)
+  async searchStores(@Query('search') search: string): Promise<Store[]> {
+    return await this.storeService.searchStores(search);
+  }
+
+  /**
    * Get most active stores
    */
   @Get('most-active')
@@ -71,6 +79,15 @@ export class StoreController {
       'siret',
       'movement',
     ]);
+  }
+
+  /**
+   * Get stores stats for dashboard
+   */
+  @Get('stats')
+  @Permissions(Permission.READ_ALL, Permission.READ_STORE)
+  async getStoresStats(): Promise<StoreStats> {
+    return await this.storeService.getStats();
   }
 
   /**
@@ -100,15 +117,6 @@ export class StoreController {
     nested: string[] = [],
   ): Promise<Store> {
     return await this.storeService.getOneBySiret(param.siret, select, nested);
-  }
-
-  /**
-   * Search for stores
-   */
-  @Get('search/:search')
-  @Permissions(Permission.READ_ALL, Permission.READ_STORE)
-  async searchStores(@Param() param: SearchParamDto): Promise<Store[]> {
-    return await this.storeService.searchStores(param.search);
   }
 
   /**

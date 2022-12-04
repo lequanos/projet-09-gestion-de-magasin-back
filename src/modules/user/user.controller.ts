@@ -17,7 +17,7 @@ import {
 import { Request } from 'express';
 
 import { Permissions } from '../../utils/decorators/permissions.decorator';
-import { User, Permission } from '../../entities';
+import { User, Permission, UserStats } from '../../entities';
 import { CreateUserDto, UpdateUserDto, UserIdParamDto } from './user.dto';
 import { UserService } from './user.service';
 import { StoreInterceptor } from '../../utils/interceptors/store.interceptor';
@@ -89,6 +89,15 @@ export class UserController {
       select,
       nested,
     );
+  }
+
+  /**
+   * Get users stats for dashboard
+   */
+  @Get('stats')
+  @Permissions(Permission.READ_ALL, Permission.READ_USER)
+  async getUsersStats(): Promise<UserStats> {
+    return await this.userService.getStats();
   }
 
   /**

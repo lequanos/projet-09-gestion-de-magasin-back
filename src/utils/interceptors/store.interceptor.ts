@@ -19,7 +19,7 @@ export class StoreInterceptor implements NestInterceptor {
     if (!user) throw new UnauthorizedException('Please login');
     if (!body) throw new BadRequestException('Please provide a payload');
 
-    body.store = user.store.id;
+    body.store = user.store?.id;
 
     if (!body.store) {
       throw new BadRequestException('Please provide a store for the resource');

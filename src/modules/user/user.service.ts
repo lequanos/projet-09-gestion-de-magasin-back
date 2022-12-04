@@ -18,7 +18,7 @@ import * as bcrypt from 'bcrypt';
 
 import { isNotFoundError } from '../../utils/typeguards/ExceptionTypeGuards';
 import { getFieldsFromQuery } from '../../utils/helpers/getFieldsFromQuery';
-import { User } from '../../entities';
+import { User, UserStats } from '../../entities';
 import { CreateUserDto, UpdateUserDto } from './user.dto';
 
 /**
@@ -311,6 +311,23 @@ export class UserService {
         filters: { fromStore: { user } },
       });
       await this.userRepository.removeAndFlush(foundUser);
+    } catch (e) {
+      this.logger.error(`${e.message} `, e);
+
+      if (isNotFoundError(e)) {
+        throw new NotFoundException();
+      }
+
+      throw e;
+    }
+  }
+
+  /**
+   * Get stats for dashboard card
+   */
+  async getStats(): Promise<UserStats> {
+    try {
+      return (await this.em.find(UserStats, {}))[0];
     } catch (e) {
       this.logger.error(`${e.message} `, e);
 
