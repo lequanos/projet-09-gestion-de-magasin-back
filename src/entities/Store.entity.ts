@@ -35,7 +35,7 @@ export class Store extends CustomBaseEntity {
 
   @Formula(
     (alias) =>
-      `(SELECT COUNT(*) FROM stock
+      `(SELECT COUNT(*)::INT FROM stock
         JOIN product ON product.id = stock.product_id
         JOIN store ON store.id = product.store_id
         WHERE product.store_id = ${alias}.id)`,
