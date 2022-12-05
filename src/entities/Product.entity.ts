@@ -120,11 +120,12 @@ export class Product extends CustomBaseEntity {
 
   @Formula(
     (alias) =>
-      `(SELECT COUNT(*) FROM stock
+      `(SELECT (SUM(stock.quantity) * -1) FROM stock
         JOIN product ON product.id = stock.product_id
-        WHERE stock.product_id = ${alias}.id)`,
+        WHERE stock.product_id = ${alias}.id
+        AND stock.quantity < 0)`,
   )
-  movement?: number;
+  sales?: number;
 
   @OneToMany(
     () => ProductSupplier,

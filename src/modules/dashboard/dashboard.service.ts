@@ -35,7 +35,8 @@ export class DashboardService {
           : undefined,
       )
       .filter(
-        (value) => !!value && [...Object.keys(serviceDictionary), 'all'].includes(value),
+        (value) =>
+          !!value && [...Object.keys(serviceDictionary), 'all'].includes(value),
       );
 
     if (userReadPermissionsEntity.includes('all')) {
@@ -79,7 +80,7 @@ export class DashboardService {
         'id',
         'name',
         'code',
-        'movement',
+        'sales',
       ]);
     }
 

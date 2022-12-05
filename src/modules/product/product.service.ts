@@ -62,12 +62,13 @@ export class ProductService {
         'product',
       );
       const filterQuery: FilterQuery<Product> = {};
+
       if (user.role?.name === 'department manager') {
         filterQuery.isActive = true;
       }
 
-      const orderBy = selectParams.includes('movement')
-        ? { movement: QueryOrder.DESC }
+      const orderBy = selectParams.includes('sales')
+        ? { sales: QueryOrder.DESC_NULLS_LAST }
         : { id: QueryOrder.ASC };
 
       return await this.productRepository.find(filterQuery, {
