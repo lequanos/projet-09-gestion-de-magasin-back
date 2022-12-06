@@ -114,7 +114,7 @@ export class Product extends CustomBaseEntity {
 
   @Formula(
     (alias) =>
-      `(SELECT SUM(stock.quantity) FROM stock WHERE stock.product_id = ${alias}.id)`,
+      `(SELECT SUM(stock.quantity)::INT FROM stock WHERE stock.product_id = ${alias}.id)`,
   )
   inStock: number;
 
