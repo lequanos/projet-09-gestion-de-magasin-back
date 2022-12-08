@@ -3,6 +3,11 @@ import { CustomBaseEntity, Product } from './';
 
 @Entity()
 export class Brand extends CustomBaseEntity {
+  constructor(brandName: string) {
+    super();
+    this.name = brandName;
+  }
+
   @Property({ type: 'string', nullable: false, length: 64 })
   name: string;
 

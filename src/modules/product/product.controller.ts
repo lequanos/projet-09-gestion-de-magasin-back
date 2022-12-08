@@ -72,6 +72,15 @@ export class ProductController {
   }
 
   /**
+   * Search for products
+   */
+  @Get('search')
+  @Permissions(Permission.MANAGE_ALL, Permission.MANAGE_PRODUCT)
+  async searchProducts(@Query('search') search: string): Promise<Product> {
+    return await this.productService.searchProducts(search);
+  }
+
+  /**
    * Get one product by id
    */
   @Get(':id')

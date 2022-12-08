@@ -9,9 +9,11 @@ import {
 import { InjectRepository } from '@mikro-orm/nestjs';
 import { EntityField, FilterQuery, wrap, QueryOrder } from '@mikro-orm/core';
 import { EntityManager, EntityRepository } from '@mikro-orm/postgresql';
+import { HttpService } from '@nestjs/axios';
+import { firstValueFrom, catchError } from 'rxjs';
+import { AxiosError } from 'axios';
 
 import {
-  Product,
   User,
   Brand,
   Stock,
@@ -19,11 +21,13 @@ import {
   Aisle,
   Category,
   ProductStats,
+  Product,
 } from '../../entities';
 import { isNotFoundError } from '../../utils/typeguards/ExceptionTypeGuards';
 import { getFieldsFromQuery } from '../../utils/helpers/getFieldsFromQuery';
 import { CreateProductDto, UpdateProductDto } from './product.dto';
 import { MailService } from '../mail/mail.service';
+import { OpenFoodFactsProductResponse } from '../../responseModels/openFoodFacts';
 
 /**
  * Service for the products
@@ -42,6 +46,7 @@ export class ProductService {
     @InjectRepository(Category)
     private readonly categoryRepository: EntityRepository<Category>,
     private readonly mailService: MailService,
+    private readonly httpService: HttpService,
     private readonly logger: Logger = new Logger('ProductService'),
     private readonly em: EntityManager,
   ) {}
@@ -476,6 +481,62 @@ export class ProductService {
   async getStats(): Promise<ProductStats> {
     try {
       return (await this.em.find(ProductStats, {}))[0];
+    } catch (e) {
+      this.logger.error(`${e.message} `, e);
+
+      if (isNotFoundError(e)) {
+        throw new NotFoundException();
+      }
+
+      throw e;
+    }
+  }
+
+  /**
+   * Search for products
+   */
+  async searchProducts(search: string): Promise<Product> {
+    try {
+      const foundProduct = await this.productRepository.find({
+        code: search,
+      });
+
+      if (foundProduct.length) {
+        throw new ConflictException('Product already exists');
+      }
+      const { data } = await firstValueFrom(
+        this.httpService
+          .get<OpenFoodFactsProductResponse>(
+            `/${search}?fields=code,product_name,image_url,nutriscore_grade,ecoscore_grade,quantity,ingredients_text_fr,brands_imported`,
+          )
+          .pipe(
+            catchError((error: AxiosError) => {
+              this.logger.error(error.response?.data);
+              throw error;
+            }),
+          ),
+      );
+
+      if (data.status_verbose === 'product not found') {
+        throw new NotFoundException(
+          `Product with barcode ${search} does not exist`,
+        );
+      }
+
+      let brand = await this.brandRepository.findOne({
+        name: data.product.brands_imported,
+      });
+
+      if (!brand) {
+        brand = this.brandRepository.create(
+          new Brand(data.product.brands_imported),
+        );
+        this.brandRepository.persistAndFlush(brand);
+      }
+
+      const product = new Product(data.product);
+      this.productRepository.populate(product, true);
+      return product;
     } catch (e) {
       this.logger.error(`${e.message} `, e);
 

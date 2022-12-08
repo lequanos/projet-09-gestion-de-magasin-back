@@ -1,5 +1,6 @@
 import { MikroOrmModule } from '@mikro-orm/nestjs';
 import { Logger, Module } from '@nestjs/common';
+import { HttpModule } from '@nestjs/axios';
 import {
   Supplier,
   Product,
@@ -32,6 +33,7 @@ import { DashboardService } from './dashboard.service';
       Category,
       Role,
     ]),
+    HttpModule,
   ],
   providers: [
     DashboardService,

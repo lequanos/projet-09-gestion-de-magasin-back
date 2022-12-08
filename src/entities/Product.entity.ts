@@ -12,6 +12,7 @@ import {
   TextType,
   EntityManager,
 } from '@mikro-orm/core';
+import { OpenFoodFactsProduct } from '../responseModels/openFoodFacts';
 
 import {
   CustomBaseEntity,
@@ -58,6 +59,30 @@ import {
   },
 })
 export class Product extends CustomBaseEntity {
+  constructor(product?: OpenFoodFactsProduct) {
+    super();
+    if (product) {
+      const {
+        product_name,
+        code,
+        brands_imported,
+        ecoscore_grade,
+        image_url,
+        ingredients_text_fr,
+        nutriscore_grade,
+        quantity,
+      } = product;
+      this.name = product_name;
+      this.code = code;
+      this.brand = new Brand(brands_imported);
+      this.ecoScore = ecoscore_grade.toUpperCase() as ProductEcoscore;
+      this.pictureUrl = image_url;
+      this.ingredients = ingredients_text_fr;
+      this.nutriScore = nutriscore_grade.toUpperCase() as ProductNutriscore;
+      this.unitPackaging = quantity;
+    }
+  }
+
   @Property({ type: TextType, nullable: false })
   name: string;
 
