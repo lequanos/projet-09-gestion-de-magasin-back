@@ -6,7 +6,7 @@ export type OpenFoodFactsProductResponse = {
 };
 
 export type OpenFoodFactsProduct = {
-  brands_imported: string;
+  brands: string;
   code: string;
   ecoscore_grade: string;
   image_url: string;

@@ -507,7 +507,7 @@ export class ProductService {
       const { data } = await firstValueFrom(
         this.httpService
           .get<OpenFoodFactsProductResponse>(
-            `/${search}?fields=code,product_name,image_url,nutriscore_grade,ecoscore_grade,quantity,ingredients_text_fr,brands_imported`,
+            `/${search}?fields=code,product_name,image_url,nutriscore_grade,ecoscore_grade,quantity,ingredients_text_fr,brands`,
           )
           .pipe(
             catchError((error: AxiosError) => {
@@ -524,13 +524,11 @@ export class ProductService {
       }
 
       let brand = await this.brandRepository.findOne({
-        name: data.product.brands_imported,
+        name: data.product.brands,
       });
 
-      if (!brand) {
-        brand = this.brandRepository.create(
-          new Brand(data.product.brands_imported),
-        );
+      if (!brand && data.product.brands) {
+        brand = this.brandRepository.create(new Brand(data.product.brands));
         this.brandRepository.persistAndFlush(brand);
       }
 
