@@ -65,7 +65,7 @@ export class Product extends CustomBaseEntity {
       const {
         product_name,
         code,
-        brands_imported,
+        brands,
         ecoscore_grade,
         image_url,
         ingredients_text_fr,
@@ -74,7 +74,7 @@ export class Product extends CustomBaseEntity {
       } = product;
       this.name = product_name;
       this.code = code;
-      this.brand = new Brand(brands_imported);
+      this.brand = new Brand(brands);
       this.ecoScore = ecoscore_grade.toUpperCase() as ProductEcoscore;
       this.pictureUrl = image_url;
       this.ingredients = ingredients_text_fr;
