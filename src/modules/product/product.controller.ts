@@ -125,10 +125,10 @@ export class ProductController {
   @UseInterceptors(StoreInterceptor)
   async createProduct(
     @Req() req: Request,
-    @Body() createUserDto: CreateProductDto,
+    @Body() createProductDto: CreateProductDto,
   ): Promise<Product> {
     return await this.productService.createProduct(
-      createUserDto,
+      createProductDto,
       req.user as User,
     );
   }
