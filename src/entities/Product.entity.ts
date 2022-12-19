@@ -12,7 +12,7 @@ import {
   TextType,
   EntityManager,
 } from '@mikro-orm/core';
-import { isOpenFoodFactsProduct } from 'src/utils/typeguards/ProducTypeGuatds';
+import { isOpenFoodFactsProduct } from '../utils/typeguards/ProducTypeGuards';
 import { OpenFoodFactsProduct } from '../responseModels/openFoodFacts';
 
 import {
