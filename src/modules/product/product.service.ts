@@ -233,16 +233,11 @@ export class ProductService {
         updatedAt: new Date(),
       });
 
-      const productCreated = this.productRepository.create(
-        {
-          ...productDto,
-          brand,
-          stock,
-        },
-        {
-          managed: true,
-        },
-      );
+      const productCreated = this.productRepository.create({
+        ...productDto,
+        brand,
+        stock,
+      });
 
       this.productRepository.persist(productCreated);
 

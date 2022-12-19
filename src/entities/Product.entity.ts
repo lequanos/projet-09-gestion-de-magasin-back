@@ -12,6 +12,7 @@ import {
   TextType,
   EntityManager,
 } from '@mikro-orm/core';
+import { isOpenFoodFactsProduct } from 'src/utils/typeguards/ProducTypeGuatds';
 import { OpenFoodFactsProduct } from '../responseModels/openFoodFacts';
 
 import {
@@ -59,9 +60,9 @@ import {
   },
 })
 export class Product extends CustomBaseEntity {
-  constructor(product?: OpenFoodFactsProduct) {
+  constructor(product?: OpenFoodFactsProduct | Partial<Product>) {
     super();
-    if (product) {
+    if (product && isOpenFoodFactsProduct(product)) {
       const {
         product_name,
         code,
