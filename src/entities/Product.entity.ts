@@ -76,10 +76,14 @@ export class Product extends CustomBaseEntity {
       this.name = product_name;
       this.code = code;
       this.brand = new Brand(brands);
-      this.ecoScore = ecoscore_grade.toUpperCase() as ProductEcoscore;
+      this.ecoScore =
+        (ecoscore_grade?.toUpperCase() as ProductEcoscore) ||
+        ProductEcoscore['NOT-APPLICABLE'];
       this.pictureUrl = image_url;
       this.ingredients = ingredients_text_fr;
-      this.nutriScore = nutriscore_grade.toUpperCase() as ProductNutriscore;
+      this.nutriScore =
+        (nutriscore_grade?.toUpperCase() as ProductNutriscore) ||
+        ProductNutriscore['NOT-APPLICABLE'];
       this.unitPackaging = quantity;
     }
   }
@@ -194,6 +198,7 @@ export enum ProductNutriscore {
   D = 'D',
   E = 'E',
   'NOT-APPLICABLE' = 'NOT-APPLICABLE',
+  'UNKNOWN' = 'UNKNOWN',
 }
 
 export enum ProductEcoscore {
@@ -203,4 +208,5 @@ export enum ProductEcoscore {
   D = 'D',
   E = 'E',
   'NOT-APPLICABLE' = 'NOT-APPLICABLE',
+  'UNKNOWN' = 'UNKNOWN',
 }
