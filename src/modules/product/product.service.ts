@@ -180,9 +180,7 @@ export class ProductService {
     this.em.begin();
     try {
       const foundProduct = await this.productRepository.findOne(
-        {
-          code: productDto.code,
-        },
+        { $or: [{ code: productDto.code }, { name: productDto.name }] },
         { filters: { fromStore: { user } } },
       );
 
@@ -281,7 +279,7 @@ export class ProductService {
 
       const foundProduct = await this.productRepository.findOne(
         {
-          name: productDto.name,
+          $and: [{ name: productDto.name }, { code: { $ne: productDto.code } }],
         },
         {
           filters: { fromStore: { user } },
