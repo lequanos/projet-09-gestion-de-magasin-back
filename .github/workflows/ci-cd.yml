@@ -36,7 +36,7 @@ jobs:
         run: doctl registry login --expiry-seconds 600
           
       - name: Build app
-        run: docker build -t registry.digitalocean.com/apo-registry/retail-store-api:latest . --target build --build-arg MIKRO_ORM_USER=${{ secrets.MIKRO_ORM_USER }} --build-arg MIKRO_ORM_PASSWORD=${{ secrets.MIKRO_ORM_PASSWORD }} --build-arg MIKRO_ORM_DB_NAME=${{ secrets.MIKRO_ORM_DB_NAME }} --build-arg MAILJET_API_KEY=${{ secrets.MAILJET_API_KEY }} --build-arg MAILJET_SECRET_KEY=${{ secrets.MAILJET_SECRET_KEY }} --build-arg JWT_ACCESS_SECRET=${{ secrets.JWT_ACCESS_SECRET }} --build-arg JWT_REFRESH_SECRET=${{ secrets.JWT_REFRESH_SECRET }} --build-arg OPEN_FOOD_FACTS_URL=${{ secrets.OPEN_FOOD_FACTS_URL }}
+        run: docker build -t registry.digitalocean.com/apo-registry/retail-store-api:latest . --target build --build-arg MIKRO_ORM_USER=${{ secrets.MIKRO_ORM_USER }} --build-arg MIKRO_ORM_PASSWORD=${{ secrets.MIKRO_ORM_PASSWORD }} --build-arg MIKRO_ORM_DB_NAME=${{ secrets.MIKRO_ORM_DB_NAME }} --build-arg MAILJET_API_KEY=${{ secrets.MAILJET_API_KEY }} --build-arg MAILJET_SECRET_KEY=${{ secrets.MAILJET_SECRET_KEY }} --build-arg JWT_ACCESS_SECRET=${{ secrets.JWT_ACCESS_SECRET }} --build-arg JWT_REFRESH_SECRET=${{ secrets.JWT_REFRESH_SECRET }} --build-arg OPEN_FOOD_FACTS_URL=${{ secrets.OPEN_FOOD_FACTS_URL }} --build-arg SIRENEV3_URL=${{ secrets.SIRENEV3_URL }}
         
       - name: Push to registry
         if: success()

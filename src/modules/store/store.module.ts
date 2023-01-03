@@ -5,9 +5,25 @@ import { MikroOrmModule } from '@mikro-orm/nestjs';
 import { Store, Aisle, Role } from '../../entities';
 import { StoreController } from './store.controller';
 import { StoreService } from './store.service';
+import { HttpModule } from '@nestjs/axios';
+import { ConfigModule, ConfigService } from '@nestjs/config';
 
 @Module({
-  imports: [MikroOrmModule.forFeature([Store, Aisle, Role])],
+  imports: [
+    MikroOrmModule.forFeature([Store, Aisle, Role]),
+    HttpModule.registerAsync({
+      imports: [ConfigModule],
+      useFactory: async (configService: ConfigService) => ({
+        timeout: 5000,
+        maxRedirects: 5,
+        baseURL: configService.get('SIRENEV3_URL'),
+        headers: {
+          Authorization: 'Bearer ' + configService.get('SIRENEV3_ACCESS_TOKEN'),
+        },
+      }),
+      inject: [ConfigService],
+    }),
+  ],
   providers: [StoreService, Logger],
   controllers: [StoreController],
   exports: [StoreService],

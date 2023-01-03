@@ -61,8 +61,8 @@ export class StoreController {
    * Search for stores
    */
   @Get('search')
-  @Permissions(Permission.READ_ALL, Permission.READ_STORE)
-  async searchStores(@Query('search') search: string): Promise<Store[]> {
+  @Permissions(Permission.MANAGE_ALL, Permission.MANAGE_STORE)
+  async searchStores(@Query('search') search: string): Promise<Store> {
     return await this.storeService.searchStores(search);
   }
 

@@ -3,6 +3,7 @@ import {
   Injectable,
   Logger,
   NotFoundException,
+  BadRequestException,
 } from '@nestjs/common';
 
 import {
@@ -13,6 +14,8 @@ import {
   QueryOrder,
 } from '@mikro-orm/core';
 import { InjectRepository } from '@mikro-orm/nestjs';
+import { HttpService } from '@nestjs/axios';
+import { AxiosError } from 'axios';
 
 import { Store, Aisle, Role, Permission, StoreStats } from '../../entities';
 import { isNotFoundError } from '../../utils/typeguards/ExceptionTypeGuards';
@@ -20,6 +23,8 @@ import { CreateStoreDto, UpdateStoreDto } from './store.dto';
 import { getFieldsFromQuery } from '../../utils/helpers/getFieldsFromQuery';
 import { AisleDto } from '../aisle/aisle.dto';
 import { RoleDto } from '../role/role.dto';
+import { firstValueFrom, catchError } from 'rxjs';
+import { SireneV3Response } from 'src/responseModels/sireneV3';
 
 /**
  * Service for the stores
@@ -33,6 +38,7 @@ export class StoreService {
     private readonly aisleRepository: EntityRepository<Aisle>,
     @InjectRepository(Role)
     private readonly roleRepository: EntityRepository<Role>,
+    private readonly httpService: HttpService,
     private readonly logger: Logger = new Logger('StoreService'),
     private readonly em: EntityManager,
   ) {}
@@ -228,7 +234,7 @@ export class StoreService {
       );
 
       const foundStore = await this.storeRepository.findOne({
-        name: storeDto.name,
+        $and: [{ name: storeDto.name }, { siret: { $ne: storeDto.siret } }],
       });
 
       if (foundStore) {
@@ -334,20 +340,37 @@ export class StoreService {
   /**
    * Search for stores
    */
-  async searchStores(search: string): Promise<Store[]> {
+  async searchStores(search: string): Promise<Store> {
     try {
-      return await this.storeRepository.find(
-        {
-          $or: [
-            { name: { $ilike: `%${search}%` } },
-            { siret: { $ilike: `%${search}%` } },
-            { siren: { $ilike: `%${search}%` } },
-          ],
-        },
-        {
-          fields: ['name'],
-        },
+      const foundStore = await this.storeRepository.find({
+        siret: { $ilike: `%${search}%` },
+      });
+
+      if (foundStore.length) {
+        throw new ConflictException('Store already exists');
+      }
+      const { data } = await firstValueFrom(
+        this.httpService.get<SireneV3Response>(`/${search}`).pipe(
+          catchError((error: AxiosError) => {
+            this.logger.error(error.response?.data);
+            throw error;
+          }),
+        ),
       );
+
+      if (data.header.statut === 404) {
+        throw new NotFoundException(
+          `Store with SIRET ${search} does not exist`,
+        );
+      }
+
+      if (data.header.statut === 400) {
+        throw new BadRequestException(`Invalid SIRET ${search}`);
+      }
+
+      const store = new Store(data);
+      this.storeRepository.populate(store, true);
+      return store;
     } catch (e) {
       this.logger.error(`${e.message} `, e);
 
