@@ -49,6 +49,7 @@ export class SupplierService {
           fields: fields.length
             ? (fields as EntityField<Supplier, never>[])
             : undefined,
+          orderBy: { id: QueryOrder.ASC },
           filters: { fromStore: { user } },
         },
       );
