@@ -5,7 +5,7 @@ import { InjectRepository } from '@mikro-orm/nestjs';
 import { Role, User } from '../../entities';
 import { isNotFoundError } from '../../utils/typeguards/ExceptionTypeGuards';
 
-import { getFieldsFromQuery } from 'src/utils/helpers/getFieldsFromQuery';
+import { getFieldsFromQuery } from '../../utils/helpers/getFieldsFromQuery';
 
 /**
  * Service for the roles

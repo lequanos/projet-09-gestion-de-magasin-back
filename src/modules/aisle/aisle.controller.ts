@@ -19,8 +19,8 @@ import { Request } from 'express';
 import { Aisle, Permission, User } from '../../entities';
 import { AisleService } from './aisle.service';
 import { AisleIdParamDto, AisleDto, UpdateAisleDto } from './aisle.dto';
-import { Permissions } from 'src/utils/decorators/permissions.decorator';
-import { StoreInterceptor } from 'src/utils/interceptors/store.interceptor';
+import { Permissions } from '../../utils/decorators/permissions.decorator';
+import { StoreInterceptor } from '../../utils/interceptors/store.interceptor';
 
 /**
  * Controller for the aisles

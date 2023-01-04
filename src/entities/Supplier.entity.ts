@@ -11,8 +11,8 @@ import {
 import {
   SireneV3Response,
   AdresseEtablissement,
-} from 'src/responseModels/sireneV3';
-import { isSireneV3Response } from 'src/utils/typeguards/StoreTypeGuards';
+} from '../responseModels/sireneV3';
+import { isSireneV3Response } from '../utils/typeguards/StoreTypeGuards';
 import { CustomBaseEntity, Product, ProductSupplier, Store, User } from './';
 @Entity()
 @Filter({

@@ -11,7 +11,7 @@ import { Stock, User, Product } from '../../entities';
 import { isNotFoundError } from '../../utils/typeguards/ExceptionTypeGuards';
 
 import { StockDto } from './stock.dto';
-import { getFieldsFromQuery } from 'src/utils/helpers/getFieldsFromQuery';
+import { getFieldsFromQuery } from '../../utils/helpers/getFieldsFromQuery';
 import { MailService } from '../mail/mail.service';
 
 /**

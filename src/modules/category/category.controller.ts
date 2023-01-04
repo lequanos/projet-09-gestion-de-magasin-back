@@ -23,8 +23,8 @@ import {
   CategoryDto,
   UpdateCategoryDto,
 } from './category.dto';
-import { Permissions } from 'src/utils/decorators/permissions.decorator';
-import { StoreInterceptor } from 'src/utils/interceptors/store.interceptor';
+import { Permissions } from '../../utils/decorators/permissions.decorator';
+import { StoreInterceptor } from '../../utils/interceptors/store.interceptor';
 
 /**
  * Controller for the categorys

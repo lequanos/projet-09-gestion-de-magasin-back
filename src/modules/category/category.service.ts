@@ -16,7 +16,7 @@ import { Category, User } from '../../entities';
 import { isNotFoundError } from '../../utils/typeguards/ExceptionTypeGuards';
 
 import { CategoryDto, UpdateCategoryDto } from './category.dto';
-import { getFieldsFromQuery } from 'src/utils/helpers/getFieldsFromQuery';
+import { getFieldsFromQuery } from '../../utils/helpers/getFieldsFromQuery';
 
 /**
  * Service for the categorys

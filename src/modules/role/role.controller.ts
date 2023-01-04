@@ -12,7 +12,7 @@ import { Request } from 'express';
 import { Role, User, Permission } from '../../entities';
 import { RoleService } from './role.service';
 import { RoleIdParamDto } from './role.dto';
-import { Permissions } from 'src/utils/decorators/permissions.decorator';
+import { Permissions } from '../../utils/decorators/permissions.decorator';
 
 /**
  * Controller for the roles

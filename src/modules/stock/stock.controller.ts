@@ -15,8 +15,8 @@ import { Request } from 'express';
 import { Stock, User, Permission } from '../../entities';
 import { StockService } from './stock.service';
 import { StockIdParamDto, StockDto } from './stock.dto';
-import { Permissions } from 'src/utils/decorators/permissions.decorator';
-import { StoreInterceptor } from 'src/utils/interceptors/store.interceptor';
+import { Permissions } from '../../utils/decorators/permissions.decorator';
+import { StoreInterceptor } from '../../utils/interceptors/store.interceptor';
 
 /**
  * Controller for the stocks

@@ -16,7 +16,7 @@ import { Aisle, User } from '../../entities';
 import { isNotFoundError } from '../../utils/typeguards/ExceptionTypeGuards';
 
 import { AisleDto, UpdateAisleDto } from './aisle.dto';
-import { getFieldsFromQuery } from 'src/utils/helpers/getFieldsFromQuery';
+import { getFieldsFromQuery } from '../../utils/helpers/getFieldsFromQuery';
 
 /**
  * Service for the aisles
