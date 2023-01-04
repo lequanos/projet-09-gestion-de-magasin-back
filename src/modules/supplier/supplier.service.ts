@@ -10,6 +10,7 @@ import {
   EntityRepository,
   wrap,
   EntityField,
+  QueryOrder,
 } from '@mikro-orm/core';
 import { InjectRepository } from '@mikro-orm/nestjs/mikro-orm.common';
 
