@@ -9,6 +9,7 @@ import { CreateStoreDto, UpdateStoreDto } from '../store.dto';
 
 import { StoreService } from '../store.service';
 import { EntityManager } from '@mikro-orm/core';
+import { HttpService } from '@nestjs/axios';
 
 describe('StoreService', () => {
   let service: StoreService;
@@ -107,6 +108,10 @@ describe('StoreService', () => {
     clear: jest.fn(),
   };
 
+  const mockHttpService = {
+    get: jest.fn(),
+  };
+
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
       providers: [
@@ -117,6 +122,10 @@ describe('StoreService', () => {
             log: jest.fn(),
             error: jest.fn(),
           },
+        },
+        {
+          provide: HttpService,
+          useValue: mockHttpService,
         },
         {
           provide: getRepositoryToken(Store),

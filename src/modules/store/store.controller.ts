@@ -61,9 +61,18 @@ export class StoreController {
    * Search for stores
    */
   @Get('search')
-  @Permissions(Permission.MANAGE_ALL, Permission.MANAGE_STORE)
-  async searchStores(@Query('search') search: string): Promise<Store> {
+  @Permissions(Permission.READ_ALL, Permission.READ_STORE)
+  async searchStores(@Query('search') search: string): Promise<Store[]> {
     return await this.storeService.searchStores(search);
+  }
+
+  /**
+   * Search for stores on SireneV3
+   */
+  @Get('search-siret')
+  @Permissions(Permission.MANAGE_ALL, Permission.MANAGE_STORE)
+  async searchStoresSireneV3(@Query('search') search: string): Promise<Store> {
+    return await this.storeService.searchStoresSireneV3(search);
   }
 
   /**

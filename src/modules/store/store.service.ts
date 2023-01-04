@@ -340,7 +340,35 @@ export class StoreService {
   /**
    * Search for stores
    */
-  async searchStores(search: string): Promise<Store> {
+  async searchStores(search: string): Promise<Store[]> {
+    try {
+      return await this.storeRepository.find(
+        {
+          $or: [
+            { name: { $ilike: `%${search}%` } },
+            { siret: { $ilike: `%${search}%` } },
+            { siren: { $ilike: `%${search}%` } },
+          ],
+        },
+        {
+          fields: ['name'],
+        },
+      );
+    } catch (e) {
+      this.logger.error(`${e.message} `, e);
+
+      if (isNotFoundError(e)) {
+        throw new NotFoundException();
+      }
+
+      throw e;
+    }
+  }
+
+  /**
+   * Search for stores on SireneV3
+   */
+  async searchStoresSireneV3(search: string): Promise<Store> {
     try {
       const foundStore = await this.storeRepository.find({
         siret: { $ilike: `%${search}%` },
