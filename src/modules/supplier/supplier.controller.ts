@@ -72,6 +72,21 @@ export class SupplierController {
   }
 
   /**
+   * Search for suppliers on SireneV3
+   */
+  @Get('search-siret')
+  @Permissions(Permission.MANAGE_ALL, Permission.MANAGE_SUPPLIER)
+  async searchSuppliersSireneV3(
+    @Req() req: Request,
+    @Query('search') search: string,
+  ): Promise<Supplier> {
+    return await this.supplierService.searchSuppliersSireneV3(
+      req.user as User,
+      search,
+    );
+  }
+
+  /**
    * Get one Supplier
    */
   @Get(':id')

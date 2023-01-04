@@ -8,6 +8,11 @@ import {
   Property,
   TextType,
 } from '@mikro-orm/core';
+import {
+  SireneV3Response,
+  AdresseEtablissement,
+} from 'src/responseModels/sireneV3';
+import { isSireneV3Response } from 'src/utils/typeguards/StoreTypeGuards';
 import { CustomBaseEntity, Product, ProductSupplier, Store, User } from './';
 @Entity()
 @Filter({
@@ -15,6 +20,43 @@ import { CustomBaseEntity, Product, ProductSupplier, Store, User } from './';
   cond: ({ user }: { user: Partial<User> }) => ({ store: user.store }),
 })
 export class Supplier extends CustomBaseEntity {
+  constructor(store?: SireneV3Response | Partial<Store>) {
+    super();
+    if (store && isSireneV3Response(store)) {
+      const {
+        etablissement: { siren, siret, uniteLegale, adresseEtablissement },
+      } = store;
+
+      const addressArray: (string | null)[] = [];
+
+      Object.keys(adresseEtablissement).forEach(
+        (key: keyof AdresseEtablissement) => {
+          if (
+            adresseEtablissement[key] &&
+            ![
+              'codePostalEtablissement',
+              'libelleCommuneEtablissement',
+            ].includes(key) &&
+            [
+              'complementAdresseEtablissement',
+              'numeroVoieEtablissement',
+              'indiceRepetitionEtablissement',
+              'typeVoieEtablissement',
+              'libelleVoieEtablissement',
+            ].includes(key)
+          )
+            addressArray.push(adresseEtablissement[key]);
+        },
+      );
+
+      this.name = uniteLegale.denominationUniteLegale;
+      this.address = addressArray.join(' ');
+      this.postcode = adresseEtablissement.codePostalEtablissement || '';
+      this.city = adresseEtablissement.libelleCommuneEtablissement || '';
+      this.siren = siren || '';
+      this.siret = siret || '';
+    }
+  }
   @Property({ type: 'string', nullable: false, length: 64 })
   name: string;
 

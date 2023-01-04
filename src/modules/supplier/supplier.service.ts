@@ -1,4 +1,5 @@
 import {
+  BadRequestException,
   ConflictException,
   Injectable,
   Logger,
@@ -13,17 +14,22 @@ import {
   QueryOrder,
 } from '@mikro-orm/core';
 import { InjectRepository } from '@mikro-orm/nestjs/mikro-orm.common';
+import { HttpService } from '@nestjs/axios';
+import { AxiosError } from 'axios';
+import { firstValueFrom, catchError } from 'rxjs';
 
 import { isNotFoundError } from '../../utils/typeguards/ExceptionTypeGuards';
 import { Supplier, SupplierStats, User } from '../../entities';
 import { getFieldsFromQuery } from '../../utils/helpers/getFieldsFromQuery';
 import { CreateSupplierDto, UpdateSupplierDto } from './supplier.dto';
+import { SireneV3Response } from '../../responseModels/sireneV3';
 
 @Injectable()
 export class SupplierService {
   constructor(
     @InjectRepository(Supplier)
     private readonly supplierRepository: EntityRepository<Supplier>,
+    private readonly httpService: HttpService,
     private readonly logger: Logger = new Logger('SupplierService'),
     private readonly em: EntityManager,
   ) {}
@@ -284,6 +290,63 @@ export class SupplierService {
   async getStats(): Promise<SupplierStats> {
     try {
       return (await this.em.find(SupplierStats, {}))[0];
+    } catch (e) {
+      this.logger.error(`${e.message} `, e);
+
+      if (isNotFoundError(e)) {
+        throw new NotFoundException();
+      }
+
+      throw e;
+    }
+  }
+
+  /**
+   * Search for suppliers on SireneV3
+   */
+  async searchSuppliersSireneV3(
+    user: Partial<User>,
+    search: string,
+  ): Promise<Supplier> {
+    try {
+      const foundSupplier = await this.supplierRepository.find(
+        {
+          siret: { $ilike: `%${search}%` },
+        },
+        {
+          filters: { fromStore: { user } },
+        },
+      );
+
+      if (foundSupplier.length) {
+        throw new ConflictException('Supplier already exists');
+      }
+      const { data } = await firstValueFrom(
+        this.httpService.get<SireneV3Response>(`/${search}`).pipe(
+          catchError((error: AxiosError) => {
+            this.logger.error(error.response?.data);
+            if (
+              (error.response?.data as SireneV3Response).header.statut === 404
+            ) {
+              throw new NotFoundException(
+                `Supplier with SIRET ${search} does not exist`,
+              );
+            }
+
+            if (
+              (error.response?.data as SireneV3Response).header.statut === 400
+            ) {
+              throw new BadRequestException(`Invalid SIRET ${search}`);
+            }
+
+            throw error;
+          }),
+        ),
+      );
+
+      const supplier = new Supplier(data);
+      this.supplierRepository.populate(supplier, true);
+      return supplier;
     } catch (e) {
       this.logger.error(`${e.message} `, e);
 

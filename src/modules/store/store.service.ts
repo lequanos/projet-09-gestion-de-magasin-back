@@ -381,20 +381,25 @@ export class StoreService {
         this.httpService.get<SireneV3Response>(`/${search}`).pipe(
           catchError((error: AxiosError) => {
             this.logger.error(error.response?.data);
+
+            if (
+              (error.response?.data as SireneV3Response).header.statut === 404
+            ) {
+              throw new NotFoundException(
+                `Supplier with SIRET ${search} does not exist`,
+              );
+            }
+
+            if (
+              (error.response?.data as SireneV3Response).header.statut === 400
+            ) {
+              throw new BadRequestException(`Invalid SIRET ${search}`);
+            }
+
             throw error;
           }),
         ),
       );
-
-      if (data.header.statut === 404) {
-        throw new NotFoundException(
-          `Store with SIRET ${search} does not exist`,
-        );
-      }
-
-      if (data.header.statut === 400) {
-        throw new BadRequestException(`Invalid SIRET ${search}`);
-      }
 
       const store = new Store(data);
       this.storeRepository.populate(store, true);
