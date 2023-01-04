@@ -493,11 +493,16 @@ export class ProductService {
   /**
    * Search for products
    */
-  async searchProducts(search: string): Promise<Product> {
+  async searchProducts(user: Partial<User>, search: string): Promise<Product> {
     try {
-      const foundProduct = await this.productRepository.find({
-        code: search,
-      });
+      const foundProduct = await this.productRepository.find(
+        {
+          code: search,
+        },
+        {
+          filters: { fromStore: { user } },
+        },
+      );
 
       if (foundProduct.length) {
         throw new ConflictException('Product already exists');

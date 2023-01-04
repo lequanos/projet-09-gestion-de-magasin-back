@@ -76,8 +76,11 @@ export class ProductController {
    */
   @Get('search')
   @Permissions(Permission.MANAGE_ALL, Permission.MANAGE_PRODUCT)
-  async searchProducts(@Query('search') search: string): Promise<Product> {
-    return await this.productService.searchProducts(search);
+  async searchProducts(
+    @Req() req: Request,
+    @Query('search') search: string,
+  ): Promise<Product> {
+    return await this.productService.searchProducts(req.user as User, search);
   }
 
   /**
