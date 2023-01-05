@@ -12,6 +12,7 @@ import {
   wrap,
   EntityField,
   FilterQuery,
+  QueryOrder,
 } from '@mikro-orm/core';
 import { InjectRepository } from '@mikro-orm/nestjs';
 import * as bcrypt from 'bcrypt';
@@ -55,6 +56,7 @@ export class UserService {
           fields: fields.length
             ? (fields as EntityField<User, never>[])
             : undefined,
+          orderBy: { id: QueryOrder.ASC },
           filters: { fromStore: { user } },
         },
       );
@@ -188,20 +190,33 @@ export class UserService {
    */
   async updateUser(userDto: UpdateUserDto, user: Partial<User>): Promise<User> {
     try {
-      const foundUser = await this.userRepository.findOneOrFail(userDto.id, {
+      const userToUpdate = await this.userRepository.findOneOrFail(userDto.id, {
         filters: { fromStore: { user } },
       });
 
-      if (!foundUser?.isActive)
+      const foundUser = await this.userRepository.findOne(
+        {
+          $and: [{ email: userDto.email }, { id: { $ne: userDto.id } }],
+        },
+        {
+          filters: { fromStore: { user } },
+        },
+      );
+
+      if (foundUser) {
+        throw new ConflictException(`${userDto.email} existe deja`);
+      }
+
+      if (!userToUpdate?.isActive)
         throw new ConflictException('User is deactivated');
 
-      wrap(foundUser).assign({
+      wrap(userToUpdate).assign({
         ...userDto,
       });
 
-      await this.userRepository.persistAndFlush(foundUser);
+      await this.userRepository.persistAndFlush(userToUpdate);
       this.em.clear();
-      return await this.getOneById(foundUser.id, foundUser);
+      return await this.getOneById(userToUpdate.id, userToUpdate);
     } catch (e) {
       this.logger.error(`${e.message} `, e);
 
