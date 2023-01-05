@@ -166,7 +166,10 @@ export class SupplierService {
 
       const foundSupplier = await this.supplierRepository.findOne(
         {
-          name: supplierDto.name,
+          $and: [
+            { name: supplierDto.name },
+            { siren: { $ne: supplierDto.siren } },
+          ],
         },
         { filters: { fromStore: { user } } },
       );
