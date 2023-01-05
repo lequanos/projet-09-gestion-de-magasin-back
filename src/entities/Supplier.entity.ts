@@ -20,12 +20,12 @@ import { CustomBaseEntity, Product, ProductSupplier, Store, User } from './';
   cond: ({ user }: { user: Partial<User> }) => ({ store: user.store }),
 })
 export class Supplier extends CustomBaseEntity {
-  constructor(store?: SireneV3Response | Partial<Store>) {
+  constructor(supplier?: SireneV3Response | Partial<Supplier>) {
     super();
-    if (store && isSireneV3Response(store)) {
+    if (supplier && isSireneV3Response(supplier)) {
       const {
         etablissement: { siren, siret, uniteLegale, adresseEtablissement },
-      } = store;
+      } = supplier;
 
       const addressArray: (string | null)[] = [];
 
