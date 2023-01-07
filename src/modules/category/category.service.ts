@@ -12,7 +12,7 @@ import {
   wrap,
 } from '@mikro-orm/core';
 import { InjectRepository } from '@mikro-orm/nestjs';
-import { Category, User } from '../../entities';
+import { Aisle, Category, User } from '../../entities';
 import { isNotFoundError } from '../../utils/typeguards/ExceptionTypeGuards';
 
 import { CategoryDto, UpdateCategoryDto } from './category.dto';
@@ -26,6 +26,8 @@ export class CategoryService {
   constructor(
     @InjectRepository(Category)
     private readonly categoryRepository: EntityRepository<Category>,
+    @InjectRepository(Aisle)
+    private readonly aisleRepository: EntityRepository<Aisle>,
     private readonly logger: Logger = new Logger('CategoryService'),
     private readonly em: EntityManager,
   ) {}
@@ -114,6 +116,16 @@ export class CategoryService {
     user: Partial<User>,
   ): Promise<Category> {
     try {
+      const aisles = await this.aisleRepository.find({ store: user.store });
+
+      if (
+        !aisles
+          .map((aisle) => aisle.id)
+          .includes(categoryDto.aisle as unknown as number)
+      ) {
+        throw new ConflictException(`Asked aisle doesn't belong to the store`);
+      }
+
       const foundCategory = await this.categoryRepository.findOne(
         {
           name: categoryDto.name,
@@ -146,6 +158,18 @@ export class CategoryService {
     user: Partial<User>,
   ): Promise<Category> {
     try {
+      const aisles = await this.aisleRepository.find({
+        store: user.store,
+      });
+
+      if (
+        !aisles
+          .map((aisle) => aisle.id)
+          .includes(categoryDto.aisle as unknown as number)
+      ) {
+        throw new ConflictException(`Asked aisle doesn't belong to the store`);
+      }
+
       const categoryToUpdate = await this.categoryRepository.findOneOrFail(
         categoryDto.id,
         {
@@ -155,7 +179,7 @@ export class CategoryService {
 
       const foundCategory = await this.categoryRepository.findOne(
         {
-          name: categoryDto.name,
+          $and: [{ name: categoryDto.name }, { id: { $ne: categoryDto.id } }],
         },
         {
           filters: { fromStore: { user } },
