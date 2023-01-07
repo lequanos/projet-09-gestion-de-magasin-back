@@ -385,7 +385,7 @@ export class ProductService {
   async deactivateProduct(
     productId: number,
     user: Partial<User>,
-  ): Promise<Product> {
+  ): Promise<Product | null> {
     try {
       const foundProduct = await this.productRepository.findOneOrFail(
         productId,
@@ -400,6 +400,11 @@ export class ProductService {
       foundProduct.isActive = false;
       await this.productRepository.persistAndFlush(foundProduct);
       this.em.clear();
+
+      if (user.role?.name === 'department manager') {
+        return null;
+      }
+
       return await this.getOneById(foundProduct.id, user);
     } catch (e) {
       this.logger.error(`${e.message} `, e);

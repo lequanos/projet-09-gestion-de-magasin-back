@@ -180,7 +180,7 @@ export class ProductController {
   async deactivateProduct(
     @Req() req: Request,
     @Param() param: ProductIdParamDto,
-  ): Promise<Product> {
+  ): Promise<Product | null> {
     return await this.productService.deactivateProduct(
       param.id,
       req.user as User,
