@@ -9,6 +9,7 @@ import {
   EntityField,
   EntityManager,
   EntityRepository,
+  QueryOrder,
   wrap,
 } from '@mikro-orm/core';
 import { InjectRepository } from '@mikro-orm/nestjs';
@@ -52,6 +53,7 @@ export class AisleService {
           fields: fields.length
             ? (fields as EntityField<Aisle, never>[])
             : undefined,
+          orderBy: { id: QueryOrder.ASC },
           filters: { fromStore: { user } },
         },
       );
