@@ -3,7 +3,7 @@ services:
   retail-store-app:
     image: registry.digitalocean.com/apo-registry/retail-store-api:latest
     container_name: retail-store-app
-    command: sh -c "npx mikro-orm migration:up && npx mikro-orm seeder:run --class=ProdDataSeeder && node dist/src/main.js"
+    command: sh -c "npx mikro-orm migration:fresh --seed && node dist/src/main.js"
     ports:
      - '3000:3000'
     environment:
