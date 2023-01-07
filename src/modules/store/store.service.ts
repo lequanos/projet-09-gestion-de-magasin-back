@@ -177,7 +177,7 @@ export class StoreService {
       const store = this.storeRepository.create(storeDto);
 
       const allAisle = new AisleDto();
-      allAisle.name = 'tous';
+      allAisle.name = 'All';
       allAisle.store = store;
       const aisle = this.aisleRepository.create(allAisle);
 
