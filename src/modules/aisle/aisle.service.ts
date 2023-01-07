@@ -154,7 +154,7 @@ export class AisleService {
 
       const foundAisle = await this.aisleRepository.findOne(
         {
-          name: aisleDto.name,
+          $and: [{ name: aisleDto.name }, { id: { $ne: aisleDto.id } }],
         },
         {
           filters: { fromStore: { user } },
