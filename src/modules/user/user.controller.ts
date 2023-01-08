@@ -96,8 +96,8 @@ export class UserController {
    */
   @Get('stats')
   @Permissions(Permission.READ_ALL, Permission.READ_USER)
-  async getUsersStats(): Promise<UserStats> {
-    return await this.userService.getStats();
+  async getUsersStats(@Req() req: Request): Promise<UserStats> {
+    return await this.userService.getStats(req.user as User);
   }
 
   /**

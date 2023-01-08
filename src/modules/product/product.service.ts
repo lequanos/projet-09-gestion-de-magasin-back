@@ -22,6 +22,7 @@ import {
   Category,
   ProductStats,
   Product,
+  Permission,
 } from '../../entities';
 import { isNotFoundError } from '../../utils/typeguards/ExceptionTypeGuards';
 import { getFieldsFromQuery } from '../../utils/helpers/getFieldsFromQuery';
@@ -481,9 +482,46 @@ export class ProductService {
   /**
    * Get stats for dashboard card
    */
-  async getStats(): Promise<ProductStats> {
+  async getStats(user: Partial<User>): Promise<ProductStats> {
     try {
-      return (await this.em.find(ProductStats, {}))[0];
+      const connection = this.em.getConnection();
+      const result = await connection.execute<any[]>(`
+        SELECT 
+          (SELECT COUNT(*) FROM product WHERE is_active = true ${
+            !user.role?.permissions.includes(Permission.READ_ALL)
+              ? 'AND store_id = ' + user.store?.id
+              : ''
+          } )::INT AS active_products_count,
+          (SELECT COUNT(*) FROM product ${
+            !user.role?.permissions.includes(Permission.READ_ALL)
+              ? 'WHERE store_id = ' + user.store?.id
+              : ''
+          } )::INT AS products_count,
+          (
+            COALESCE((
+              (SELECT COUNT(*) FROM product WHERE is_active = true ${
+                !user.role?.permissions.includes(Permission.READ_ALL)
+                  ? 'AND store_id = ' + user.store?.id
+                  : ''
+              }) - (SELECT COUNT(*) FROM product WHERE is_active = true AND product.created_at <= NOW() - INTERVAL '7 DAYS' ${
+        !user.role?.permissions.includes(Permission.READ_ALL)
+          ? 'AND store_id = ' + user.store?.id
+          : ''
+      })
+            )::FLOAT * 100
+            / NULLIF((SELECT COUNT(*) FROM product WHERE is_active = true AND product.created_at <= NOW() - INTERVAL '7 DAYS' ${
+              !user.role?.permissions.includes(Permission.READ_ALL)
+                ? 'AND store_id = ' + user.store?.id
+                : ''
+            }), 0), 0)
+          ) as progression 
+        `);
+
+      return {
+        activeProductsCount: result[0].active_products_count,
+        productsCount: result[0].products_count,
+        progression: result[0].progression,
+      };
     } catch (e) {
       this.logger.error(`${e.message} `, e);
 

@@ -40,15 +40,15 @@ export class DashboardService {
       );
 
     if (userReadPermissionsEntity.includes('all')) {
-      const [store, user, supplier, product] = await Promise.all([
+      const [store, userStats, supplier, product] = await Promise.all([
         this.storeService.getStats(),
-        this.userService.getStats(),
-        this.supplierService.getStats(),
-        this.productService.getStats(),
+        this.userService.getStats(user),
+        this.supplierService.getStats(user),
+        this.productService.getStats(user),
       ]);
       infos.stats = {
         store,
-        user,
+        user: userStats,
         supplier,
         product,
       };
@@ -64,7 +64,7 @@ export class DashboardService {
       const mappedEntityStats = await Promise.all(
         userReadPermissionsEntity.map(
           async (entity: 'user' | 'product' | 'supplier' | 'store') => ({
-            [entity]: await serviceDictionary[entity].getStats(),
+            [entity]: await serviceDictionary[entity].getStats(user),
           }),
         ),
       );

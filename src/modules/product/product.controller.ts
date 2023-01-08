@@ -67,8 +67,8 @@ export class ProductController {
    */
   @Get('stats')
   @Permissions(Permission.READ_ALL, Permission.READ_PRODUCT)
-  async getProductsStats(): Promise<ProductStats> {
-    return await this.productService.getStats();
+  async getProductsStats(@Req() req: Request): Promise<ProductStats> {
+    return await this.productService.getStats(req.user as User);
   }
 
   /**

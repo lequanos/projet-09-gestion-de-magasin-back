@@ -48,19 +48,7 @@ export class User extends CustomBaseEntity {
   aisles = new Collection<Aisle>(this);
 }
 
-@Entity({
-  expression: `
-  SELECT
-    (SELECT COUNT(*) FROM "user" WHERE is_active = true)::INT AS active_users_count,
-    (SELECT COUNT(*) FROM "user")::INT AS users_count,
-    (
-      COALESCE((
-        (SELECT COUNT(*) FROM "user" WHERE is_active = true) - (SELECT COUNT(*) FROM "user" WHERE is_active = true AND "user".created_at <= NOW() - INTERVAL '7 DAYS')
-      )::FLOAT * 100
-      / NULLIF((SELECT COUNT(*) FROM "user" WHERE is_active = true AND "user".created_at <= NOW() - INTERVAL '7 DAYS'), 0), 0)
-    ) as progression
-  `,
-})
+@Entity({ expression: 'SELECT 1' })
 export class UserStats {
   @Property({ type: 'number', nullable: false })
   activeUsersCount: number;

@@ -67,8 +67,8 @@ export class SupplierController {
    */
   @Get('stats')
   @Permissions(Permission.READ_ALL, Permission.READ_SUPPLIER)
-  async getSuppliersStats(): Promise<SupplierStats> {
-    return await this.supplierService.getStats();
+  async getSuppliersStats(@Req() req: Request): Promise<SupplierStats> {
+    return await this.supplierService.getStats(req.user as User);
   }
 
   /**

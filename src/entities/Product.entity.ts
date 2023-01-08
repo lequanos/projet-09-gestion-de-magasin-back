@@ -167,19 +167,7 @@ export class Product extends CustomBaseEntity {
   productSuppliers = new Collection<ProductSupplier>(this);
 }
 
-@Entity({
-  expression: `
-  SELECT
-    (SELECT COUNT(*) FROM product WHERE is_active = true)::INT AS active_products_count,
-    (SELECT COUNT(*) FROM product)::INT AS products_count,
-    (
-      COALESCE((
-        (SELECT COUNT(*) FROM product WHERE is_active = true) - (SELECT COUNT(*) FROM product WHERE is_active = true AND product.created_at <= NOW() - INTERVAL '7 DAYS')
-      )::FLOAT * 100
-      / NULLIF((SELECT COUNT(*) FROM product WHERE is_active = true AND product.created_at <= NOW() - INTERVAL '7 DAYS'), 0), 0)
-    ) as progression
-  `,
-})
+@Entity({ expression: `SELECT 1` })
 export class ProductStats {
   @Property({ type: 'number', nullable: false })
   activeProductsCount: number;

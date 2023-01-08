@@ -104,19 +104,7 @@ export class Supplier extends CustomBaseEntity {
   productSuppliers = new Collection<ProductSupplier>(this);
 }
 
-@Entity({
-  expression: `
-  SELECT
-    (SELECT COUNT(*) FROM supplier WHERE is_active = true)::INT AS active_suppliers_count,
-    (SELECT COUNT(*) FROM supplier)::INT AS suppliers_count,
-    (
-      COALESCE((
-        (SELECT COUNT(*) FROM supplier WHERE is_active = true) - (SELECT COUNT(*) FROM supplier WHERE is_active = true AND supplier.created_at <= NOW() - INTERVAL '7 DAYS')
-      )::FLOAT * 100
-      / NULLIF((SELECT COUNT(*) FROM supplier WHERE is_active = true AND supplier.created_at <= NOW() - INTERVAL '7 DAYS'), 0), 0)
-    ) as progression
-  `,
-})
+@Entity({ expression: `SELECT 1` })
 export class SupplierStats {
   @Property({ type: 'number', nullable: false })
   activeSuppliersCount: number;

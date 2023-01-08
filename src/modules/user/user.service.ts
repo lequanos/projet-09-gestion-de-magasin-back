@@ -19,7 +19,7 @@ import * as bcrypt from 'bcrypt';
 
 import { isNotFoundError } from '../../utils/typeguards/ExceptionTypeGuards';
 import { getFieldsFromQuery } from '../../utils/helpers/getFieldsFromQuery';
-import { User, UserStats } from '../../entities';
+import { Permission, Store, User, UserStats } from '../../entities';
 import { CreateUserDto, UpdateUserDto } from './user.dto';
 
 /**
@@ -340,9 +340,46 @@ export class UserService {
   /**
    * Get stats for dashboard card
    */
-  async getStats(): Promise<UserStats> {
+  async getStats(user: Partial<User>): Promise<UserStats> {
     try {
-      return (await this.em.find(UserStats, {}))[0];
+      const connection = this.em.getConnection();
+      const result = await connection.execute<any[]>(`
+        SELECT 
+          (SELECT COUNT(*) FROM "user" WHERE is_active = true ${
+            !user.role?.permissions.includes(Permission.READ_ALL)
+              ? 'AND store_id = ' + user.store?.id
+              : ''
+          } )::INT AS active_users_count,
+          (SELECT COUNT(*) FROM "user" ${
+            !user.role?.permissions.includes(Permission.READ_ALL)
+              ? 'WHERE store_id = ' + user.store?.id
+              : ''
+          } )::INT AS users_count,
+          (
+            COALESCE((
+              (SELECT COUNT(*) FROM "user" WHERE is_active = true ${
+                !user.role?.permissions.includes(Permission.READ_ALL)
+                  ? 'AND store_id = ' + user.store?.id
+                  : ''
+              }) - (SELECT COUNT(*) FROM "user" WHERE is_active = true AND "user".created_at <= NOW() - INTERVAL '7 DAYS' ${
+        !user.role?.permissions.includes(Permission.READ_ALL)
+          ? 'AND store_id = ' + user.store?.id
+          : ''
+      })
+            )::FLOAT * 100
+            / NULLIF((SELECT COUNT(*) FROM "user" WHERE is_active = true AND "user".created_at <= NOW() - INTERVAL '7 DAYS' ${
+              !user.role?.permissions.includes(Permission.READ_ALL)
+                ? 'AND store_id = ' + user.store?.id
+                : ''
+            }), 0), 0)
+          ) as progression 
+        `);
+
+      return {
+        activeUsersCount: result[0].active_users_count,
+        usersCount: result[0].users_count,
+        progression: result[0].progression,
+      };
     } catch (e) {
       this.logger.error(`${e.message} `, e);
 
