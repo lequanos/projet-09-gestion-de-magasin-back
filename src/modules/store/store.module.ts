@@ -2,7 +2,7 @@ import { Module, Logger } from '@nestjs/common';
 
 import { MikroOrmModule } from '@mikro-orm/nestjs';
 
-import { Store, Aisle, Role } from '../../entities';
+import { Store, Aisle, Role, User } from '../../entities';
 import { StoreController } from './store.controller';
 import { StoreService } from './store.service';
 import { HttpModule } from '@nestjs/axios';
@@ -10,7 +10,7 @@ import { ConfigModule, ConfigService } from '@nestjs/config';
 
 @Module({
   imports: [
-    MikroOrmModule.forFeature([Store, Aisle, Role]),
+    MikroOrmModule.forFeature([Store, Aisle, Role, User]),
     HttpModule.registerAsync({
       imports: [ConfigModule],
       useFactory: async (configService: ConfigService) => ({

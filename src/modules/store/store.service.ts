@@ -17,7 +17,14 @@ import { InjectRepository } from '@mikro-orm/nestjs';
 import { HttpService } from '@nestjs/axios';
 import { AxiosError } from 'axios';
 
-import { Store, Aisle, Role, Permission, StoreStats } from '../../entities';
+import {
+  Store,
+  Aisle,
+  Role,
+  Permission,
+  StoreStats,
+  User,
+} from '../../entities';
 import { isNotFoundError } from '../../utils/typeguards/ExceptionTypeGuards';
 import { CreateStoreDto, UpdateStoreDto } from './store.dto';
 import { getFieldsFromQuery } from '../../utils/helpers/getFieldsFromQuery';
@@ -38,6 +45,8 @@ export class StoreService {
     private readonly aisleRepository: EntityRepository<Aisle>,
     @InjectRepository(Role)
     private readonly roleRepository: EntityRepository<Role>,
+    @InjectRepository(User)
+    private readonly userRepository: EntityRepository<User>,
     private readonly httpService: HttpService,
     private readonly logger: Logger = new Logger('StoreService'),
     private readonly em: EntityManager,
@@ -268,6 +277,7 @@ export class StoreService {
    * @returns the deactivated store
    */
   async deactivateStore(storeId: number): Promise<Store> {
+    this.em.begin();
     try {
       const foundStore = await this.storeRepository.findOneOrFail(storeId);
 
@@ -276,12 +286,17 @@ export class StoreService {
 
       foundStore.isActive = false;
 
+      const foundUsers = await this.userRepository.find({ store: foundStore });
+      foundUsers.forEach((user) => (user.isActive = false));
+
       await this.storeRepository.persistAndFlush(foundStore);
+      await this.userRepository.persistAndFlush(foundUsers);
+      await this.em.commit();
       this.em.clear();
       return await this.getOneById(foundStore.id);
     } catch (e) {
       this.logger.error(`${e.message} `, e);
-
+      await this.em.rollback();
       if (isNotFoundError(e)) {
         throw new NotFoundException();
       }
