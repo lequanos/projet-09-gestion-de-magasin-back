@@ -6,29 +6,24 @@ import {
   NotFoundException,
 } from '@nestjs/common';
 
-import {
-  EntityManager,
-  EntityRepository,
-  wrap,
-  EntityField,
-  QueryOrder,
-} from '@mikro-orm/core';
+import { EntityManager, wrap, EntityField, QueryOrder } from '@mikro-orm/core';
 import { InjectRepository } from '@mikro-orm/nestjs/mikro-orm.common';
 import { HttpService } from '@nestjs/axios';
 import { AxiosError } from 'axios';
 import { firstValueFrom, catchError } from 'rxjs';
 
 import { isNotFoundError } from '../../utils/typeguards/ExceptionTypeGuards';
-import { Permission, Supplier, SupplierStats, User } from '../../entities';
+import { Supplier, SupplierStats, User } from '../../entities';
 import { getFieldsFromQuery } from '../../utils/helpers/getFieldsFromQuery';
 import { CreateSupplierDto, UpdateSupplierDto } from './supplier.dto';
 import { SireneV3Response } from '../../responseModels/sireneV3';
+import { CustomSupplierRepository } from './supplier.repository';
 
 @Injectable()
 export class SupplierService {
   constructor(
     @InjectRepository(Supplier)
-    private readonly supplierRepository: EntityRepository<Supplier>,
+    private readonly supplierRepository: CustomSupplierRepository,
     private readonly httpService: HttpService,
     private readonly logger: Logger = new Logger('SupplierService'),
     private readonly em: EntityManager,
@@ -292,44 +287,7 @@ export class SupplierService {
    */
   async getStats(user: Partial<User>): Promise<SupplierStats> {
     try {
-      const connection = this.em.getConnection();
-      const result = await connection.execute<any[]>(`
-        SELECT 
-          (SELECT COUNT(*) FROM supplier WHERE is_active = true ${
-            !user.role?.permissions.includes(Permission.READ_ALL)
-              ? 'AND store_id = ' + user.store?.id
-              : ''
-          } )::INT AS active_suppliers_count,
-          (SELECT COUNT(*) FROM supplier ${
-            !user.role?.permissions.includes(Permission.READ_ALL)
-              ? 'WHERE store_id = ' + user.store?.id
-              : ''
-          } )::INT AS suppliers_count,
-          (
-            COALESCE((
-              (SELECT COUNT(*) FROM supplier WHERE is_active = true ${
-                !user.role?.permissions.includes(Permission.READ_ALL)
-                  ? 'AND store_id = ' + user.store?.id
-                  : ''
-              }) - (SELECT COUNT(*) FROM supplier WHERE is_active = true AND supplier.created_at <= NOW() - INTERVAL '7 DAYS' ${
-        !user.role?.permissions.includes(Permission.READ_ALL)
-          ? 'AND store_id = ' + user.store?.id
-          : ''
-      })
-            )::FLOAT * 100
-            / NULLIF((SELECT COUNT(*) FROM supplier WHERE is_active = true AND supplier.created_at <= NOW() - INTERVAL '7 DAYS' ${
-              !user.role?.permissions.includes(Permission.READ_ALL)
-                ? 'AND store_id = ' + user.store?.id
-                : ''
-            }), 0), 0)
-          ) as progression 
-        `);
-
-      return {
-        activeSuppliersCount: result[0].active_suppliers_count,
-        suppliersCount: result[0].suppliers_count,
-        progression: result[0].progression,
-      };
+      return await this.supplierRepository.getStats(user);
     } catch (e) {
       this.logger.error(`${e.message} `, e);
 

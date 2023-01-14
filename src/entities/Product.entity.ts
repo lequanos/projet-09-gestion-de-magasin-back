@@ -27,8 +27,9 @@ import {
   Aisle,
   Permission,
 } from './';
+import { CustomProductRepository } from '../modules/product/product.repository';
 
-@Entity()
+@Entity({ customRepository: () => CustomProductRepository })
 @Filter({
   name: 'fromStore',
   cond: ({ user }: { user: Partial<User> }) => ({ store: user.store }),

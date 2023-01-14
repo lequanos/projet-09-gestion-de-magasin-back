@@ -6,12 +6,13 @@ import {
   Collection,
   Filter,
 } from '@mikro-orm/core';
+import { CustomUserRepository } from '../modules/user/user.repository';
 import { Aisle } from './Aisle.entity';
 import { CustomBaseEntity } from './CustomBaseEntity';
 import { Role } from './Role.entity';
 import { Store } from './Store.entity';
 
-@Entity()
+@Entity({ customRepository: () => CustomUserRepository })
 @Filter({
   name: 'fromStore',
   cond: ({ user }: { user: Partial<User> }) => ({ store: user.store }),

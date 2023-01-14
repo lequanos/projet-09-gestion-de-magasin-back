@@ -22,13 +22,13 @@ import {
   Category,
   ProductStats,
   Product,
-  Permission,
 } from '../../entities';
 import { isNotFoundError } from '../../utils/typeguards/ExceptionTypeGuards';
 import { getFieldsFromQuery } from '../../utils/helpers/getFieldsFromQuery';
 import { CreateProductDto, UpdateProductDto } from './product.dto';
 import { MailService } from '../mail/mail.service';
 import { OpenFoodFactsProductResponse } from '../../responseModels/openFoodFacts';
+import { CustomProductRepository } from './product.repository';
 
 /**
  * Service for the products
@@ -37,7 +37,7 @@ import { OpenFoodFactsProductResponse } from '../../responseModels/openFoodFacts
 export class ProductService {
   constructor(
     @InjectRepository(Product)
-    private readonly productRepository: EntityRepository<Product>,
+    private readonly productRepository: CustomProductRepository,
     @InjectRepository(Brand)
     private readonly brandRepository: EntityRepository<Brand>,
     @InjectRepository(Stock)
@@ -484,44 +484,7 @@ export class ProductService {
    */
   async getStats(user: Partial<User>): Promise<ProductStats> {
     try {
-      const connection = this.em.getConnection();
-      const result = await connection.execute<any[]>(`
-        SELECT 
-          (SELECT COUNT(*) FROM product WHERE is_active = true ${
-            !user.role?.permissions.includes(Permission.READ_ALL)
-              ? 'AND store_id = ' + user.store?.id
-              : ''
-          } )::INT AS active_products_count,
-          (SELECT COUNT(*) FROM product ${
-            !user.role?.permissions.includes(Permission.READ_ALL)
-              ? 'WHERE store_id = ' + user.store?.id
-              : ''
-          } )::INT AS products_count,
-          (
-            COALESCE((
-              (SELECT COUNT(*) FROM product WHERE is_active = true ${
-                !user.role?.permissions.includes(Permission.READ_ALL)
-                  ? 'AND store_id = ' + user.store?.id
-                  : ''
-              }) - (SELECT COUNT(*) FROM product WHERE is_active = true AND product.created_at <= NOW() - INTERVAL '7 DAYS' ${
-        !user.role?.permissions.includes(Permission.READ_ALL)
-          ? 'AND store_id = ' + user.store?.id
-          : ''
-      })
-            )::FLOAT * 100
-            / NULLIF((SELECT COUNT(*) FROM product WHERE is_active = true AND product.created_at <= NOW() - INTERVAL '7 DAYS' ${
-              !user.role?.permissions.includes(Permission.READ_ALL)
-                ? 'AND store_id = ' + user.store?.id
-                : ''
-            }), 0), 0)
-          ) as progression 
-        `);
-
-      return {
-        activeProductsCount: result[0].active_products_count,
-        productsCount: result[0].products_count,
-        progression: result[0].progression,
-      };
+      return await this.productRepository.getStats(user);
     } catch (e) {
       this.logger.error(`${e.message} `, e);
 

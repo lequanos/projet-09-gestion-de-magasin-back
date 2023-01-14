@@ -13,7 +13,6 @@ import {
   Store,
   ProductNutriscore,
   ProductEcoscore,
-  Category,
   ProductSupplier,
 } from '../../entities';
 

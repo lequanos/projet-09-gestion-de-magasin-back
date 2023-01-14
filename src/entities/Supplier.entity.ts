@@ -14,7 +14,9 @@ import {
 } from '../responseModels/sireneV3';
 import { isSireneV3Response } from '../utils/typeguards/StoreTypeGuards';
 import { CustomBaseEntity, Product, ProductSupplier, Store, User } from './';
-@Entity()
+import { CustomSupplierRepository } from '../modules/supplier/supplier.repository';
+
+@Entity({ customRepository: () => CustomSupplierRepository })
 @Filter({
   name: 'fromStore',
   cond: ({ user }: { user: Partial<User> }) => ({ store: user.store }),
