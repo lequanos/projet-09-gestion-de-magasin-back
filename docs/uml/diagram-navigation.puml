@@ -1,0 +1,78 @@
+@startuml diagram-navigation
+title Diagramme de navigation: Création d'un produit
+
+skinparam Linetype ortho
+
+state "Page" as PageAuth {
+  PageAuth : <b>Authentification</b>
+}
+
+state "Exception" as ExAuth #E3664A {
+  ExAuth : <b>Echec de l'authentification</b>
+}
+
+state "Page" as PageAccueil {
+  PageAccueil : <b>Tableau de bord</b>
+
+  state "Frame" as FrameMenu {
+    FrameMenu: <b>Menu</b>
+  }
+}
+
+state "Page" as PageStore {
+  PageStore : <b>Magasins</b>
+}
+
+state "Page" as PageProduct {
+  PageProduct : <b>Produits</b>
+
+  state "Frame" as FrameAddProduct {
+    FrameAddProduct: <b>Ajout d'un produit</b>
+  }
+}
+
+state "Page" as PageSupplier {
+  PageSupplier : <b>Fournisseurs</b>
+}
+
+state "Page" as PageAisle {
+  PageAisle : <b>Rayons</b>
+}
+
+state "Page" as PageUser {
+  PageUser : <b>Utilisateurs</b>
+}
+
+state "Dialog" as DialogAddProduct {
+  DialogAddProduct : <b>Recherche d'un produit</b>
+}
+
+state "Exception" as ExProduct #E3664A {
+  ExProduct : <b>Produit introuvable ou existe déjà</b>
+}
+
+state "Dialog" as DialogAddProduct2 {
+  DialogAddProduct2 : <b>Edition du produit</b>
+}
+
+state "Exception" as ExProduct2 #E3664A {
+  ExProduct2 : <b>Données incorrectes</b>
+}
+
+
+[*] --> PageAuth
+PageAuth --> PageAccueil : Authentification OK
+PageAuth ---> ExAuth : Authentification KO
+PageAuth <-- ExAuth
+FrameMenu --> PageStore
+FrameMenu --> PageProduct
+FrameMenu --> PageSupplier
+FrameMenu --> PageAisle
+FrameMenu --> PageUser
+FrameAddProduct --> DialogAddProduct
+DialogAddProduct ---> ExProduct : Recherche de produit KO
+DialogAddProduct <-- ExProduct
+DialogAddProduct --> DialogAddProduct2 : Recherche de produit OK
+DialogAddProduct2 ---> ExProduct2 : Edition de produit KO
+DialogAddProduct2 <-- ExProduct2
+@enduml

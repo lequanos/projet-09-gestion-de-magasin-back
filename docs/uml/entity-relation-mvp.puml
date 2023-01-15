@@ -4,7 +4,7 @@ title MVP
 
 skinparam linetype ortho
 
-entity "Stores" {
+entity "Store" {
 *id
 --
 Name
@@ -22,149 +22,127 @@ entity "Stock" {
 --
 Quantity
 --
-Products_id <<FK>>
+Product_id <<FK>>
 }
 
-entity "Suppliers" {
+entity "Supplier" {
 *id
 --
 Name
 Address
 Postcode
 City
-Telephone
+Phone_number
 Picture_url
 Siren
 Siret
 Contact
 IsActive
+--
+Store_id <<FK>>
 }
 
-entity "Products" {
+entity "Product" {
 *id
 --
 Name
 Code
 Price
 Picture_url
-Nutriscore
-Ecoscore
+Nutri_score
+Eco_score
 Unit_packaging
 Threshold
 Ingredients
 IsActive
 --
-Brands_id <<FK>>
-Stores_id <<FK>>
-
+Brand_id <<FK>>
+Store_id <<FK>>
 }
 
-entity "Categories" {
+entity "Category" {
 *id
 --
 Name
 --
-Aisles_id <<FK>>
+Aisle_id <<FK>>
 }
 
-entity "Products_Categories" {
-*id
---
-Categories_id <<FK>>
-Products_id <<FK>>
+entity "Product_Categories" {
+Category_id <<FK>>
+Product_id <<FK>>
 }
 
-entity "Products_Suppliers" {
-*id
---
+entity "Product_Supplier" {
 Purchase_price
 --
-Suppliers_id <<FK>>
-Products_id <<FK>>
+Supplier_id <<FK>>
+Product_id <<FK>>
 }
 
-entity "Aisles" {
+entity "Aisle" {
 *id
 --
 Name
 --
-Stores_id <<FK>>
+Store_id <<FK>>
 }
 
-entity "Roles" {
+entity "Role" {
 *id
 --
 Name
-}
-
-
-entity "Users_aisles" {
-*id
+Permissions
 --
-Aisles_id <<FK>>
-Users_id <<FK>>
+Store_id <<FK>>
 }
 
-entity "Users" {
+
+entity "User_aisles" {
+Aisle_id <<FK>>
+User_id <<FK>>
+}
+
+entity "User" {
 *id
 --
 FirstName
 LastName
-Mail
+Email
 Picture_url
 Password
 IsActive
+Refresh_token
 --
-Roles_id <<FK>>
-Stores_id <<FK>>
+Role_id <<FK>>
+Store_id <<FK>>
 }
 
-' entity "Orders" {
-' *id
-' --
-' Users_id <<FK>>
-' }
-
-' entity "Orders_details" {
-' *id
-' --
-' Quantity
-' --
-' Orders_id <<FK>>
-' Suppliers_id <<FK>>
-' Products_id <<FK>>
-' }
-
-entity "Brands" {
+entity "Brand" {
 *id
 --
 Name
 }
 
 
-Stock }o..|| Products
+Stock }o..|| Product
 
-' Orders_details }o..|| Suppliers
-' Orders_details }o..|| Products
-' Orders_details }o..|| Orders
-
-Users }o..|| Roles
-Users }o..|| Stores
-' Orders }o..|| Users
+User }o..|| Role
+User }o..|| Store
 
 
-Aisles ||..o{ Categories
-Aisles }o..|| Stores
-Users_aisles }o..|| Users
-Users_aisles }o..|| Aisles
+Aisle ||..o{ Category
+Aisle }o..|| Store
+User_aisles }o..|| User
+User_aisles }o..|| Aisle
 
 
-Products ||..o{ Products_Categories
-Categories ||..o{ Products_Categories
-Products ||..o{ Products_Suppliers
-Suppliers ||..o{ Products_Suppliers
-Products }o..|| Brands
-Products }o..|| Stores
+Product ||..o{ Product_Categories
+Category ||..o{ Product_Categories
+Product ||..o{ Product_Supplier
+Supplier ||..o{ Product_Supplier
+Product }o..|| Brand
+Product }o..|| Store
 
 
 @enduml

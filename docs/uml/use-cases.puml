@@ -1,0 +1,74 @@
+@startuml use-cases
+
+left to right direction
+actor "Super Admin" as sa #red;line:red;text:red
+actor "Directeur de magasin" as dr #green;line:green;text:green
+actor "Chef de rayon" as cr #orange;line:orange;text:orange
+actor "Responsable des achats" as ra #blue;line:blue;text:blue
+
+rectangle "Application" {
+    rectangle "Magasin" {
+        usecase UC1 as "Afficher la liste des magasins ou un magasin"
+        usecase UC2 as "Gérer les magasins"
+    }
+
+    rectangle "Produits" {
+        usecase UC3 as "Afficher la liste des produits ou un produit"
+        usecase UC4 as "Gérer les produits"
+    }
+
+    rectangle "Fournisseurs" {
+        usecase UC5 as "Afficher la liste des fournisseurs ou un fournisseur"
+        usecase UC6 as "Gérer les fournisseurs"
+    }
+
+    rectangle "Utilisateurs" {
+        usecase UC7 as "Afficher la liste des utilisateurs ou un utilisateur"
+        usecase UC8 as "Gérer les utilisateurs"
+    }
+
+    rectangle "Rayon" {
+        usecase UC9 as "Afficher la liste des rayons"
+        usecase UC10 as "Gérer les rayons"
+    }
+
+    rectangle "Catégorie" {
+        usecase UC11 as "Gérer les catégories"
+    }
+
+    rectangle "Authentification" {
+        usecase UC12 as "S'authentifier"
+    }
+}
+
+dr <|-- sa
+sa --> UC1 #line:red
+sa --> UC2 #line:red
+
+ra <|-- dr
+dr --> UC5 #green;line.dashed
+dr --> UC6 #green;line.dashed
+dr --> UC7 #green;line.dashed
+dr --> UC8 #green;line.dashed
+
+cr <|-- ra
+ra --> UC9 #blue;line.dotted
+ra --> UC10 #blue;line.dotted
+ra --> UC11 #blue;line.dotted
+
+cr --> UC3 #orange;line.bold
+cr --> UC4 #orange;line.bold
+
+UC1 -------> UC12 : <<include>>
+UC2 -------> UC12 : <<include>>
+UC5 -------> UC12 : <<include>>
+UC6 -------> UC12 : <<include>>
+UC7 -------> UC12 : <<include>>
+UC8 -------> UC12 : <<include>>
+UC9 -------> UC12 : <<include>>
+UC10 -------> UC12 : <<include>>
+UC11 -------> UC12 : <<include>>
+UC3 -------> UC12 : <<include>>
+UC4 -------> UC12 : <<include>>
+
+@enduml

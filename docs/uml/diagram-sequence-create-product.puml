@@ -2,10 +2,12 @@
 
 actor       User      as user
 participant AppFront as app
-control     ApiOpenFoodFact    as apifood
 participant AppBack as appBack
 participant AuthMiddleware as auth
 control     ProductController    as ctr
+control     ProductService    as srv
+control     ApiOpenFoodFact    as apifood
+control     ProductRepository   as repo
 database DB as db
 
 
@@ -16,15 +18,72 @@ autonumber
 user -> app : EAN search
 activate app
 
-app -> apifood : GET request https://world.openfoodfacts.org/api/v0/product/{:EAN}.json
+app -> appBack : GET search request
+activate appBack
+appBack -> auth : Checking token
+activate auth
+
+alt #E25A5A NOT AUTHENTICATED
+
+  auth -> app : Response with error code (401)
+  app -> user : Display toast error
+
+else NOT AUTHORIZED
+  
+  auth -> app : Response with error code (403)
+  app -> user : Display toast error
+
+end
+
+auth -> ctr : Transfer GET request
+deactivate auth
+activate ctr
+
+ctr -> srv : Call searchProducts method
+activate srv
+srv -> repo : Call find methode with EAN code and storeId
+activate repo
+repo -> db : Execute SQL Query
+activate db
+db -> repo : Return found product
+deactivate db
+repo -> srv : Return found product
+deactivate repo
+
+alt #E25A5A PRODUCT FOUND
+
+  srv -> appBack : Throw error code (409)
+  appBack -> app : Response with error code (409)
+  app -> user : Display toast error
+
+end
+
+srv -> apifood : GET request
 activate apifood
-apifood -> app : Response
+apifood -> srv : Response
 deactivate apifood
+
+alt #E25A5A PRODUCT NOT FOUND
+
+  srv -> appBack : Throw error code (404)
+  appBack -> app : Response with error code (404)
+  app -> user : Display toast error
+
+end
+
+srv -> ctr : Response
+deactivate srv
+ctr -> appBack : Response
+deactivate ctr
+appBack -> app : Response
+deactivate appBack
 
 user -> app : Fill form
 
 app -> appBack : POST request
+activate appBack
 appBack -> auth : Checking token
+activate auth
 
 alt #E25A5A NOT AUTHENTICATED
 
@@ -39,6 +98,7 @@ else NOT AUTHORIZED
 end
 
 auth -> ctr : Transfer POST request
+deactivate auth
 activate ctr
 ctr -> ctr : Request validation
 
@@ -49,23 +109,36 @@ alt #E25A5A REQUEST NOT VALID
 
 end
 
-ctr -> db : Insert product
+ctr -> srv : Call createProduct method
+activate srv
+srv -> repo : Call create and persist methods
+activate repo
+repo -> db : Execute SQL query
 activate db
 
 alt #759E88 SUCCEED
 
-  db -> ctr : Product created
-  ctr -> app : Response product created (201)
+  db -> repo : Product created
+  repo -> srv : Product created
+  srv -> ctr : Product created
+  ctr -> appBack : Product created
+  appBack -> app : Response product created (201)
   app -> user : Redirect to products list
 
 else #E25A5A FAILED
 
-  db -> ctr : Product not created
+  db -> repo : Product not created
   deactivate db
-  ctr -> app : Response with error code (400)
+  repo -> srv : Product not created
+  deactivate repo
+  srv -> ctr : Product not created
+  deactivate srv
+  ctr -> appBack : Product not created
   deactivate ctr
+  appBack -> app : Response with error code (500)
+  deactivate appBack
   app -> user : Display toast error
-deactivate app
+  deactivate app
 
 end
 

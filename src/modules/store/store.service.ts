@@ -385,11 +385,11 @@ export class StoreService {
    */
   async searchStoresSireneV3(search: string): Promise<Store> {
     try {
-      const foundStore = await this.storeRepository.find({
-        siret: { $ilike: `%${search}%` },
+      const foundStore = await this.storeRepository.findOne({
+        siret: search,
       });
 
-      if (foundStore.length) {
+      if (foundStore) {
         throw new ConflictException('Store already exists');
       }
       const { data } = await firstValueFrom(
