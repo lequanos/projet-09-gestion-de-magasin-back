@@ -88,7 +88,11 @@ export class MailService {
   ): Promise<boolean> {
     try {
       const purchasingManagers = await this.userRepository.find({
-        role: { name: 'purchasing manager' } as FilterQuery<Role>,
+        $and: [
+          { role: { name: 'purchasing manager' } },
+          { store: { $ne: context?.product.store } },
+          { isActive: true },
+        ],
       });
 
       await Promise.all(

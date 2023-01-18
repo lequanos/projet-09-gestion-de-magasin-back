@@ -108,6 +108,9 @@ describe('StoreService', () => {
 
   const mockEntityManager = {
     clear: jest.fn(),
+    begin: jest.fn(),
+    rollback: jest.fn(),
+    commit: jest.fn(),
   };
 
   const mockHttpService = {
