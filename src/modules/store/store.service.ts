@@ -171,6 +171,7 @@ export class StoreService {
    * @returns the created store
    */
   async createStore(storeDto: CreateStoreDto): Promise<Store> {
+    this.em.begin();
     try {
       const foundStore = await this.storeRepository.findOne({
         siret: storeDto.siret,
@@ -218,10 +219,11 @@ export class StoreService {
         this.storeRepository.persistAndFlush(store),
         this.roleRepository.persistAndFlush(role),
       ]);
-
+      await this.em.commit();
       this.em.clear();
       return await this.getOneById(store.id);
     } catch (e) {
+      await this.em.rollback();
       this.logger.error(`${e.message} `, e);
 
       throw e;

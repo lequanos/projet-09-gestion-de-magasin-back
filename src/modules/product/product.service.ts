@@ -214,13 +214,9 @@ export class ProductService {
         ),
       );
 
-      const aisles = await Promise.all(
-        categories.map((cat) =>
-          this.aisleRepository.findOneOrFail({ id: cat.aisle.id }),
-        ),
-      );
+      const aisles = categories.map((cat) => cat.aisle.id);
 
-      if ([...new Set(aisles.map((aisle) => aisle.id))].length > 1) {
+      if ([...new Set(aisles)].length > 1) {
         throw new BadRequestException(
           'Please select only categories from the same aisle',
         );
@@ -316,13 +312,9 @@ export class ProductService {
         ),
       );
 
-      const aisles = await Promise.all(
-        categories.map((cat) =>
-          this.aisleRepository.findOneOrFail({ id: cat?.aisle.id }),
-        ),
-      );
+      const aisles = categories.map((cat) => cat.aisle.id);
 
-      if ([...new Set(aisles.map((aisle) => aisle?.id))].length > 1) {
+      if ([...new Set(aisles)].length > 1) {
         throw new BadRequestException(
           'Please select only categories from the same aisle',
         );
