@@ -90,7 +90,7 @@ export class MailService {
       const purchasingManagers = await this.userRepository.find({
         $and: [
           { role: { name: 'purchasing manager' } },
-          { store: { $ne: context?.product.store } },
+          { store: context?.product.store },
           { isActive: true },
         ],
       });
