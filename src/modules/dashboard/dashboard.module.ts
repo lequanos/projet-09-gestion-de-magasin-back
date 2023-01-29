@@ -13,6 +13,7 @@ import {
   Role,
 } from 'src/entities';
 import { ProductService } from '../product/product.service';
+import { RoleService } from '../role/role.service';
 import { StoreService } from '../store/store.service';
 import { SupplierService } from '../supplier/supplier.service';
 import { UserService } from '../user/user.service';
@@ -42,6 +43,7 @@ import { DashboardService } from './dashboard.service';
     SupplierService,
     StoreService,
     MailService,
+    RoleService,
     Logger,
   ],
   controllers: [DashboardController],
