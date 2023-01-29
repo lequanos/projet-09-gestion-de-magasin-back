@@ -17,21 +17,14 @@ import { InjectRepository } from '@mikro-orm/nestjs';
 import { HttpService } from '@nestjs/axios';
 import { AxiosError } from 'axios';
 
-import {
-  Store,
-  Aisle,
-  Role,
-  Permission,
-  StoreStats,
-  User,
-} from '../../entities';
+import { Store, Aisle, Role, StoreStats, User } from '../../entities';
 import { isNotFoundError } from '../../utils/typeguards/ExceptionTypeGuards';
 import { CreateStoreDto, UpdateStoreDto } from './store.dto';
 import { getFieldsFromQuery } from '../../utils/helpers/getFieldsFromQuery';
 import { AisleDto } from '../aisle/aisle.dto';
-import { RoleDto } from '../role/role.dto';
 import { firstValueFrom, catchError } from 'rxjs';
 import { SireneV3Response } from 'src/responseModels/sireneV3';
+import { RoleService } from '../role/role.service';
 
 /**
  * Service for the stores
@@ -48,6 +41,7 @@ export class StoreService {
     @InjectRepository(User)
     private readonly userRepository: EntityRepository<User>,
     private readonly httpService: HttpService,
+    private readonly roleService: RoleService,
     private readonly logger: Logger = new Logger('StoreService'),
     private readonly em: EntityManager,
   ) {}
@@ -186,38 +180,16 @@ export class StoreService {
 
       const store = this.storeRepository.create(storeDto);
 
+      await this.roleService.createRolesForNewStore(store);
+
       const allAisle = new AisleDto();
       allAisle.name = 'All';
       allAisle.store = store;
       const aisle = this.aisleRepository.create(allAisle);
 
-      const storeManagerRole = new RoleDto();
-      storeManagerRole.name = 'store manager';
-      storeManagerRole.permissions = [
-        Permission.READ_AISLE,
-        Permission.MANAGE_AISLE,
-        Permission.READ_BRAND,
-        Permission.MANAGE_BRAND,
-        Permission.READ_CATEGORY,
-        Permission.MANAGE_CATEGORY,
-        Permission.READ_ROLE,
-        Permission.MANAGE_ROLE,
-        Permission.READ_PRODUCT,
-        Permission.MANAGE_PRODUCT,
-        Permission.READ_STOCK,
-        Permission.MANAGE_STOCK,
-        Permission.READ_SUPPLIER,
-        Permission.MANAGE_SUPPLIER,
-        Permission.READ_USER,
-        Permission.MANAGE_USER,
-      ];
-      storeManagerRole.store = store;
-      const role = this.roleRepository.create(storeManagerRole);
-
       await Promise.all([
         this.aisleRepository.persistAndFlush(aisle),
         this.storeRepository.persistAndFlush(store),
-        this.roleRepository.persistAndFlush(role),
       ]);
       await this.em.commit();
       this.em.clear();

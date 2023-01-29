@@ -7,6 +7,7 @@ import { StoreController } from './store.controller';
 import { StoreService } from './store.service';
 import { HttpModule } from '@nestjs/axios';
 import { ConfigModule, ConfigService } from '@nestjs/config';
+import { RoleService } from '../role/role.service';
 
 @Module({
   imports: [
@@ -24,7 +25,7 @@ import { ConfigModule, ConfigService } from '@nestjs/config';
       inject: [ConfigService],
     }),
   ],
-  providers: [StoreService, Logger],
+  providers: [StoreService, Logger, RoleService],
   controllers: [StoreController],
   exports: [StoreService],
 })
