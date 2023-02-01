@@ -81,6 +81,7 @@ export class AuthService {
         permissions: user.role.permissions,
       },
       store: user.store ? { id: user.store.id } : null,
+      aisles: user.aisles,
     };
 
     return {
