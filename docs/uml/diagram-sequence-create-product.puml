@@ -4,6 +4,7 @@ actor       User      as user
 participant AppFront as app
 participant AppBack as appBack
 participant AuthMiddleware as auth
+participant ValidationMiddleware as valid
 control     ProductController    as ctr
 control     ProductService    as srv
 control     ApiOpenFoodFact    as apifood
@@ -97,17 +98,21 @@ else NOT AUTHORIZED
 
 end
 
-auth -> ctr : Transfer POST request
+auth -> valid : Transfer POST request
 deactivate auth
-activate ctr
-ctr -> ctr : Request validation
+activate valid
+valid -> valid : Request validation
 
 alt #E25A5A REQUEST NOT VALID
 
-  ctr -> app : Response with error code (400)
+  valid -> app : Response with error code (400)
   app -> user : Display toast error
 
 end
+valid -> ctr : Transfer POST request
+deactivate valid
+activate ctr
+
 
 ctr -> srv : Call createProduct method
 activate srv

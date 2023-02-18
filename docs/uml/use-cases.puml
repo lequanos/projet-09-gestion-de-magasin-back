@@ -17,8 +17,8 @@ rectangle "Application" {
         usecase UC4 as "Gérer les produits"
     }
 
+
     rectangle "Fournisseurs" {
-        usecase UC5 as "Afficher la liste des fournisseurs ou un fournisseur"
         usecase UC6 as "Gérer les fournisseurs"
     }
 
@@ -30,6 +30,10 @@ rectangle "Application" {
     rectangle "Rayon" {
         usecase UC9 as "Afficher la liste des rayons"
         usecase UC10 as "Gérer les rayons"
+    }
+
+    rectangle "Fournisseur" {
+        usecase UC5 as "Afficher la liste des fournisseurs ou un fournisseur"
     }
 
     rectangle "Catégorie" {
@@ -46,18 +50,18 @@ sa --> UC1 #line:red
 sa --> UC2 #line:red
 
 ra <|-- dr
-dr --> UC5 #green;line.dashed
 dr --> UC6 #green;line.dashed
 dr --> UC7 #green;line.dashed
 dr --> UC8 #green;line.dashed
 
 cr <|-- ra
-ra --> UC9 #blue;line.dotted
 ra --> UC10 #blue;line.dotted
 ra --> UC11 #blue;line.dotted
 
 cr --> UC3 #orange;line.bold
 cr --> UC4 #orange;line.bold
+cr --> UC5 #orange;line.bold
+cr --> UC9 #orange;line.bold
 
 UC1 -------> UC12 : <<include>>
 UC2 -------> UC12 : <<include>>
